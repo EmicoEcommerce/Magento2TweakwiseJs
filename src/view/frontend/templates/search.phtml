@@ -14,8 +14,8 @@ $viewModel = $block->getViewModel();
 <?php if ($viewModel->getSearchType() === SearchType::SUGGESTIONS->value): ?>
     <script>
         const input = window['twn-starter-config'].input;
-        window['twn-starter-config'].input = null;
         window.addEventListener("twn.suggestions.ready", function () {
+            window['twn-starter-config'].input = null;
             window.tweakwiseSuggestions({
                 input: input,
                 instancekey: "<?= $viewModel->getInstanceKey();?>",
