@@ -34,12 +34,6 @@ class AddPageAssets implements ObserverInterface
         }
 
         $this->addDefaultPageAssets();
-
-        if ($this->config->getSearchType() !== SearchType::SUGGESTIONS->value) {
-            return;
-        }
-
-        $this->addSuggestionsPageAssets();
     }
 
     /**
@@ -56,18 +50,6 @@ class AddPageAssets implements ObserverInterface
         $this->addJsRemotePageAsset(
             sprintf('https://gateway.tweakwisenavigator.net/js/%s/tweakwise.js', $instanceKey),
             sprintf('https://gateway.tweakwisenavigator.com/js/%s/tweakwise.js', $instanceKey)
-        );
-    }
-
-    /**
-     * @return void
-     */
-    private function addSuggestionsPageAssets(): void
-    {
-        $this->addLinkRemotePageAsset('https://gateway.tweakwisenavigator.net/js/suggestions.js');
-        $this->addJsRemotePageAsset(
-            'https://gateway.tweakwisenavigator.net/js/suggestions.js',
-            'https://gateway.tweakwisenavigator.com/js/suggestions.js'
         );
     }
 

@@ -15,7 +15,7 @@ $viewModel = $block->getViewModel();
     <script>
         const input = window['twn-starter-config'].input;
         window['twn-starter-config'].input = null;
-        window.addEventListener('DOMContentLoaded', function () {
+        window.addEventListener("twn.suggestions.ready", function () {
             window.tweakwiseSuggestions({
                 input: input,
                 instancekey: "<?= $viewModel->getInstanceKey();?>",
