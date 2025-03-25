@@ -20,6 +20,7 @@ $viewModel = $block->getViewModel();
                 input: input,
                 instancekey: "<?= $viewModel->getInstanceKey();?>",
                 cid: "<?= $viewModel->getStoreRootCategory();?>",
+                grouped: <?= $viewModel->isGrouped();?>,
                 searchPhrases: {
                     handle: ({ data }) => {
                         location.href = '<?= $viewModel->getSearchUrl();?>?tn_q=' + data.match;

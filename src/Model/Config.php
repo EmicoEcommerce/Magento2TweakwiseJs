@@ -17,6 +17,8 @@ class Config
 
     private const XML_PATH_SEARCH_TYPE = 'tweakwise/tweakwisejs/search/type';
 
+    private const XML_PATH_GROUPED_EXPORT = 'tweakwise/export/grouped_export_enabled';
+
     /**
      * @param ScopeConfigInterface $scopeConfig
      */
@@ -61,5 +63,13 @@ class Config
         return SearchType::tryFrom(
             $this->scopeConfig->getValue(self::XML_PATH_SEARCH_TYPE, ScopeInterface::SCOPE_STORE)
         ) ?? SearchType::MAGENTO_DEFAULT;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isGroupedExportEnabled(): bool
+    {
+        return $this->scopeConfig->isSetFlag(self::XML_PATH_GROUPED_EXPORT, ScopeInterface::SCOPE_STORE);
     }
 }

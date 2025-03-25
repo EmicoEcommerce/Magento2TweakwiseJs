@@ -76,4 +76,12 @@ class Search implements ArgumentInterface
     {
         return $this->request->getFullActionName() === 'catalogsearch_results_index';
     }
+
+    /**
+     * @return bool
+     */
+    public function isGrouped(): bool
+    {
+        return $this->config->isGroupedExportEnabled();
+    }
 }
