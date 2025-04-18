@@ -115,9 +115,8 @@ $formKey = $viewModel->getFormKey();
             return;
         }
 
-        const $pageWrapper = document.querySelector('.page-wrapper');
         const $tweakwiseStarterOverlay = document.getElementById('twn-starter-overlay');
-        $pageWrapper.insertBefore($messages, $tweakwiseStarterOverlay);
+        $tweakwiseStarterOverlay.parentNode.insertBefore($messages, $tweakwiseStarterOverlay);
     }
 
     /**
