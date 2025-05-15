@@ -13,9 +13,10 @@ class Config
     private const XML_PATH_ENABLED = 'tweakwise/tweakwisejs/general/enabled';
     private const XML_PATH_INSTANCE_KEY = 'tweakwise/tweakwisejs/general/instance_key';
 
-    public const XML_PATH_MERCHANDISING_ENABLED = 'tweakwise/tweakwisejs/merchandising/enabled';
+    private const XML_PATH_MERCHANDISING_ENABLED = 'tweakwise/tweakwisejs/merchandising/enabled';
 
     private const XML_PATH_SEARCH_TYPE = 'tweakwise/tweakwisejs/search/type';
+    private const XML_PATH_EVENTS_ENABLED = 'tweakwise/tweakwisejs/events/enabled';
 
     /**
      * @param ScopeConfigInterface $scopeConfig
@@ -42,15 +43,11 @@ class Config
     }
 
     /**
-     * @param string $scopeType
-     * @param null|int|string $scopeCode
      * @return bool
      */
-    public function isMerchandisingEnabled(
-        string $scopeType = ScopeInterface::SCOPE_STORE,
-        mixed $scopeCode = null
-    ): bool {
-        return $this->scopeConfig->isSetFlag(self::XML_PATH_MERCHANDISING_ENABLED, $scopeType, $scopeCode);
+    public function isMerchandisingEnabled(): bool
+    {
+        return $this->scopeConfig->isSetFlag(self::XML_PATH_MERCHANDISING_ENABLED, ScopeInterface::SCOPE_STORE);
     }
 
     /**
@@ -61,5 +58,13 @@ class Config
         return SearchType::tryFrom(
             $this->scopeConfig->getValue(self::XML_PATH_SEARCH_TYPE, ScopeInterface::SCOPE_STORE)
         ) ?? SearchType::MAGENTO_DEFAULT;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEventsEnabled(): bool
+    {
+        return $this->scopeConfig->isSetFlag(self::XML_PATH_EVENTS_ENABLED, ScopeInterface::SCOPE_STORE);
     }
 }

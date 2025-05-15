@@ -1,0 +1,85 @@
+<?php
+
+declare(strict_types = 1);
+
+use Magento\Framework\View\Element\Template;
+use Tweakwise\TweakwiseJs\ViewModel\Event;
+
+/** @var Template $block */
+
+/** @var Event $eventViewModel */
+$eventViewModel = $block->getViewModel();
+?>
+<script>
+    (function (w, d, l, i, p, u) {
+
+        w['_twa'] = l;
+        w[l] = w[l] || [];
+        w[l].push({'twa.start': new Date().getTime(), event: 'twa.js'});
+        w[l].push({'twa.instance': i, event: 'twa.init'});
+
+        p && w[l].push({'twa.profile': p, event: 'twa.profile'});
+        if (p) {
+            w[l].getProfileKey = function () {
+                return p;
+            }
+        }
+
+        var f = d.getElementsByTagName('script')[0],
+            j = d.createElement('script');
+        j.async = true;
+        j.src = u;
+        f.parentNode.insertBefore(j, f);
+
+    })(window, document, 'tweakwiseLayer', '<?= $eventViewModel->getInstanceKey() ?>', getProfileKey(), "//navigator-analytics.tweakwise.com/bundles/scout.js");
+
+    /**
+     * @param {Object} event
+     */
+    function pushEvent(event) {
+        tweakwiseLayer.push(event);
+    }
+
+    /**
+     * @returns {string}
+     */
+    function getProfileKey() {
+        const profileKey = getProfileKeyFromCookie();
+
+        if (profileKey) {
+            return profileKey;
+        }
+
+        return generateProfileKey();
+    }
+
+    /**
+     * @returns {string}
+     */
+    function getProfileKeyFromCookie() {
+        const cookieName = 'tw-analytics';
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${cookieName}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    /**
+     * @returns {string}
+     */
+    function generateProfileKey() {
+        const CHARS_LOWERS = 'abcdefghijklmnopqrstuvwxyz';
+        const CHARS_UPPERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const CHARS_DIGITS = '0123456789';
+        const chars = CHARS_LOWERS + CHARS_UPPERS + CHARS_DIGITS;
+
+        let profileKey = '';
+        const maxIndex = chars.length - 1;
+
+        for (let i = 0; i < 32; i++) {
+            const randomIndex = Math.floor(Math.random() * (maxIndex + 1));
+            profileKey += chars[randomIndex];
+        }
+
+        return profileKey;
+    }
+</script>
