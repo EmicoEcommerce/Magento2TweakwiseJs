@@ -51,6 +51,14 @@ class Event implements ArgumentInterface
     /**
      * @return string
      */
+    public function getEventsCookieName(): string
+    {
+        return $this->config->getEventsCookieName();
+    }
+
+    /**
+     * @return string
+     */
     public function getOrderProductIds(): string
     {
         $order = $this->checkoutSession->getLastRealOrder();

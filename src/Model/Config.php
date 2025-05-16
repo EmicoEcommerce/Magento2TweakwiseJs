@@ -17,6 +17,7 @@ class Config
 
     private const XML_PATH_SEARCH_TYPE = 'tweakwise/tweakwisejs/search/type';
     private const XML_PATH_EVENTS_ENABLED = 'tweakwise/tweakwisejs/events/enabled';
+    private const XML_PATH_EVENTS_COOKIE_NAME = 'tweakwise/tweakwisejs/events/cookie_name';
 
     /**
      * @param ScopeConfigInterface $scopeConfig
@@ -66,5 +67,13 @@ class Config
     public function isEventsEnabled(): bool
     {
         return $this->scopeConfig->isSetFlag(self::XML_PATH_EVENTS_ENABLED, ScopeInterface::SCOPE_STORE);
+    }
+
+    /**
+     * @return string
+     */
+    public function getEventsCookieName(): string
+    {
+        return $this->scopeConfig->getValue(self::XML_PATH_EVENTS_COOKIE_NAME, ScopeInterface::SCOPE_STORE);
     }
 }
