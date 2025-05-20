@@ -2,13 +2,7 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
-        <!-- Make sure the columns container is never empty, else Magento doesn't render it -->
-        <referenceContainer name="columns">
-            <block class="Magento\Framework\View\Element\Text">
-                <arguments>
-                    <argument name="text" xsi:type="string"><![CDATA[&nbsp;]]></argument>
-                </arguments>
-            </block>
+        <referenceContainer name="content">
             <block class="Magento\Framework\View\Element\Template"
                    name="tweakwise-js-event-default"
                    template="Tweakwise_TweakwiseJs::js/event/default.phtml"
@@ -23,10 +17,5 @@
                    ifconfig="tweakwise/tweakwisejs/events/enabled">
             </block>
         </referenceContainer>
-        <move element="customer.customer.data" destination="columns"/>
-        <move element="customer.section.config" destination="columns"/>
-        <referenceContainer name="main" remove="true"/>
-        <referenceContainer name="div.sidebar.main" remove="true"/>
-        <referenceContainer name="div.sidebar.additional" remove="true"/>
     </body>
 </page>
