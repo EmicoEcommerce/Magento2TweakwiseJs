@@ -13,6 +13,10 @@
                 <search>
                     <type>magento_default</type>
                 </search>
+                <events>
+                    <enabled>0</enabled>
+                    <cookie_name>tw-analytics</cookie_name>
+                </events>
             </tweakwisejs>
         </tweakwise>
     </default>

@@ -3,11 +3,13 @@
     <policies>
         <policy id="script-src">
             <values>
+                <value id="tweakwise" type="host">*.tweakwise.com</value>
                 <value id="tweakwisenavigator" type="host">*.tweakwisenavigator.net</value>
             </values>
         </policy>
         <policy id="connect-src">
             <values>
+                <value id="tweakwise" type="host">*.tweakwise.com</value>
                 <value id="tweakwisenavigator" type="host">*.tweakwisenavigator.net</value>
             </values>
         </policy>

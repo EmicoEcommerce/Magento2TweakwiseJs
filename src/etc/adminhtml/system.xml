@@ -8,7 +8,7 @@
                 <group id="general" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>General</label>
                     <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
-                           showInStore="1">
+                           showInStore="1" canRestore="1">
                         <label>Enabled</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     </field>
@@ -25,7 +25,7 @@
                 <group id="merchandising" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Merchandising</label>
                     <field id="enabled" translate="label comment" type="select" sortOrder="10"
-                           showInDefault="1" showInWebsite="1" showInStore="1">
+                           showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                         <label>Enabled</label>
                         <source_model>Tweakwise\TweakwiseJs\Model\Config\Source\Yesno</source_model>
                         <comment><![CDATA[Enable or disable the Tweakwise merchandising functionality<br /><strong style="color:red">Important:</strong> Save your instance key so that all options are loaded.]]></comment>
@@ -37,10 +37,31 @@
                 <group id="search" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Search</label>
                     <field id="type" translate="label comment" type="select" sortOrder="10"
-                           showInDefault="1" showInWebsite="1" showInStore="1">
+                           showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
                         <label>Type</label>
                         <source_model>Tweakwise\TweakwiseJs\Model\Config\Source\SearchType</source_model>
                         <comment><![CDATA[Choose which type of search to use<br /><strong style="color:red">Important:</strong> Save your instance key so that all options are loaded.]]></comment>
+                    </field>
+                    <depends>
+                        <field id="tweakwise/tweakwisejs/general/enabled">1</field>
+                    </depends>
+                </group>
+                <group id="events" translate="label" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Events</label>
+                    <comment>To analyze the performance of your configuration, power our insights reports and support personalization, we capture key e-commerce events on your platform. These are events such as product views, search actions and purchases.</comment>
+                    <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
+                           showInStore="1" canRestore="1">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="cookie_name" translate="label comment" type="text" sortOrder="20" showInDefault="1"
+                           showInWebsite="1" showInStore="1" canRestore="1">
+                        <label>Cookie Name</label>
+                        <comment>Name of cookie which holds Tweakwise profile information</comment>
+                        <validate>required-entry</validate>
+                        <depends>
+                            <field id="enabled">1</field>
+                        </depends>
                     </field>
                     <depends>
                         <field id="tweakwise/tweakwisejs/general/enabled">1</field>

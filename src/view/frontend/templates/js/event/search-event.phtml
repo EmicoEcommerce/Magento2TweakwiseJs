@@ -1,0 +1,38 @@
+<?php
+
+declare(strict_types = 1);
+
+use Magento\Catalog\Block\Product\View;
+
+/** @var View $block */
+?>
+<script>
+    pushEvent({
+        event: 'search',
+        data: {
+            profileKey: getProfileKey(),
+            searchTerm: getSearchTerm()
+        }
+    });
+
+    /**
+     * @returns {string}
+     */
+    function getSearchTerm() {
+        const params = new URLSearchParams(window.location.search);
+        const searchTerm = params.get('q');
+
+        if (searchTerm) {
+            return searchTerm;
+        }
+
+        const hash = window.location.hash.substring(1);
+        const parts = hash.split('|');
+        if (parts.length > 1) {
+            const params = new URLSearchParams(parts[1]);
+            return params.get('tn_q');
+        }
+
+        return '';
+    }
+</script>

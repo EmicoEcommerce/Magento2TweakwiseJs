@@ -1,0 +1,21 @@
+<?php
+
+declare(strict_types = 1);
+
+use Magento\Catalog\Block\Product\View;
+use Tweakwise\TweakwiseJs\ViewModel\Event;
+
+/** @var View $block */
+
+/** @var Event $eventViewModel */
+$eventViewModel = $block->getViewModel();
+?>
+<script>
+    pushEvent({
+        event: 'purchase',
+        data: {
+            profileKey: getProfileKey(),
+            productKeys: <?= $eventViewModel->getOrderProductIds() ?>
+        }
+    });
+</script>
