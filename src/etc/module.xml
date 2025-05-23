@@ -3,6 +3,8 @@
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
     <module name="Tweakwise_TweakwiseJs">
         <sequence>
+            <module name="Magento_Theme"/>
+            <module name="Hyva_Theme"/>
             <module name="Tweakwise_Magento2TweakwiseExport"/>
         </sequence>
     </module>

@@ -9,9 +9,15 @@ use Tweakwise\TweakwiseJs\ViewModel\Event;
 
 /** @var Event $eventViewModel */
 $eventViewModel = $block->getViewModel();
+
+if (!$eventViewModel->isEventsEnabled()) {
+    return;
+}
+
 $eventsCookieName = $eventViewModel->getEventsCookieName();
 ?>
 <script>
+    window['twn-starter-config'].profileKey = getProfileKey();
     (function (w, d, l, i, p, u) {
 
         w['_twa'] = l;
