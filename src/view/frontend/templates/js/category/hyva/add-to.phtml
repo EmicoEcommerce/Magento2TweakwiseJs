@@ -8,6 +8,11 @@ use Tweakwise\TweakwiseJs\ViewModel\Merchandising;
 
 /** @var Merchandising $viewModel */
 $viewModel = $block->getViewModel();
+
+if (!$viewModel->shouldAddAddToCartWishlistFunctionalities()) {
+    return;
+}
+
 $storeId = $viewModel->getStoreId();
 $formKey = $viewModel->getFormKey();
 ?>

@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="after.body.start">
+            <!-- Default JavaScript block -->
+            <block class="Magento\Framework\View\Element\Template"
+                   name="tweakwise-js-default"
+                   template="Tweakwise_TweakwiseJs::js/default.phtml"
+                   ifconfig="tweakwise/tweakwisejs/general/enabled"/>
+
+            <!-- Default events JavaScript block -->
+            <block class="Magento\Framework\View\Element\Template"
+                   name="tweakwise-js-event-default"
+                   template="Tweakwise_TweakwiseJs::js/event/default.phtml"
+                   ifconfig="tweakwise/tweakwisejs/general/enabled">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Tweakwise\TweakwiseJs\ViewModel\Event</argument>
+                </arguments>
+            </block>
+
+            <!-- Search JavaScript block -->
+            <block class="Magento\Framework\View\Element\Template"
+                   name="tweakwise-js-search"
+                   template="Tweakwise_TweakwiseJs::js/search.phtml"
+                   ifconfig="tweakwise/tweakwisejs/general/enabled">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Tweakwise\TweakwiseJs\ViewModel\Search</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+
+        <referenceContainer name="page.wrapper">
+            <!-- Add to cart/wishlist JavaScript block -->
+            <block class="Magento\Framework\View\Element\Template"
+                   name="tweakwise-js-add-to-js"
+                   template="Tweakwise_TweakwiseJs::js/category/add-to.phtml"
+                   ifconfig="tweakwise/tweakwisejs/general/enabled">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Tweakwise\TweakwiseJs\ViewModel\Merchandising
+                    </argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

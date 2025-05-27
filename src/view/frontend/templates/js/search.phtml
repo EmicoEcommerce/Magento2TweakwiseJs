@@ -15,6 +15,7 @@ $viewModel = $block->getViewModel();
     <script>
         const input = window['twn-starter-config'].input;
         window['twn-starter-config'].input = null;
+        window['twn-starter-config'].cid = '<?= $viewModel->getStoreRootCategory();?>';
         window.addEventListener('twn.suggestions.ready', () => {
             window.tweakwiseSuggestions({
                 input: input,
@@ -32,14 +33,27 @@ $viewModel = $block->getViewModel();
             const inputId = input[0].replace('#', '');
             const $input = document.getElementById(inputId);
             const $form = $input.closest('form');
+            $form.removeAttribute('@submit.prevent');
             $form.onsubmit = e => {
                 e.preventDefault();
+
+                <?php if($viewModel->isEventsEnabled()): ?>
+                    pushEvent({
+                        event: 'search',
+                        data: {
+                            profileKey: getProfileKey(),
+                            searchTerm: $input.value
+                        }
+                    });
+                <?php endif; ?>
+
                 location.href = '<?= $viewModel->getSearchUrl();?>?tn_q=' + $input.value;
             };
         });
     </script>
 <?php elseif ($viewModel->getSearchType()->value === SearchType::INSTANT_SEARCH->value): ?>
     <script>
+        window['twn-starter-config'].cid = '<?= $viewModel->getStoreRootCategory();?>';
         window.addEventListener('DOMContentLoaded', () => {
             const $form = document.getElementById('search_mini_form');
             $form.removeAttribute('@submit.prevent');

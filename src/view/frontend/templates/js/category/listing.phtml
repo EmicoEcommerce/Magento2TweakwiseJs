@@ -11,6 +11,6 @@ $viewModel = $block->getViewModel();
 ?>
 
 <script>
-    window['twn-starter-config'].navigation.cid = <?= $viewModel->getTweakwiseCategoryId($block);?>;
+    window['twn-starter-config'].navigation.cid = <?= $viewModel->getTweakwiseId((int)$block->getCurrentCategory()->getId());?>;
 </script>
 

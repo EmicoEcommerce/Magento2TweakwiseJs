@@ -15,7 +15,7 @@ $eventViewModel = $block->getViewModel();
         event: 'productView',
         data: {
             profileKey: getProfileKey(),
-            productKey: '<?= $eventViewModel->getTweakwiseProductId((int)$block->getProduct()->getId()) ?>'
+            productKey: '<?= $eventViewModel->getTweakwiseId((int)$block->getProduct()->getId()) ?>'
         }
     });
 </script>
