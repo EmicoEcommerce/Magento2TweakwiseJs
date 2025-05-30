@@ -15,7 +15,8 @@ $eventViewModel = $block->getViewModel();
         event: 'purchase',
         data: {
             profileKey: getProfileKey(),
-            productKeys: <?= $eventViewModel->getOrderProductIds() ?>
+            productKeys: <?= $eventViewModel->getOrderProductIds() ?>,
+            revenue: <?= $eventViewModel->getPurchaseRevenue() ?>
         }
     });
 </script>
