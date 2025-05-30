@@ -4,7 +4,7 @@
     "description": "Magento 2 module for Tweakwise JS",
     "type": "magento2-module",
     "require": {
-        "php": "^8.2",
+        "php": "^8.1",
         "tweakwise/magento2-tweakwise-export": "^7.0"
     },
     "require-dev": {
