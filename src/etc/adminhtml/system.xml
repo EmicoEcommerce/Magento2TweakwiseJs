@@ -7,6 +7,10 @@
                 <label>Tweakwise JS</label>
                 <group id="general" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>General</label>
+                    <field id="module_version" translate="label" type="label" sortOrder="5" showInDefault="1" showInWebsite="0" showInStore="0">
+                        <label>Module Version</label>
+                        <frontend_model>Tweakwise\TweakwiseJs\Block\Adminhtml\System\Config\Version</frontend_model>
+                    </field>
                     <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1"
                            showInStore="1" canRestore="1">
                         <label>Enabled</label>
