@@ -52,4 +52,13 @@ class Event extends Base
 
         return $this->jsonSerializer->serialize($productIds);
     }
+
+    /**
+     * @return float
+     */
+    public function getPurchaseRevenue(): float
+    {
+        $order = $this->checkoutSession->getLastRealOrder();
+        return (float)$order->getSubtotal() + (float)$order->getDiscountAmount();
+    }
 }
