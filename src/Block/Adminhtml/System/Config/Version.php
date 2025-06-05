@@ -26,7 +26,7 @@ class Version extends Field
 
     /**
      * @inheritDoc
-     * // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+     * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
      */
     protected function _getElementHtml(AbstractElement $element): string
     {
