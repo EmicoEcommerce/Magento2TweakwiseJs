@@ -41,11 +41,13 @@ class Version extends Field
         $data = json_decode($content, true);
 
         foreach (['packages', 'packages-dev'] as $section) {
-            if (!empty($data[$section])) {
-                foreach ($data[$section] as $package) {
-                    if ($package['name'] === $packageName) {
-                        return $package['version'];
-                    }
+            if (empty($data[$section])) {
+                continue;
+            }
+
+            foreach ($data[$section] as $package) {
+                if ($package['name'] === $packageName) {
+                    return $package['version'];
                 }
             }
         }
