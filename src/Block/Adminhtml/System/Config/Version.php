@@ -9,7 +9,20 @@ use Magento\Framework\Data\Form\Element\AbstractElement;
 
 class Version extends Field
 {
-    protected $_template = 'Tweakwise_TweakwiseJs::system/config/version.phtml';
+    /**
+     * Version constructor.
+     *
+     * @param \Magento\Backend\Block\Template\Context $context
+     * @param array $data
+     */
+
+    public function __construct(
+        \Magento\Backend\Block\Template\Context $context,
+        array $data = []
+    ) {
+        parent::__construct($context, $data);
+        $this->setTemplate('Tweakwise_TweakwiseJs::system/config/version.phtml');
+    }
 
     /**
      * Prepare the HTML for the version display
