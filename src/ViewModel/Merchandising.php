@@ -4,39 +4,32 @@ declare(strict_types=1);
 
 namespace Tweakwise\TweakwiseJs\ViewModel;
 
-use Magento\Catalog\Block\Category\View;
+use Magento\Framework\App\Request\Http;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Tweakwise\TweakwiseJs\Helper\Data;
+use Tweakwise\TweakwiseJs\Model\Config;
+use Tweakwise\TweakwiseJs\Model\Enum\SearchType;
 
-class Merchandising implements ArgumentInterface
+class Merchandising extends Base
 {
     /**
+     * @param Config $config
      * @param Data $dataHelper
+     * @param Http $request
      * @param StoreManagerInterface $storeManager
      * @param FormKey $formKey
      */
     public function __construct(
-        private readonly Data $dataHelper,
+        Config $config,
+        Data $dataHelper,
+        private readonly Http $request,
         private readonly StoreManagerInterface $storeManager,
-        private readonly FormKey $formKey
+        private readonly FormKey $formKey,
     ) {
-    }
-
-    /**
-     * @param View $block
-     * @return string
-     */
-    public function getTweakwiseCategoryId(View $block): string
-    {
-        try {
-            return $this->dataHelper->getTweakwiseId((int)$block->getCurrentCategory()->getId());
-        } catch (NoSuchEntityException $e) {
-            return '0';
-        }
+        parent::__construct($config, $dataHelper);
     }
 
     /**
@@ -61,5 +54,31 @@ class Merchandising implements ArgumentInterface
         } catch (LocalizedException $e) {
             return '';
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function shouldAddAddToCartWishlistFunctionalities(): bool
+    {
+        return $this->isCategoryPage() ||
+            $this->isSearchResultsPage() ||
+            $this->config->getSearchType()->value === SearchType::INSTANT_SEARCH->value;
+    }
+
+    /**
+     * @return bool
+     */
+    private function isCategoryPage(): bool
+    {
+        return $this->request->getFullActionName() === 'catalog_category_view';
+    }
+
+    /**
+     * @return bool
+     */
+    private function isSearchResultsPage(): bool
+    {
+        return $this->request->getFullActionName() === 'catalogsearch_results_index';
     }
 }
