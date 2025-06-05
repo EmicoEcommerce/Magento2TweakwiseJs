@@ -11,12 +11,24 @@ class Version extends Field
 {
     protected $_template = 'Tweakwise_TweakwiseJs::system/config/version.phtml';
 
-    protected function _getElementHtml(AbstractElement $element)
+    /**
+     * Prepare the HTML for the version display
+     *
+     * @param AbstractElement $element
+     * @return string
+     */
+    protected function _getElementHtml(AbstractElement $element): string
     {
         return $this->_toHtml();
     }
 
-    public function getComposerVersion()
+
+    /**
+     * Get the version of the Tweakwise JS package from composer.lock
+     *
+     * @return string
+     */
+    public function getComposerVersion(): string
     {
         $packageName = 'tweakwise/magento2-tweakwise-js';
 
