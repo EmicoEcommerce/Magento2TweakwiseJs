@@ -25,10 +25,7 @@ class Version extends Field
     }
 
     /**
-     * Prepare the HTML for the version display
-     *
-     * @param AbstractElement $element
-     * @return string
+     * @inheritDoc
      */
     protected function _getElementHtml(AbstractElement $element): string
     {
