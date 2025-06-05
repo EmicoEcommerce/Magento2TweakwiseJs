@@ -3,8 +3,11 @@
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="page.wrapper">
-            <block class="Magento\Framework\View\Element\Template" name="tweakwise-js-add-to-js"
-                   template="Tweakwise_TweakwiseJs::js/category/hyva/add-to.phtml">
+            <!-- Add to cart/wishlist JavaScript block -->
+            <block class="Magento\Framework\View\Element\Template"
+                   name="tweakwise-js-add-to-js"
+                   template="Tweakwise_TweakwiseJs::js/category/hyva/add-to.phtml"
+                   ifconfig="tweakwise/tweakwisejs/general/enabled">
                 <arguments>
                     <argument name="view_model" xsi:type="object">Tweakwise\TweakwiseJs\ViewModel\Merchandising
                     </argument>

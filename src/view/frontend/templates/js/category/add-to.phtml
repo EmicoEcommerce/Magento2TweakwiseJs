@@ -8,6 +8,10 @@ use Tweakwise\TweakwiseJs\ViewModel\Merchandising;
 
 /** @var Merchandising $viewModel */
 $viewModel = $block->getViewModel();
+
+if (!$viewModel->shouldAddAddToCartWishlistFunctionalities()) {
+    return;
+}
 ?>
 <script type='text/x-magento-init'>
     {

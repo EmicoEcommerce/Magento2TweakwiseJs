@@ -4,14 +4,6 @@
     <body>
         <referenceContainer name="content">
             <block class="Magento\Framework\View\Element\Template"
-                   name="tweakwise-js-event-default"
-                   template="Tweakwise_TweakwiseJs::js/event/default.phtml"
-                   ifconfig="tweakwise/tweakwisejs/events/enabled">
-                <arguments>
-                    <argument name="view_model" xsi:type="object">Tweakwise\TweakwiseJs\ViewModel\Event</argument>
-                </arguments>
-            </block>
-            <block class="Magento\Framework\View\Element\Template"
                    name="tweakwise-js-event-search"
                    template="Tweakwise_TweakwiseJs::js/event/search-event.phtml"
                    ifconfig="tweakwise/tweakwisejs/events/enabled">

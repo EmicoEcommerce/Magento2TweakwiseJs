@@ -7,28 +7,28 @@ namespace Tweakwise\TweakwiseJs\ViewModel;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
-use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Tweakwise\TweakwiseJs\Helper\Data;
 use Tweakwise\TweakwiseJs\Model\Config;
 use Tweakwise\TweakwiseJs\Model\Enum\SearchType;
 
-class Search implements ArgumentInterface
+class Search extends Base
 {
     /**
      * @param Config $config
-     * @param StoreManagerInterface $storeManager
      * @param Data $dataHelper
+     * @param StoreManagerInterface $storeManager
      * @param UrlInterface $urlBuilder
      * @param Http $request
      */
     public function __construct(
-        private readonly Config $config,
+        Config $config,
+        Data $dataHelper,
         private readonly StoreManagerInterface $storeManager,
-        private readonly Data $dataHelper,
         private readonly UrlInterface $urlBuilder,
         private readonly Http $request
     ) {
+        parent::__construct($config, $dataHelper);
     }
 
     /**
@@ -37,14 +37,6 @@ class Search implements ArgumentInterface
     public function getSearchType(): SearchType
     {
         return $this->config->getSearchType();
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getInstanceKey(): ?string
-    {
-        return $this->config->getInstanceKey();
     }
 
     /**

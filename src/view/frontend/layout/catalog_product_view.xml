@@ -3,14 +3,6 @@
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="content">
-            <block class="Magento\Framework\View\Element\Template"
-                   name="tweakwise-js-event-default"
-                   template="Tweakwise_TweakwiseJs::js/event/default.phtml"
-                   ifconfig="tweakwise/tweakwisejs/events/enabled">
-                <arguments>
-                    <argument name="view_model" xsi:type="object">Tweakwise\TweakwiseJs\ViewModel\Event</argument>
-                </arguments>
-            </block>
             <block class="Magento\Catalog\Block\Product\View"
                    name="tweakwise-js-event-view-product"
                    template="Tweakwise_TweakwiseJs::js/event/view-product-event.phtml"
