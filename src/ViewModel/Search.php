@@ -58,7 +58,7 @@ class Search extends Base
      */
     public function getSearchUrl(): string
     {
-        return trim($this->urlBuilder->getUrl('catalogsearch/results#twn|'), '/');
+        return trim($this->urlBuilder->getUrl('catalogsearch/results'), '/');
     }
 
     /**
