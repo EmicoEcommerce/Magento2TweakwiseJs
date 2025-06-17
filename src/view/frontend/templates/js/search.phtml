@@ -23,13 +23,13 @@ $viewModel = $block->getViewModel();
                 cid: "<?= $viewModel->getStoreRootCategory();?>",
                 searchPhrases: {
                     handle: ({ data }) => {
-                        const history = window["twn-starter-config"].history;
+                        const history = window['twn-starter-config'].history;
                         if(history === 'query') {
                             location.href = '<?= $viewModel->getSearchUrl();?>?tn_q=' + data.match;
+                            return;
                         }
-                        else {
-                            location.href = '<?= $viewModel->getSearchUrl();?>#twn|?tn_q=' + data.match;
-                        }
+
+                        location.href = '<?= $viewModel->getSearchUrl();?>#twn|?tn_q=' + data.match;
                     }
                 }
             });
@@ -53,13 +53,13 @@ $viewModel = $block->getViewModel();
                     });
                 <?php endif; ?>
 
-                const history = window["twn-starter-config"].history;
+                const history = window['twn-starter-config'].history;
                 if (history === 'query') {
                     location.href = '<?= $viewModel->getSearchUrl();?>?tn_q=' + $input.value;
+                    return;
                 }
-                else {
-                    location.href = '<?= $viewModel->getSearchUrl();?>#twn|?tn_q=' + $input.value;
-                }
+
+                location.href = '<?= $viewModel->getSearchUrl();?>#twn|?tn_q=' + $input.value;
             };
         });
     </script>
