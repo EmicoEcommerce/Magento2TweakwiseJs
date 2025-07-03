@@ -14,12 +14,11 @@ if (!$viewModel->shouldAddAddToCartWishlistFunctionalities()) {
 }
 
 $storeId = $viewModel->getStoreId();
-$formKey = $viewModel->getFormKey();
 ?>
 <script>
     const options = {
         storeId: '<?= $storeId ?>',
-        formKey: '<?= $formKey ?>',
+        formKey: hyva.getFormKey(),
         tweakwiseProductId: '',
         productId: '',
         loading: false
@@ -142,7 +141,7 @@ $formKey = $viewModel->getFormKey();
 
         const data = {
             product: options.productId,
-            form_key: options.formKey,
+            form_key: hyva.getFormKey(),
             uenc: btoa(window.location.href)
         };
 
