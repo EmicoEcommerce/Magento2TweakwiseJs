@@ -50,6 +50,32 @@ class Client
     }
 
     /**
+     * @param array $params
+     * @return array
+     */
+    public function getFacets(array $params = []): array
+    {
+        $url = sprintf(
+            '%s/facets/%s',
+            Data::GATEWAY_TWEAKWISE_NAVIGATOR_NET_URL,
+            $this->config->getInstanceKey() ?? ''
+        );
+
+        try {
+            return $this->doRequest(url: $url, params: $params);
+        } catch (ApiException $e) {
+            $this->logger->critical(
+                'Tweakwise API error: Unable to retrieve Tweakwise facets',
+                [
+                    'url' => $url,
+                    'exception' => $e->getMessage()
+                ]
+            );
+            return [];
+        }
+    }
+
+    /**
      * @return array
      */
     private function getFeatures(): array
@@ -102,10 +128,11 @@ class Client
     /**
      * @param string $url
      * @param string $method
+     * @param array $params
      * @return array
      * @throws ApiException
      */
-    private function doRequest(string $url, string $method = 'GET'): array
+    private function doRequest(string $url, string $method = 'GET', array $params = []): array
     {
         $httpClient = new HttpClient(
             [
@@ -116,7 +143,9 @@ class Client
         );
 
         try {
-            $response = $httpClient->request($method, $url);
+            $response = $httpClient->request($method, $url, [
+                'query' => $params
+            ]);
         } catch (GuzzleException $e) {
             throw new ApiException('An error occurred while retrieving data via the API', previous: $e);
         }
