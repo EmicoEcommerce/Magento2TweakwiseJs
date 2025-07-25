@@ -3,7 +3,15 @@
 	<fieldset name="general">
 		<dynamicRows name="filter_attributes" component="Tweakwise_TweakwiseJs/js/dynamic-rows/dynamic-rows">
 			<container name="record">
-                <field name="attribute" formElement="select" component="Tweakwise_TweakwiseJs/js/form/element/filter-attribute"/>
+                <field name="attribute" formElement="select" component="Tweakwise_TweakwiseJs/js/form/element/filter-attribute" sortOrder="10"/>
+                <field name="attribute_other" formElement="input" sortOrder="20">
+                    <argument name="data" xsi:type="array">
+                        <item name="config" xsi:type="array">
+                            <item name="dataScope" xsi:type="string">attribute_other</item>
+                        </item>
+                    </argument>
+                </field>
+                <field name="value" sortOrder="30"/>
 			</container>
         </dynamicRows>
 

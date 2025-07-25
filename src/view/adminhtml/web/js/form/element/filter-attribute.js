@@ -5,6 +5,8 @@ define([
     'mage/url'
 ], function (Select, registry, $, urlBuilder) {
     return Select.extend({
+        otherFieldName: 'attribute_other',
+        otherValue: 'tw_other',
         initialize: function () {
             this._super();
             this.subscribeCategoryId();
@@ -14,12 +16,8 @@ define([
         initObservable: function () {
             this._super().observe(['value']);
             this.value.subscribe(function (newValue) {
-                if (newValue !== undefined) {
-                    this.selectedValue = newValue;
-                    return;
-                }
-
-                this.value(this.selectedValue);
+                this.setSelectedValue(newValue);
+                this.setOtherFieldVisibility();
             }.bind(this));
 
             return this;
@@ -31,6 +29,21 @@ define([
                 this.fetchOptions(categoryField.value());
 
                 categoryField.value.subscribe(this.fetchOptions.bind(this));
+            }.bind(this));
+        },
+
+        setSelectedValue: function (value) {
+            if (value !== undefined) {
+                this.selectedValue = value;
+                return;
+            }
+
+            this.value(this.selectedValue);
+        },
+
+        setOtherFieldVisibility: function () {
+            registry.get(`${this.parentName}.${this.otherFieldName}`, function (otherField) {
+                otherField.disabled(this.selectedValue !== this.otherValue);
             }.bind(this));
         },
 
