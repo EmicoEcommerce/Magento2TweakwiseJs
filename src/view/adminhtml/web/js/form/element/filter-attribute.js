@@ -7,14 +7,7 @@ define([
     return Select.extend({
         initialize: function () {
             this._super();
-
-            const categoryIdPath = 'emico_attributelanding_page_form.emico_attributelanding_page_form.general.category_id';
-            registry.get(categoryIdPath, function (categoryField) {
-                this.fetchOptions(categoryField.value());
-
-                categoryField.value.subscribe(this.fetchOptions.bind(this));
-            }.bind(this));
-
+            this.subscribeCategoryId();
             return this;
         },
 
@@ -30,6 +23,15 @@ define([
             }.bind(this));
 
             return this;
+        },
+
+        subscribeCategoryId: function () {
+            const categoryIdPath = 'emico_attributelanding_page_form.emico_attributelanding_page_form.general.category_id';
+            registry.get(categoryIdPath, function (categoryField) {
+                this.fetchOptions(categoryField.value());
+
+                categoryField.value.subscribe(this.fetchOptions.bind(this));
+            }.bind(this));
         },
 
         fetchOptions: function (categoryId) {
