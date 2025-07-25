@@ -1,17 +1,9 @@
 <?xml version="1.0" ?>
 <form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
 	<fieldset name="general">
-		<dynamicRows name="filter_attributes">
+		<dynamicRows name="filter_attributes" component="Tweakwise_TweakwiseJs/js/dynamic-rows/dynamic-rows">
 			<container name="record">
-                <field name="attribute" formElement="select" component="Tweakwise_TweakwiseJs/js/form/element/filter-attribute">
-                    <argument name="data" xsi:type="array">
-                        <item name="config" xsi:type="array">
-                            <item name="imports" xsi:type="array">
-                                <item name="categoryId" xsi:type="string">${ $.provider }:data.category_id</item>
-                            </item>
-                        </item>
-                    </argument>
-                </field>
+                <field name="attribute" formElement="select" component="Tweakwise_TweakwiseJs/js/form/element/filter-attribute"/>
 			</container>
         </dynamicRows>
 
