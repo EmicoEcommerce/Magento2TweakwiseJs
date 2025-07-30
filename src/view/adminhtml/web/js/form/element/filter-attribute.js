@@ -23,6 +23,10 @@ define([
             return this;
         },
 
+        setInitialValue: function () {
+          return this;
+        },
+
         subscribeCategoryId: function () {
             const categoryIdPath = 'emico_attributelanding_page_form.emico_attributelanding_page_form.general.category_id';
             registry.get(categoryIdPath, function (categoryField) {
