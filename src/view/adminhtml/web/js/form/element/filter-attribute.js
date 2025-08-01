@@ -5,6 +5,7 @@ define([
     'uiRegistry'
 ], function (Select, $, urlBuilder, registry) {
     return Select.extend({
+        attributeValueFieldName: 'value',
         otherFieldName: 'attribute_other',
         otherValue: 'tw_other',
         initialize: function () {
@@ -18,8 +19,9 @@ define([
 
             this.fetchOptions(categoryId).then(function () {
                 this.setRestoredValue();
-                this.subscribeAttributeValue();
+                this.subscribeAttribute();
                 this.subscribeCategoryId();
+                this.initAttributeValueField(this.value());
             }.bind(this));
 
             return this;
@@ -34,9 +36,10 @@ define([
             return this;
         },
 
-        subscribeAttributeValue: function () {
-            this.value.subscribe(function (newAttributeValue) {
-                this.setOtherFieldVisibility(newAttributeValue);
+        subscribeAttribute: function () {
+            this.value.subscribe(function (newAttribute) {
+                this.setOtherFieldVisibility(newAttribute);
+                this.initAttributeValueField(newAttribute);
             }.bind(this));
         },
 
@@ -69,6 +72,11 @@ define([
 
             if (optionExists) {
                 this.value(this.savedValue);
+            } else {
+                const firstOption = this.options()[0];
+                if (firstOption) {
+                    this.value(firstOption.value);
+                }
             }
         },
 
@@ -79,6 +87,11 @@ define([
 
             if (optionExists) {
                 this.value(valueToRestore);
+            } else {
+                const firstOption = this.options()[0];
+                if (firstOption) {
+                    this.value(firstOption.value);
+                }
             }
         },
 
@@ -97,6 +110,12 @@ define([
             }).done(function (response) {
                 this.options(response);
             }.bind(this));
+        },
+
+        initAttributeValueField: function (attribute) {
+            registry.get(`${this.parentName}.${this.attributeValueFieldName}`, (attributeValueField) => {
+                attributeValueField.initFromAttribute(attribute);
+            });
         }
     });
 });
