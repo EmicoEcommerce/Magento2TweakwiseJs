@@ -14,8 +14,7 @@ define([
             this.value('');
 
             const categoryId = this.source.get('data.category_id');
-
-            this.setOptions();
+            this.setOtherFieldVisibility(this.savedValue);
 
             this.fetchOptions(categoryId).then(function () {
                 this.setRestoredValue();
