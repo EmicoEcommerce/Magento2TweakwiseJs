@@ -19,7 +19,6 @@ define([
 
             this.fetchOptions(categoryId).then(function () {
                 this.setRestoredValue();
-                this.setOtherFieldVisibility(this.savedValue);
                 this.subscribeAttributeValue();
                 this.subscribeCategoryId();
             }.bind(this));
