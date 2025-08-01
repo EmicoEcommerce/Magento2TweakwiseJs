@@ -11,8 +11,16 @@
                         </item>
                     </argument>
                 </field>
-                <field name="value" sortOrder="30"/>
-			</container>
+                <field name="value" formElement="select" component="Tweakwise_TweakwiseJs/js/form/element/filter-attribute-value" sortOrder="30"/>
+                <field name="attribute_value_other" formElement="input" sortOrder="40">
+                    <argument name="data" xsi:type="array">
+                        <item name="config" xsi:type="array">
+                            <item name="dataScope" xsi:type="string">attribute_value_other</item>
+                        </item>
+                    </argument>
+                </field>
+                <actionDelete name="action_delete" sortOrder="50"/>
+            </container>
         </dynamicRows>
 
         <field formElement="select" name="tweakwise_filter_template" sortOrder="61">

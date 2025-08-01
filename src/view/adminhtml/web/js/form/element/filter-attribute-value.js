@@ -6,12 +6,20 @@ define([
 ], function (Select, $, urlBuilder, registry) {
     return Select.extend({
         attributeFieldName: 'attribute',
-        otherFieldName: 'attribute_other',
+        otherFieldName: 'attribute_value_other',
         otherValue: 'tw_other',
         initialize: function () {
             this._super();
             this.savedValue = this.value();
+            this.subscribeAttributeValue();
+
             return this;
+        },
+
+        subscribeAttributeValue: function () {
+            this.value.subscribe(function (newAttributeValue) {
+                this.setOtherFieldVisibility(newAttributeValue);
+            }.bind(this));
         },
 
         setInitialValue: function () {
@@ -21,16 +29,16 @@ define([
         initFromAttribute: function (attribute) {
             const currentValue = this.value() ? this.value() : this.savedValue;
             this.fetchOptions(attribute).then(() => {
-                console.log('SETTING VALUE ' + currentValue);
                 this.restoreValue(currentValue);
+                this.setOtherFieldVisibility(this.value())
             });
         },
 
-        // setOtherFieldVisibility: function (selectedAttribute) {
-        //     registry.get(`${this.parentName}.${this.otherFieldName}`, function (otherField) {
-        //         otherField.disabled(selectedAttribute !== this.otherValue);
-        //     }.bind(this));
-        // },
+        setOtherFieldVisibility: function (selectedAttributeValue) {
+            registry.get(`${this.parentName}.${this.otherFieldName}`, function (otherField) {
+                otherField.disabled(selectedAttributeValue !== this.otherValue);
+            }.bind(this));
+        },
 
         restoreValue: function (valueToRestore) {
             const optionExists = this.options().some(function (option) {
