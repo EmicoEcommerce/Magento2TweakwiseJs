@@ -1,76 +1,104 @@
 define([
     'Magento_Ui/js/form/element/select',
-    'uiRegistry',
     'jquery',
-    'mage/url'
-], function (Select, registry, $, urlBuilder) {
+    'mage/url',
+    'uiRegistry'
+], function (Select, $, urlBuilder, registry) {
     return Select.extend({
         otherFieldName: 'attribute_other',
         otherValue: 'tw_other',
         initialize: function () {
             this._super();
-            this.subscribeCategoryId();
-            return this;
-        },
 
-        initObservable: function () {
-            this._super().observe(['value']);
-            this.value.subscribe(function (newValue) {
-                this.setSelectedValue(newValue);
-                this.setOtherFieldVisibility();
+            this.savedValue = this.value();
+            this.value('');
+
+            const categoryId = this.source.get('data.category_id');
+
+            this.setOptions();
+
+            this.fetchOptions(categoryId).then(function () {
+                this.setRestoredValue();
+                this.setOtherFieldVisibility(this.savedValue);
+                this.subscribeAttributeValue();
+                this.subscribeCategoryId();
             }.bind(this));
 
             return this;
         },
 
         setInitialValue: function () {
-          return this;
+            return this;
+        },
+
+        initObservable: function () {
+            this._super().observe(['value']);
+            return this;
+        },
+
+        subscribeAttributeValue: function () {
+            this.value.subscribe(function (newAttributeValue) {
+                this.setOtherFieldVisibility(newAttributeValue);
+            }.bind(this));
         },
 
         subscribeCategoryId: function () {
             const categoryIdPath = 'emico_attributelanding_page_form.emico_attributelanding_page_form.general.category_id';
-            registry.get(categoryIdPath, function (categoryField) {
-                this.fetchOptions(categoryField.value());
+            registry.get(categoryIdPath, (categoryField) => {
+                categoryField.value.subscribe((newCategoryId) => {
+                    const currentAttributeValue = this.value();
+                    this.fetchOptions(newCategoryId).then(() => {
+                        this.restoreValue(currentAttributeValue);
+                    });
+                });
+            });
+        },
 
-                categoryField.value.subscribe(this.fetchOptions.bind(this));
+        setOtherFieldVisibility: function (selectedAttribute) {
+            registry.get(`${this.parentName}.${this.otherFieldName}`, function (otherField) {
+                otherField.disabled(selectedAttribute !== this.otherValue);
             }.bind(this));
         },
 
-        setSelectedValue: function (value) {
-            if (value !== undefined) {
-                this.selectedValue = value;
+        setRestoredValue: function () {
+            if (!this.savedValue) {
                 return;
             }
 
-            this.value(this.selectedValue);
+            const optionExists = this.options().some(function (option) {
+                return option.value === this.savedValue;
+            }.bind(this));
+
+            if (optionExists) {
+                this.value(this.savedValue);
+            }
         },
 
-        setOtherFieldVisibility: function () {
-            registry.get(`${this.parentName}.${this.otherFieldName}`, function (otherField) {
-                otherField.disabled(this.selectedValue !== this.otherValue);
+        restoreValue: function (valueToRestore) {
+            const optionExists = this.options().some(function (option) {
+                return option.value === valueToRestore;
             }.bind(this));
+
+            if (optionExists) {
+                this.value(valueToRestore);
+            }
         },
 
         fetchOptions: function (categoryId) {
-            var formKey = $('[name="form_key"]').val();
-            var filterTemplate = $('[name="tweakwise_filter_template"]').val();
-            const currentValue = this.value();
+            const formKey = $('[name="form_key"]').val();
+            const filterTemplate = $('[name="tweakwise_filter_template"]').val();
 
-            $.ajax({
+            return $.ajax({
                 url: urlBuilder.build('/admin/tweakwise/ajax/facets'),
                 type: 'POST',
                 data: {
                     form_key: formKey,
                     category_id: categoryId,
                     filter_template: filterTemplate
-                },
-                success: function (response) {
-                    this.options(response);
-                    if (response.some(option => option.value === currentValue)) {
-                        this.value(currentValue);
-                    }
-                }.bind(this)
-            });
+                }
+            }).done(function (response) {
+                this.options(response);
+            }.bind(this));
         }
     });
 });
