@@ -32,11 +32,11 @@ class Facets implements HttpPostActionInterface
         $params = [];
 
         $categoryId = $this->request->getParam('category_id');
-        $categoryId = 1; // TODO: REMOVE
         if ($categoryId) {
             $params['tn_cid'] = $categoryId;
         }
 
+        // TODO: MAAK FILTER TEMPLATES IN XML
         $filterTemplate = (int) $this->request->getParam('filter_template');
         if ($filterTemplate) {
             $params['tn_ft'] = $filterTemplate;

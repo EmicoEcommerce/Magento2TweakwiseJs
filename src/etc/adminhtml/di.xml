@@ -3,4 +3,20 @@
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="Emico\AttributeLanding\Controller\Adminhtml\Page\Save"
                 type="Tweakwise\TweakwiseJs\Controller\Adminhtml\Page\Save"/>
+
+    <virtualType name="Tweakwise\TweakwiseJs\Model\Api\RequestFactory\Catalog\TemplateRequest"
+                 type="Tweakwise\TweakwiseJs\Model\Api\RequestFactory">
+        <arguments>
+            <argument name="type" xsi:type="string">Tweakwise\TweakwiseJs\Model\Api\Request\Catalog\TemplateRequest
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Tweakwise\TweakwiseJs\Model\Config\Source\FilterTemplate"
+                 type="Tweakwise\TweakwiseJs\Model\Config\Source\Template">
+        <arguments>
+            <argument name="requestFactory" xsi:type="object">
+                Tweakwise\TweakwiseJs\Model\Api\RequestFactory\Catalog\TemplateRequest
+            </argument>
+        </arguments>
+    </virtualType>
 </config>

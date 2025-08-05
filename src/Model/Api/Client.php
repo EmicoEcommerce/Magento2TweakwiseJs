@@ -10,8 +10,9 @@ use Magento\Framework\App\CacheInterface;
 use Magento\Framework\App\Config as AppConfig;
 use Magento\Framework\Serialize\Serializer\Json;
 use Psr\Log\LoggerInterface;
-use Tweakwise\TweakwiseJs\Model\Api\Exception\ApiException;
+use SimpleXMLElement;
 use Tweakwise\TweakwiseJs\Helper\Data;
+use Tweakwise\TweakwiseJs\Model\Api\Exception\ApiException;
 use Tweakwise\TweakwiseJs\Model\Config;
 use Tweakwise\TweakwiseJs\Model\Enum\Feature;
 
@@ -24,12 +25,14 @@ class Client
      * @param Json $jsonSerializer
      * @param LoggerInterface $logger
      * @param CacheInterface $cache
+     * @param ResponseFactory $responseFactory
      */
     public function __construct(
         private readonly Config $config,
         private readonly Json $jsonSerializer,
         private readonly LoggerInterface $logger,
-        private readonly CacheInterface $cache
+        private readonly CacheInterface $cache,
+        private readonly ResponseFactory $responseFactory,
     ) {
     }
 
@@ -66,6 +69,34 @@ class Client
         } catch (ApiException $e) {
             $this->logger->critical(
                 'Tweakwise API error: Unable to retrieve Tweakwise facets',
+                [
+                    'url' => $url,
+                    'exception' => $e->getMessage()
+                ]
+            );
+            return [];
+        }
+    }
+
+    /**
+     * @param string $facetKey
+     * @param array $params
+     * @return array
+     */
+    public function getFacetAttributes(string $facetKey, array $params = []): array
+    {
+        $url = sprintf(
+            '%s/facets/%s/attributes/%s',
+            Data::GATEWAY_TWEAKWISE_NAVIGATOR_NET_URL,
+            $facetKey,
+            $this->config->getInstanceKey() ?? ''
+        );
+
+        try {
+            return $this->doRequest(url: $url, params: $params);
+        } catch (ApiException $e) {
+            $this->logger->critical(
+                'Tweakwise API error: Unable to retrieve Tweakwise facet attributes',
                 [
                     'url' => $url,
                     'exception' => $e->getMessage()
@@ -126,6 +157,25 @@ class Client
     }
 
     /**
+     * @param Request $request
+     * @return Response|void
+     */
+    public function request(Request $request)
+    {
+        try {
+            return $this->doRequestNew($request);
+        } catch (ApiException $e) {
+            $this->logger->critical(
+                'Tweakwise API error: Unable to do Tweakwise request',
+                [
+                    'url' => $request->getPath(),
+                    'exception' => $e->getMessage()
+                ]
+            );
+        }
+    }
+
+    /**
      * @param string $url
      * @param string $method
      * @param array $params
@@ -155,6 +205,61 @@ class Client
     }
 
     /**
+     * @param Request $request
+     * @return Response
+     * @throws ApiException
+     */
+    private function doRequestNew(Request $request): Response
+    {
+        $url = sprintf(
+            '%s/%s/%s',
+            rtrim(Data::GATEWAY_TWEAKWISE_NAVIGATOR_NET_URL, '/'),
+            trim($request->getPath(), '/'),
+            $this->config->getInstanceKey()
+        );
+        $httpClient = new HttpClient(
+            [
+                'headers' => [
+                    'Accept' => 'application/xml',
+                ]
+            ]
+        );
+
+        try {
+            $response = $httpClient->request($request->isPostRequest() ? 'POST' : 'GET', $url, [
+                'query' => $request->getParameters()
+            ]);
+        } catch (GuzzleException $e) {
+            throw new ApiException('An error occurred while retrieving data via the API', previous: $e);
+        }
+
+        $xmlPreviousErrors = libxml_use_internal_errors(true);
+        try {
+            $xmlElement = simplexml_load_string(
+                $response->getBody()->__toString(),
+                SimpleXMLElement::class,
+                LIBXML_NOCDATA
+            );
+            if ($xmlElement === false) {
+                $errors = libxml_get_errors();
+                throw new ApiException(
+                    sprintf(
+                        'Invalid response received by Tweakwise server, xml load fails. Request "%s", XML Errors: %s',
+                        $url,
+                        implode(PHP_EOL, $errors)
+                    )
+                );
+            }
+        } finally {
+            libxml_use_internal_errors($xmlPreviousErrors);
+        }
+
+        $result = $this->xmlToArray($xmlElement);
+        $result['headers'] = $response->getHeaders();
+        return $this->responseFactory->create($request, $result);
+    }
+
+    /**
      * @return array
      */
     private function getFallbackValues(): array
@@ -163,5 +268,50 @@ class Client
             Feature::NAVIGATION->value => false,
             Feature::SUGGESTIONS->value => false
         ];
+    }
+
+    /**
+     * @param SimpleXMLElement $element
+     * @return array
+     */
+    protected function xmlToArray(SimpleXMLElement $element): array
+    {
+        $result = [];
+        foreach ($element->attributes() as $attribute => $value) {
+            $result['@' . $attribute] = (string)$value;
+        }
+
+        /** @var SimpleXMLElement $node */
+        foreach ((array)$element as $index => $node) {
+            if ($index === '@attributes') {
+                continue;
+            }
+
+            $result[$index] = $this->xmlToArrayValue($node);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param SimpleXMLElement|array|string $value
+     * @return string|array
+     */
+    protected function xmlToArrayValue(SimpleXMLElement|array|string $value): string|array
+    {
+        if ($value instanceof SimpleXMLElement) {
+            return $this->xmlToArray($value);
+        }
+
+        if (is_array($value)) {
+            $values = [];
+            foreach ($value as $element) {
+                $values[] = $this->xmlToArrayValue($element);
+            }
+
+            return $values;
+        }
+
+        return (string)$value;
     }
 }
