@@ -18,6 +18,14 @@
             </argument>
         </arguments>
     </virtualType>
+    <virtualType name="Tweakwise\TweakwiseJs\Model\Api\RequestFactory\Catalog\BuilderTemplateRequest"
+                 type="Tweakwise\TweakwiseJs\Model\Api\RequestFactory">
+        <arguments>
+            <argument name="type" xsi:type="string">
+                Tweakwise\TweakwiseJs\Model\Api\Request\Catalog\BuilderTemplateRequest
+            </argument>
+        </arguments>
+    </virtualType>
 
     <virtualType name="Tweakwise\TweakwiseJs\Model\Config\Source\FilterTemplate"
                  type="Tweakwise\TweakwiseJs\Model\Config\Source\Template">
@@ -32,6 +40,14 @@
         <arguments>
             <argument name="requestFactory" xsi:type="object">
                 Tweakwise\TweakwiseJs\Model\Api\RequestFactory\Catalog\SortTemplateRequest
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Tweakwise\TweakwiseJs\Model\Config\Source\BuilderTemplate"
+                 type="Tweakwise\TweakwiseJs\Model\Config\Source\Template">
+        <arguments>
+            <argument name="requestFactory" xsi:type="object">
+                Tweakwise\TweakwiseJs\Model\Api\RequestFactory\Catalog\BuilderTemplateRequest
             </argument>
         </arguments>
     </virtualType>
