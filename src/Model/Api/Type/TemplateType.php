@@ -4,11 +4,34 @@ declare(strict_types=1);
 
 namespace Tweakwise\TweakwiseJs\Model\Api\Type;
 
+use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\Model\AbstractModel;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Registry;
 use Tweakwise\TweakwiseJs\Api\Data\TemplateTypeInterface;
 
 class TemplateType extends AbstractModel implements TemplateTypeInterface
 {
+    /**
+     * @param Context $context
+     * @param Registry $registry
+     * @param string $idField
+     * @param AbstractResource|null $resource
+     * @param AbstractDb|null $resourceCollection
+     * @param array $data
+     */
+    public function __construct(
+        Context $context,
+        Registry $registry,
+        protected string $idField = 'templateid',
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
+        array $data = []
+    ) {
+        parent::__construct($context, $registry, $resource, $resourceCollection, $data);
+    }
+
     /**
      * @return string
      */
@@ -31,7 +54,7 @@ class TemplateType extends AbstractModel implements TemplateTypeInterface
      */
     public function getTemplateId(): string
     {
-        return $this->getData(self::TEMPLATE_ID);
+        return $this->getData($this->idField);
     }
 
     /**
@@ -40,6 +63,6 @@ class TemplateType extends AbstractModel implements TemplateTypeInterface
      */
     public function setTemplateId(string $templateId): TemplateTypeInterface
     {
-        return $this->setData(self::TEMPLATE_ID, $templateId);
+        return $this->setData($this->idField, $templateId);
     }
 }

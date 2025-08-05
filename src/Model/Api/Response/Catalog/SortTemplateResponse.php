@@ -8,12 +8,12 @@ use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
-use Tweakwise\TweakwiseJs\Api\Data\TemplateResponseInterface;
+use Tweakwise\TweakwiseJs\Api\Data\SortTemplateResponseInterface;
 use Tweakwise\TweakwiseJs\Model\Api\Response;
 use Tweakwise\TweakwiseJs\Model\Api\Type\TemplateType;
 use Tweakwise\TweakwiseJs\Model\Api\Type\TemplateTypeFactory;
 
-class TemplateResponse extends Response implements TemplateResponseInterface
+class SortTemplateResponse extends Response implements SortTemplateResponseInterface
 {
     /**
      * @param Context $context
@@ -44,16 +44,16 @@ class TemplateResponse extends Response implements TemplateResponseInterface
             return $templates;
         }
 
-        $template = $this->getData(self::TEMPLATE);
-        if ($template) {
-            if (isset($template['templateid']) && !isset($template[0])) {
-                $template = [$template];
+        $sortTemplate = $this->getData(self::SORT_TEMPLATE);
+        if ($sortTemplate) {
+            if (isset($sortTemplate['sorttemplateid']) && !isset($sortTemplate[0])) {
+                $sortTemplate = [$sortTemplate];
             }
 
             $values = [];
-            foreach ($template as $value) {
+            foreach ($sortTemplate as $value) {
                 if (!$value instanceof TemplateType) {
-                    $value = $this->templateTypeFactory->create(['idField' => 'templateid', 'data' => $value]);
+                    $value = $this->templateTypeFactory->create(['idField' => 'sorttemplateid', 'data' => $value]);
                 }
 
                 $values[] = $value;
@@ -67,9 +67,9 @@ class TemplateResponse extends Response implements TemplateResponseInterface
 
     /**
      * @param array $templates
-     * @return TemplateResponse
+     * @return SortTemplateResponseInterface
      */
-    public function setTemplates(array $templates): TemplateResponseInterface
+    public function setTemplates(array $templates): SortTemplateResponseInterface
     {
         return $this->setData(self::TEMPLATES, $templates);
     }

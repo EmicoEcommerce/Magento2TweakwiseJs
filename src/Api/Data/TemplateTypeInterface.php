@@ -7,7 +7,6 @@ namespace Tweakwise\TweakwiseJs\Api\Data;
 interface TemplateTypeInterface
 {
     public const NAME = 'name';
-    public const TEMPLATE_ID = 'templateid';
 
     /**
      * @return string
