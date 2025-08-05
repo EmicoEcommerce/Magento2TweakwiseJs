@@ -102,5 +102,11 @@
                 </select>
             </formElements>
         </field>
+
+        <field name="is_filter_link_allowed">
+            <settings>
+                <visible>false</visible>
+            </settings>
+        </field>
 	</fieldset>
 </form>
