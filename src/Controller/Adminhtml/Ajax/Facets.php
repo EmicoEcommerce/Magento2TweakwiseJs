@@ -8,6 +8,7 @@ use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Tweakwise\TweakwiseJs\Api\Data\Api\Response\FacetResponseInterface;
+use Tweakwise\TweakwiseJs\Helper\Data;
 use Tweakwise\TweakwiseJs\Model\Api\Client;
 use Tweakwise\TweakwiseJs\Model\Api\RequestFactory;
 
@@ -18,12 +19,14 @@ class Facets implements HttpPostActionInterface
      * @param JsonFactory $resultJsonFactory
      * @param Client $client
      * @param RequestFactory $requestFactory
+     * @param Data $dataHelper
      */
     public function __construct(
         private readonly RequestInterface $request,
         private readonly JsonFactory $resultJsonFactory,
         private readonly Client $client,
         private readonly RequestFactory $requestFactory,
+        private readonly Data $dataHelper,
     ) {
     }
 
@@ -35,8 +38,8 @@ class Facets implements HttpPostActionInterface
         $result = $this->resultJsonFactory->create();
         $facetRequest = $this->requestFactory->create();
 
-        $categoryId = $this->request->getParam('category_id');
-        $categoryId = 100015; // TODO: GET CORRECT TW CATEGORY ID
+        // TODO: GET IN STORES LOOP BELOW
+        $categoryId = $this->dataHelper->getTweakwiseId((int) $this->request->getParam('category_id'));
         if ($categoryId) {
             $facetRequest->addParameter('tn_cid', $categoryId);
         }
