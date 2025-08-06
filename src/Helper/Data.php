@@ -31,12 +31,13 @@ class Data extends AbstractHelper
 
     /**
      * @param int $entityId
+     * @param int|null $storeId
      * @return string
      * @throws NoSuchEntityException
      */
-    public function getTweakwiseId(int $entityId): string
+    public function getTweakwiseId(int $entityId, ?int $storeId = null): string
     {
-        $storeId = (int) $this->storeManager->getStore()->getId();
+        $storeId = $storeId ?? (int) $this->storeManager->getStore()->getId();
         return $this->exportHelper->getTweakwiseId($storeId, $entityId);
     }
 }

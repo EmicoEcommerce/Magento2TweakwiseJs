@@ -52,12 +52,6 @@ class FacetAttributes implements HttpPostActionInterface
 
         $facetAttributeRequest = $this->requestFactory->create();
 
-        // TODO: GET IN STORES LOOP BELOW
-        $categoryId = $this->dataHelper->getTweakwiseId((int) $this->request->getParam('category_id'));
-        if ($categoryId) {
-            $facetAttributeRequest->addParameter('tn_cid', $categoryId);
-        }
-
         $filterTemplate = (int) $this->request->getParam('filter_template');
         if ($filterTemplate) {
             $facetAttributeRequest->addParameter('tn_ft', $filterTemplate);
@@ -67,20 +61,32 @@ class FacetAttributes implements HttpPostActionInterface
             $facetAttributeRequest->addFacetKey($facetKey);
         }
 
-        // TODO: LOOP THROUGH STORES
-        /** @var FacetAttributeResponseInterface $response */
-        $response = $this->client->request($facetAttributeRequest);
-
+        $allStores = $facetAttributeRequest->getStores();
         $attributes = [];
-        /** @var FacetAttributeTypeInterface $attribute */
-        foreach ($response->getAttributes() as $attribute) {
-            $attributes[] = [
-                'value' => $attribute->getTitle(),
-                'label' => $attribute->getTitle()
-            ];
+        foreach ($allStores as $store) {
+            $categoryId = $this->dataHelper->getTweakwiseId(
+                (int) $this->request->getParam('category_id'),
+                (int)$store->getId()
+            );
+            if ($categoryId) {
+                $facetAttributeRequest->addParameter('tn_cid', $categoryId);
+            }
+
+            /** @var FacetAttributeResponseInterface $response */
+            $response = $this->client->request($facetAttributeRequest);
+
+            /** @var FacetAttributeTypeInterface $attribute */
+            foreach ($response->getAttributes() as $attribute) {
+                $attributes[] = [
+                    'value' => $attribute->getTitle(),
+                    'label' => $attribute->getTitle()
+                ];
+            }
         }
 
         $attributes[] = $otherAttributeOption;
+
+        $attributes = array_values(array_unique($attributes, SORT_REGULAR));
 
         return $result->setData($attributes);
     }

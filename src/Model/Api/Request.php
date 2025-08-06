@@ -4,8 +4,18 @@ declare(strict_types=1);
 
 namespace Tweakwise\TweakwiseJs\Model\Api;
 
+use Magento\Store\Api\Data\StoreInterface;
+use Magento\Store\Model\StoreManagerInterface;
+
 class Request
 {
+    /**
+     * @param StoreManagerInterface $storeManager
+     */
+    public function __construct(
+        protected readonly StoreManagerInterface $storeManager,
+    ) {
+    }
     /**
      * @var string
      */
@@ -57,5 +67,13 @@ class Request
     public function isPostRequest(): bool
     {
         return false;
+    }
+
+    /**
+     * @return StoreInterface[]
+     */
+    public function getStores(): array
+    {
+        return $this->storeManager->getStores();
     }
 }
