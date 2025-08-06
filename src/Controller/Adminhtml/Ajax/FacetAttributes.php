@@ -6,8 +6,17 @@ namespace Tweakwise\TweakwiseJs\Controller\Adminhtml\Ajax;
 
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\RequestInterface;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Controller\ResultInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Tweakwise\TweakwiseJs\Api\Data\Api\Response\FacetAttributeResponseInterface;
+use Tweakwise\TweakwiseJs\Api\Data\Api\Type\FacetAttributeTypeInterface;
+use Tweakwise\TweakwiseJs\Helper\Data;
 use Tweakwise\TweakwiseJs\Model\Api\Client;
+use Tweakwise\TweakwiseJs\Model\Api\Request\FacetAttributeRequest;
+use Tweakwise\TweakwiseJs\Model\Api\RequestFactory;
 
 class FacetAttributes implements HttpPostActionInterface
 {
@@ -15,89 +24,64 @@ class FacetAttributes implements HttpPostActionInterface
      * @param RequestInterface $request
      * @param JsonFactory $resultJsonFactory
      * @param Client $client
+     * @param RequestFactory $requestFactory
+     * @param Data $dataHelper
      */
     public function __construct(
         private readonly RequestInterface $request,
         private readonly JsonFactory $resultJsonFactory,
-        private readonly Client $client
+        private readonly Client $client,
+        private readonly RequestFactory $requestFactory,
+        private readonly Data $dataHelper,
     ) {
     }
 
     /**
-     * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\Result\Json|\Magento\Framework\Controller\ResultInterface
+     * @return ResponseInterface|Json|ResultInterface
+     * @throws NoSuchEntityException
      */
     public function execute()
     {
         $result = $this->resultJsonFactory->create();
-        $params = [];
+        $facetKey = $this->request->getParam('facet_key');
+        $otherAttribute = 'tw_other';
+        $otherAttributeOption = ['value' => $otherAttribute, 'label' => 'Other (text field)'];
 
-        $categoryId = $this->request->getParam('category_id');
-        $categoryId = 1; // TODO: REMOVE
+        if ($facetKey === $otherAttribute) {
+            return $result->setData([$otherAttributeOption]);
+        }
+
+        $facetAttributeRequest = $this->requestFactory->create();
+
+        // TODO: GET IN STORES LOOP BELOW
+        $categoryId = $this->dataHelper->getTweakwiseId((int) $this->request->getParam('category_id'));
         if ($categoryId) {
-            $params['tn_cid'] = $categoryId;
+            $facetAttributeRequest->addParameter('tn_cid', $categoryId);
         }
 
         $filterTemplate = (int) $this->request->getParam('filter_template');
         if ($filterTemplate) {
-            $params['tn_ft'] = $filterTemplate;
+            $facetAttributeRequest->addParameter('tn_ft', $filterTemplate);
         }
 
-        // TODO: Why loop through all stores in old module?
-        $facetKey = $this->request->getParam('facet_key');
-        $response = $this->client->getFacetAttributes($facetKey, $params);
+        if ($facetKey && $facetAttributeRequest instanceof FacetAttributeRequest) {
+            $facetAttributeRequest->addFacetKey($facetKey);
+        }
 
-        // TODO: Build facet attribute request
+        // TODO: LOOP THROUGH STORES
+        /** @var FacetAttributeResponseInterface $response */
+        $response = $this->client->request($facetAttributeRequest);
+
         $attributes = [];
-        if (isset($attributes['attributes']) && is_array($attributes['attributes'])) {
-            foreach ($response['attributes'] as $attribute) {
-                $attributes[] = [
-                    'value' => $attribute['title'],
-                    'label' => $attribute['title']
-                ];
-            }
-        }
-
-        $attributes[] = ['value' => 'tw_other', 'label' => 'Other (text field)'];
-
-        if ($this->request->getParam('category_id') === '3') {
-            $attributes = [
-                [
-                    'value' => 'categorie',
-                    'label' => 'Categorie',
-                ],
-                [
-                    'value' => 'material',
-                    'label' => 'material',
-                ],
-                [
-                    'value' => 'color',
-                    'label' => 'color',
-                ],
-                [
-                    'value' => 'tw_other',
-                    'label' => 'Other (text field)',
-                ],
-            ];
-        } else {
-            $attributes = [
-                [
-                    'value' => 'onzin1',
-                    'label' => 'onzin1',
-                ],
-                [
-                    'value' => 'tw_other',
-                    'label' => 'Other (text field)',
-                ],
-                [
-                    'value' => 'onzin3',
-                    'label' => 'onzin3',
-                ],
-                [
-                    'value' => 'material',
-                    'label' => 'material',
-                ],
+        /** @var FacetAttributeTypeInterface $attribute */
+        foreach ($response->getAttributes() as $attribute) {
+            $attributes[] = [
+                'value' => $attribute->getTitle(),
+                'label' => $attribute->getTitle()
             ];
         }
+
+        $attributes[] = $otherAttributeOption;
 
         return $result->setData($attributes);
     }
