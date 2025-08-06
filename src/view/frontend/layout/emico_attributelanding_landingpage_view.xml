@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="page.wrapper">
+            <block class="Emico\AttributeLanding\Block\LandingPage\Content" name="tweakwise-js-attribute-landing"
+                   template="Tweakwise_TweakwiseJs::js/attribute-landing.phtml">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Tweakwise\TweakwiseJs\ViewModel\AttributeLanding
+                    </argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+
+        <!-- Make sure the columns container is never empty, else Magento doesn't render it -->
+        <referenceContainer name="columns">
+            <block class="Magento\Framework\View\Element\Text">
+                <arguments>
+                    <argument name="text" xsi:type="string"><![CDATA[&nbsp;]]></argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+        <move element="customer.customer.data" destination="columns"/>
+        <move element="customer.section.config" destination="columns"/>
+        <referenceContainer name="main" remove="true"/>
+        <referenceContainer name="div.sidebar.main" remove="true"/>
+        <referenceContainer name="div.sidebar.additional" remove="true"/>
+    </body>
+</page>

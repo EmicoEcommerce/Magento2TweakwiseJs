@@ -6,6 +6,7 @@
             <module name="Magento_Theme"/>
             <module name="Hyva_Theme"/>
             <module name="Tweakwise_Magento2TweakwiseExport"/>
+            <module name="Emico_AttributeLanding"/>
         </sequence>
     </module>
 </config>
