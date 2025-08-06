@@ -61,7 +61,7 @@ class Facets implements HttpPostActionInterface
             ];
         }
 
-        $facets[] = ['value' => 'tw_other', 'label' => 'Other (text field)'];
+        $facets[] = ['value' => Data::OTHER_ATTRIBUTE_VALUE, 'label' => 'Other (text field)'];
 
         return $result->setData($facets);
     }

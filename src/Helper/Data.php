@@ -14,6 +14,7 @@ class Data extends AbstractHelper
 {
     public const GATEWAY_TWEAKWISE_NAVIGATOR_COM_URL = 'https://gateway.tweakwisenavigator.com';
     public const GATEWAY_TWEAKWISE_NAVIGATOR_NET_URL = 'https://gateway.tweakwisenavigator.net';
+    public const OTHER_ATTRIBUTE_VALUE = 'tw_other';
 
     /**
      * @param Context $context

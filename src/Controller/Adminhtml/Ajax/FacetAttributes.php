@@ -44,10 +44,9 @@ class FacetAttributes implements HttpPostActionInterface
     {
         $result = $this->resultJsonFactory->create();
         $facetKey = $this->request->getParam('facet_key');
-        $otherAttribute = 'tw_other';
-        $otherAttributeOption = ['value' => $otherAttribute, 'label' => 'Other (text field)'];
+        $otherAttributeOption = ['value' => Data::OTHER_ATTRIBUTE_VALUE, 'label' => 'Other (text field)'];
 
-        if ($facetKey === $otherAttribute) {
+        if ($facetKey === Data::OTHER_ATTRIBUTE_VALUE) {
             return $result->setData([$otherAttributeOption]);
         }
 
