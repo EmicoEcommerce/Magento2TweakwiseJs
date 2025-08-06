@@ -42,6 +42,16 @@ class Request
     }
 
     /**
+     * @param string $key
+     * @param mixed $value
+     * @return void
+     */
+    public function addParameter(string $key, mixed $value): void
+    {
+        $this->parameters[$key] = $value;
+    }
+
+    /**
      * @return bool
      */
     public function isPostRequest(): bool

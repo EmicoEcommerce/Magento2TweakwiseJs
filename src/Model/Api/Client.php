@@ -53,32 +53,6 @@ class Client
     }
 
     /**
-     * @param array $params
-     * @return array
-     */
-    public function getFacets(array $params = []): array
-    {
-        $url = sprintf(
-            '%s/facets/%s',
-            Data::GATEWAY_TWEAKWISE_NAVIGATOR_NET_URL,
-            $this->config->getInstanceKey() ?? ''
-        );
-
-        try {
-            return $this->doRequest(url: $url, params: $params);
-        } catch (ApiException $e) {
-            $this->logger->critical(
-                'Tweakwise API error: Unable to retrieve Tweakwise facets',
-                [
-                    'url' => $url,
-                    'exception' => $e->getMessage()
-                ]
-            );
-            return [];
-        }
-    }
-
-    /**
      * @param string $facetKey
      * @param array $params
      * @return array
@@ -215,7 +189,7 @@ class Client
             '%s/%s/%s',
             rtrim(Data::GATEWAY_TWEAKWISE_NAVIGATOR_NET_URL, '/'),
             trim($request->getPath(), '/'),
-            $this->config->getInstanceKey()
+            $this->config->getInstanceKey() ?? ''
         );
         $httpClient = new HttpClient(
             [

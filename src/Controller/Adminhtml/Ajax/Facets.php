@@ -7,7 +7,9 @@ namespace Tweakwise\TweakwiseJs\Controller\Adminhtml\Ajax;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Tweakwise\TweakwiseJs\Api\Data\FacetResponseInterface;
 use Tweakwise\TweakwiseJs\Model\Api\Client;
+use Tweakwise\TweakwiseJs\Model\Api\RequestFactory;
 
 class Facets implements HttpPostActionInterface
 {
@@ -15,11 +17,13 @@ class Facets implements HttpPostActionInterface
      * @param RequestInterface $request
      * @param JsonFactory $resultJsonFactory
      * @param Client $client
+     * @param RequestFactory $requestFactory
      */
     public function __construct(
         private readonly RequestInterface $request,
         private readonly JsonFactory $resultJsonFactory,
-        private readonly Client $client
+        private readonly Client $client,
+        private readonly RequestFactory $requestFactory,
     ) {
     }
 
@@ -29,28 +33,28 @@ class Facets implements HttpPostActionInterface
     public function execute()
     {
         $result = $this->resultJsonFactory->create();
-        $params = [];
+        $facetRequest = $this->requestFactory->create();
 
         $categoryId = $this->request->getParam('category_id');
+        $categoryId = 100015; // TODO: GET CORRECT TW CATEGORY ID
         if ($categoryId) {
-            $params['tn_cid'] = $categoryId;
+            $facetRequest->addParameter('tn_cid', $categoryId);
         }
 
-        // TODO: MAAK FILTER TEMPLATES IN XML
         $filterTemplate = (int) $this->request->getParam('filter_template');
         if ($filterTemplate) {
-            $params['tn_ft'] = $filterTemplate;
+            $facetRequest->addParameter('tn_ft', $filterTemplate);
         }
 
-        // TODO: Why loop through all stores in old module?
-        $response = $this->client->getFacets($params);
+        // TODO: LOOP THROUGH STORES
+        /** @var FacetResponseInterface $response */
+        $response = $this->client->request($facetRequest);
 
-        // TODO: Build facet request
         $facets = [];
-        foreach ($response['facets'] as $facet) {
+        foreach ($response->getFacets() as $facet) {
             $facets[] = [
-                'value' => $facet['facetsettings']['urlkey'],
-                'label' => $facet['facetsettings']['title']
+                'value' => $facet->getFacetSettings()->getUrlKey(),
+                'label' => $facet->getFacetSettings()->getTitle()
             ];
         }
 
