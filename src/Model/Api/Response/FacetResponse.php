@@ -45,6 +45,10 @@ class FacetResponse extends Response implements FacetResponseInterface
         }
 
         $facets = $facets[self::FACET];
+        if (!isset($facets[0])) {
+            $facets = [$facets];
+        }
+
         $values = [];
         foreach ($facets as $value) {
             if (!$value instanceof FacetType) {

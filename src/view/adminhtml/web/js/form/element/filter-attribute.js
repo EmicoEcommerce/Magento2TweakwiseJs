@@ -14,12 +14,12 @@ define([
             this.savedValue = this.value();
             this.value('');
 
-            const categoryId = this.source.get('data.category_id');
             this.setOtherFieldVisibility(this.savedValue);
 
-            this.fetchOptions(categoryId).then(function () {
+            this.fetchOptions().then(function () {
                 this.setRestoredValue();
                 this.subscribeAttribute();
+                this.subscribeFilterTemplate();
                 this.subscribeCategoryId();
                 this.initAttributeValueField(this.value());
             }.bind(this));
@@ -48,7 +48,19 @@ define([
             registry.get(categoryIdPath, (categoryField) => {
                 categoryField.value.subscribe((newCategoryId) => {
                     const currentAttributeValue = this.value();
-                    this.fetchOptions(newCategoryId).then(() => {
+                    this.fetchOptions().then(() => {
+                        this.restoreValue(currentAttributeValue);
+                    });
+                });
+            });
+        },
+
+        subscribeFilterTemplate: function () {
+            const filterTemplatePath = 'emico_attributelanding_page_form.emico_attributelanding_page_form.general.tweakwise_filter_template';
+            registry.get(filterTemplatePath, (filterTemplateField) => {
+                filterTemplateField.value.subscribe((newFilterTemplate) => {
+                    const currentAttributeValue = this.value();
+                    this.fetchOptions().then(() => {
                         this.restoreValue(currentAttributeValue);
                     });
                 });
@@ -95,9 +107,10 @@ define([
             }
         },
 
-        fetchOptions: function (categoryId) {
+        fetchOptions: function () {
             const formKey = $('[name="form_key"]').val();
-            const filterTemplate = $('[name="tweakwise_filter_template"]').val();
+            const filterTemplate = this.source.get('data.tweakwise_filter_template');
+            const categoryId = this.source.get('data.category_id');
 
             return $.ajax({
                 url: urlBuilder.build('/admin/tweakwise/ajax/facets'),
