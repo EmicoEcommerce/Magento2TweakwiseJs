@@ -69,7 +69,11 @@ define([
 
         setOtherFieldVisibility: function (selectedAttribute) {
             registry.get(`${this.parentName}.${this.otherFieldName}`, function (otherField) {
-                otherField.disabled(selectedAttribute !== this.otherValue);
+                const otherFieldVisible = selectedAttribute === this.otherValue
+                otherField.disabled(!otherFieldVisible);
+                if (!otherFieldVisible) {
+                    otherField.value('');
+                }
             }.bind(this));
         },
 
