@@ -7,7 +7,7 @@ namespace Tweakwise\TweakwiseJs\Controller\Adminhtml\Ajax;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Tweakwise\TweakwiseJs\Api\Data\FacetResponseInterface;
+use Tweakwise\TweakwiseJs\Api\Data\Api\Response\FacetResponseInterface;
 use Tweakwise\TweakwiseJs\Model\Api\Client;
 use Tweakwise\TweakwiseJs\Model\Api\RequestFactory;
 

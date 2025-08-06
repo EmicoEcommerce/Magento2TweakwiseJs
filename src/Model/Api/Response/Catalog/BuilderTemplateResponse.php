@@ -8,7 +8,7 @@ use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
-use Tweakwise\TweakwiseJs\Api\Data\BuilderTemplateResponseInterface;
+use Tweakwise\TweakwiseJs\Api\Data\Api\Response\Catalog\BuilderTemplateResponseInterface;
 use Tweakwise\TweakwiseJs\Model\Api\Response;
 use Tweakwise\TweakwiseJs\Model\Api\Type\TemplateType;
 use Tweakwise\TweakwiseJs\Model\Api\Type\TemplateTypeFactory;

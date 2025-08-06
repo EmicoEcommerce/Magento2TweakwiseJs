@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tweakwise\TweakwiseJs\Api\Data;
+namespace Tweakwise\TweakwiseJs\Api\Data\Api\Response\Catalog;
 
 interface TemplateResponseInterface
 {

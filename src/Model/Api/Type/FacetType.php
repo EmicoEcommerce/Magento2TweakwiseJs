@@ -9,7 +9,7 @@ use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
-use Tweakwise\TweakwiseJs\Api\Data\FacetTypeInterface;
+use Tweakwise\TweakwiseJs\Api\Data\Api\Type\FacetTypeInterface;
 use Tweakwise\TweakwiseJs\Model\Api\Type\FacetType\SettingsType;
 use Tweakwise\TweakwiseJs\Model\Api\Type\FacetType\SettingsTypeFactory;
 
