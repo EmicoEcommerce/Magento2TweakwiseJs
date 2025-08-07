@@ -39,6 +39,6 @@ class Yesno extends MagentoYesno
     protected function isNavigationFeatureEnabled(): bool
     {
         $featureRequest = $this->requestFactory->create();
-        return $this->apiClient->getFeatures($featureRequest)[Feature::NAVIGATION->value] ?? false;
+        return (bool)$this->apiClient->getFeatures($featureRequest)[Feature::NAVIGATION->value] ?? false;
     }
 }

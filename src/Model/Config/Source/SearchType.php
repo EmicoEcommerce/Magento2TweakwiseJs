@@ -46,6 +46,6 @@ class SearchType implements OptionSourceInterface
     protected function isSuggestionsFeatureEnabled(): bool
     {
         $featureRequest = $this->requestFactory->create();
-        return $this->apiClient->getFeatures($featureRequest)[Feature::SUGGESTIONS->value] ?? false;
+        return (bool)$this->apiClient->getFeatures($featureRequest)[Feature::SUGGESTIONS->value] ?? false;
     }
 }
