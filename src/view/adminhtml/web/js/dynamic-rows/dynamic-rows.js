@@ -14,7 +14,7 @@ define([
 
             this.visible = ko.observable(false);
 
-            registry.get(this.parentName + '.category_id', function (categoryField) {
+            registry.get(`${this.parentName}.category_id`, function (categoryField) {
                 this.updateVisibility(categoryField.value());
 
                 categoryField.value.subscribe(this.updateVisibility.bind(this));

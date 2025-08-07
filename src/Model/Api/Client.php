@@ -11,6 +11,7 @@ use Magento\Framework\App\Config as AppConfig;
 use Magento\Framework\Serialize\Serializer\Json;
 use Psr\Log\LoggerInterface;
 use SimpleXMLElement;
+use Tweakwise\TweakwiseJs\Api\Data\Api\Response\FeatureResponseInterface;
 use Tweakwise\TweakwiseJs\Helper\Data;
 use Tweakwise\TweakwiseJs\Model\Api\Exception\ApiException;
 use Tweakwise\TweakwiseJs\Model\Config;
@@ -37,53 +38,10 @@ class Client
     }
 
     /**
-     * @return bool
-     */
-    public function isNavigationFeatureEnabled(): bool
-    {
-        return $this->getFeatures()[Feature::NAVIGATION->value] ?? false;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isSuggestionsFeatureEnabled(): bool
-    {
-        return $this->getFeatures()[Feature::SUGGESTIONS->value] ?? false;
-    }
-
-    /**
-     * @param string $facetKey
-     * @param array $params
+     * @param Request $request
      * @return array
      */
-    public function getFacetAttributes(string $facetKey, array $params = []): array
-    {
-        $url = sprintf(
-            '%s/facets/%s/attributes/%s',
-            Data::GATEWAY_TWEAKWISE_NAVIGATOR_NET_URL,
-            $facetKey,
-            $this->config->getInstanceKey() ?? ''
-        );
-
-        try {
-            return $this->doRequest(url: $url, params: $params);
-        } catch (ApiException $e) {
-            $this->logger->critical(
-                'Tweakwise API error: Unable to retrieve Tweakwise facet attributes',
-                [
-                    'url' => $url,
-                    'exception' => $e->getMessage()
-                ]
-            );
-            return [];
-        }
-    }
-
-    /**
-     * @return array
-     */
-    private function getFeatures(): array
+    public function getFeatures(Request $request): array
     {
         $cachedFeatures = $this->cache->load(self::FEATURES_CACHE_KEY);
         if ($cachedFeatures) {
@@ -95,37 +53,19 @@ class Client
             return $this->getFallbackValues();
         }
 
-        $url = sprintf(
-            '%s/instance/%s',
-            Data::GATEWAY_TWEAKWISE_NAVIGATOR_COM_URL,
-            $instanceKey
-        );
+        /** @var FeatureResponseInterface $response */
+        $response = $this->request($request);
 
-        try {
-            $response = $this->doRequest($url);
-        } catch (ApiException $e) {
-            $this->logger->critical(
-                'Tweakwise API error: Unable to retrieve Tweakwise features',
-                [
-                    'url' => $url,
-                    'exception' => $e->getMessage()
-                ]
-            );
+        $features = $response->getFeatures();
+        if (!$response->getFeatures()) {
             return $this->getFallbackValues();
         }
 
-        $features = [];
-        foreach ($response['features'] ?? [] as $feature) {
-            $features[$feature['name']] = $feature['value'];
-        }
-
-        if ($features) {
-            $this->cache->save(
-                $this->jsonSerializer->serialize($features),
-                self::FEATURES_CACHE_KEY,
-                [AppConfig::CACHE_TAG]
-            );
-        }
+        $this->cache->save(
+            $this->jsonSerializer->serialize($features),
+            self::FEATURES_CACHE_KEY,
+            [AppConfig::CACHE_TAG]
+        );
 
         return $features;
     }
@@ -137,7 +77,7 @@ class Client
     public function request(Request $request)
     {
         try {
-            return $this->doRequestNew($request);
+            return $this->doRequest($request);
         } catch (ApiException $e) {
             $this->logger->critical(
                 'Tweakwise API error: Unable to do Tweakwise request',
@@ -150,40 +90,11 @@ class Client
     }
 
     /**
-     * @param string $url
-     * @param string $method
-     * @param array $params
-     * @return array
-     * @throws ApiException
-     */
-    private function doRequest(string $url, string $method = 'GET', array $params = []): array
-    {
-        $httpClient = new HttpClient(
-            [
-                'headers' => [
-                    'Accept' => 'application/json',
-                ]
-            ]
-        );
-
-        try {
-            $response = $httpClient->request($method, $url, [
-                'query' => $params
-            ]);
-        } catch (GuzzleException $e) {
-            throw new ApiException('An error occurred while retrieving data via the API', previous: $e);
-        }
-
-        $contents = $response->getBody()->getContents();
-        return $this->jsonSerializer->unserialize($contents);
-    }
-
-    /**
      * @param Request $request
      * @return Response
      * @throws ApiException
      */
-    private function doRequestNew(Request $request): Response
+    private function doRequest(Request $request): Response
     {
         $url = sprintf(
             '%s/%s/%s',

@@ -38,6 +38,12 @@
             <argument name="type" xsi:type="string">Tweakwise\TweakwiseJs\Model\Api\Request\FacetAttributeRequest</argument>
         </arguments>
     </virtualType>
+    <virtualType name="Tweakwise\TweakwiseJs\Model\Api\RequestFactory\FeatureRequest"
+                 type="Tweakwise\TweakwiseJs\Model\Api\RequestFactory">
+        <arguments>
+            <argument name="type" xsi:type="string">Tweakwise\TweakwiseJs\Model\Api\Request\FeatureRequest</argument>
+        </arguments>
+    </virtualType>
 
     <virtualType name="Tweakwise\TweakwiseJs\Model\Config\Source\FilterTemplate"
                  type="Tweakwise\TweakwiseJs\Model\Config\Source\Template">
@@ -74,6 +80,20 @@
         <arguments>
             <argument name="requestFactory" xsi:type="object">
                 Tweakwise\TweakwiseJs\Model\Api\RequestFactory\FacetAttributeRequest
+            </argument>
+        </arguments>
+    </type>
+    <type name="Tweakwise\TweakwiseJs\Model\Config\Source\Yesno">
+        <arguments>
+            <argument name="requestFactory" xsi:type="object">
+                Tweakwise\TweakwiseJs\Model\Api\RequestFactory\FeatureRequest
+            </argument>
+        </arguments>
+    </type>
+    <type name="Tweakwise\TweakwiseJs\Model\Config\Source\SearchType">
+        <arguments>
+            <argument name="requestFactory" xsi:type="object">
+                Tweakwise\TweakwiseJs\Model\Api\RequestFactory\FeatureRequest
             </argument>
         </arguments>
     </type>

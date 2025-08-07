@@ -6,14 +6,18 @@ namespace Tweakwise\TweakwiseJs\Model\Config\Source;
 
 use Magento\Config\Model\Config\Source\Yesno as MagentoYesno;
 use Tweakwise\TweakwiseJs\Model\Api\Client;
+use Tweakwise\TweakwiseJs\Model\Api\RequestFactory;
+use Tweakwise\TweakwiseJs\Model\Enum\Feature;
 
 class Yesno extends MagentoYesno
 {
     /**
      * @param Client $apiClient
+     * @param RequestFactory $requestFactory
      */
     public function __construct(
-        private readonly Client $apiClient
+        private readonly Client $apiClient,
+        private readonly RequestFactory $requestFactory,
     ) {
     }
 
@@ -22,10 +26,19 @@ class Yesno extends MagentoYesno
      */
     public function toOptionArray(): array
     {
-        if ($this->apiClient->isNavigationFeatureEnabled()) {
+        if ($this->isNavigationFeatureEnabled()) {
             return parent::toOptionArray();
         }
 
         return [['value' => 0, 'label' => __('No')]];
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isNavigationFeatureEnabled(): bool
+    {
+        $featureRequest = $this->requestFactory->create();
+        return $this->apiClient->getFeatures($featureRequest)[Feature::NAVIGATION->value] ?? false;
     }
 }
