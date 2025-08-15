@@ -60,12 +60,13 @@ define([
         },
 
         fetchOptions: function (attribute) {
+            const url = `${this.source.get('admin_url')}tweakwise/ajax/facetattributes`;
             const formKey = $('[name="form_key"]').val();
             const filterTemplate = this.source.get('data.tweakwise_filter_template');
             const categoryId = this.source.get('data.category_id');
 
             return $.ajax({
-                url: urlBuilder.build('/admin/tweakwise/ajax/facetattributes'),
+                url: url,
                 type: 'POST',
                 data: {
                     form_key: formKey,
