@@ -27,8 +27,8 @@ class FacetType extends AbstractModel implements FacetTypeInterface
         Context $context,
         Registry $registry,
         protected readonly SettingsTypeFactory $settingsTypeFactory,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);

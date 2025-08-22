@@ -27,8 +27,8 @@ class TemplateResponse extends Response implements TemplateResponseInterface
         Context $context,
         Registry $registry,
         protected readonly TemplateTypeFactory $templateTypeFactory,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);

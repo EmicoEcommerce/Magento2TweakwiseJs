@@ -27,8 +27,8 @@ class FacetResponse extends Response implements FacetResponseInterface
         Context $context,
         Registry $registry,
         protected readonly FacetTypeFactory $facetTypeFactory,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);

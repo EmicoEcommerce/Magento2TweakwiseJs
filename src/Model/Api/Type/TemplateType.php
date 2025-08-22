@@ -25,8 +25,8 @@ class TemplateType extends AbstractModel implements TemplateTypeInterface
         Context $context,
         Registry $registry,
         protected string $idField = 'templateid',
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);
