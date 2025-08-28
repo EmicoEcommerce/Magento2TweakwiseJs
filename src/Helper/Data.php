@@ -14,6 +14,7 @@ class Data extends AbstractHelper
 {
     public const GATEWAY_TWEAKWISE_NAVIGATOR_COM_URL = 'https://gateway.tweakwisenavigator.com';
     public const GATEWAY_TWEAKWISE_NAVIGATOR_NET_URL = 'https://gateway.tweakwisenavigator.net';
+    public const OTHER_ATTRIBUTE_VALUE = 'tw_other';
 
     /**
      * @param Context $context
@@ -30,12 +31,13 @@ class Data extends AbstractHelper
 
     /**
      * @param int $entityId
+     * @param int|null $storeId
      * @return string
      * @throws NoSuchEntityException
      */
-    public function getTweakwiseId(int $entityId): string
+    public function getTweakwiseId(int $entityId, ?int $storeId = null): string
     {
-        $storeId = (int) $this->storeManager->getStore()->getId();
+        $storeId = $storeId ?? (int) $this->storeManager->getStore()->getId();
         return $this->exportHelper->getTweakwiseId($storeId, $entityId);
     }
 }

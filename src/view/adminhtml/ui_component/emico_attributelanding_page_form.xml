@@ -1,0 +1,112 @@
+<?xml version="1.0" ?>
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+	<fieldset name="general">
+		<dynamicRows name="filter_attributes" component="Tweakwise_TweakwiseJs/js/dynamic-rows/dynamic-rows">
+			<container name="record">
+                <field name="attribute" formElement="select" component="Tweakwise_TweakwiseJs/js/form/element/filter-attribute" sortOrder="10"/>
+                <field name="attribute_other" formElement="input" sortOrder="20">
+                    <argument name="data" xsi:type="array">
+                        <item name="config" xsi:type="array">
+                            <item name="dataScope" xsi:type="string">attribute_other</item>
+                        </item>
+                    </argument>
+                </field>
+                <field name="value" formElement="select" component="Tweakwise_TweakwiseJs/js/form/element/filter-attribute-value" sortOrder="30"/>
+                <field name="attribute_value_other" formElement="input" sortOrder="40">
+                    <argument name="data" xsi:type="array">
+                        <item name="config" xsi:type="array">
+                            <item name="dataScope" xsi:type="string">attribute_value_other</item>
+                        </item>
+                    </argument>
+                </field>
+                <actionDelete name="action_delete" sortOrder="50"/>
+            </container>
+        </dynamicRows>
+
+        <field formElement="select" name="tweakwise_filter_template" sortOrder="65">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">Page</item>
+                    <item name="scopeLabel" xsi:type="string">[STORE VIEW]</item>
+                    <item name="showInDefault" xsi:type="boolean">1</item>
+                    <item name="showInWebsite" xsi:type="boolean">0</item>
+                    <item name="showInStore" xsi:type="boolean">1</item>
+                </item>
+            </argument>
+
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Tweakwise filter template</label>
+                <dataScope>tweakwise_filter_template</dataScope>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">false</rule>
+                </validation>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Tweakwise\TweakwiseJs\Model\Config\Source\FilterTemplate"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+
+        <field formElement="select" name="tweakwise_sort_template" sortOrder="70">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">Page</item>
+                    <item name="scopeLabel" xsi:type="string">[STORE VIEW]</item>
+                    <item name="showInDefault" xsi:type="boolean">1</item>
+                    <item name="showInWebsite" xsi:type="boolean">0</item>
+                    <item name="showInStore" xsi:type="boolean">1</item>
+                </item>
+            </argument>
+
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Tweakwise sort template</label>
+                <dataScope>tweakwise_sort_template</dataScope>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">false</rule>
+                </validation>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Tweakwise\TweakwiseJs\Model\Config\Source\SortTemplate"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+
+        <field formElement="select" name="tweakwise_builder_template" sortOrder="75">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">Page</item>
+                </item>
+            </argument>
+
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Tweakwise builder template</label>
+                <dataScope>tweakwise_builder_template</dataScope>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">false</rule>
+                </validation>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Tweakwise\TweakwiseJs\Model\Config\Source\BuilderTemplate"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+
+        <field name="is_filter_link_allowed">
+            <settings>
+                <visible>false</visible>
+            </settings>
+        </field>
+	</fieldset>
+</form>
