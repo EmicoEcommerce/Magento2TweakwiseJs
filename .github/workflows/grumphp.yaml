@@ -15,6 +15,7 @@ jobs:
         uses: actions/checkout@v3
       - name: GrumPHP
         run: |
+          composer2 config --global --auth gitlab-token.gitlab.com ${{ secrets.GITLAB_TOKEN }}
           composer2 config http-basic.repo.magento.com ${{ secrets.MAGENTO_USERNAME }} ${{ secrets.MAGENTO_PASSWORD }}
           composer2 install --dev --prefer-dist --no-scripts --no-progress --optimize-autoloader --no-interaction -vvv
           composer2 show
