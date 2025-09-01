@@ -1,11 +1,16 @@
-grumphp:
-    tasks:
-      xmllint:
-        triggered_by: ['xml', 'xsd']
-        scheme_validation: true
-        x_include: true
-        dtd_validation: true
-      phpcs: ~
-      phpmd:
-        ruleset:
-          - "ruleset.xml"
+# Don't edit below this line
+# This GrumPHP File is copied to the project dir. And should be edited for custom overrides.
+imports:
+- { resource: vendor/emico/code-quality/grumphp.base.yml }
+# Add project custom ignores like this
+# parameters:
+#     ignore.phpcs:
+#         - "test"
+#     ignore.phpmd:
+#         - "test"
+#     ignore.phpstan:
+#         - "test"
+# Edits below this line
+parameters:
+  tasks:
+    git_commit_message: ~

@@ -56,7 +56,7 @@ class Client
     {
         $cachedFeatures = $this->cache->load(self::FEATURES_CACHE_KEY);
         if ($cachedFeatures) {
-            return $this->jsonSerializer->unserialize($cachedFeatures);
+            return (array)$this->jsonSerializer->unserialize($cachedFeatures);
         }
 
         $instanceKey = $this->config->getInstanceKey();
@@ -122,7 +122,7 @@ class Client
         }
 
         $contents = $response->getBody()->getContents();
-        return $this->jsonSerializer->unserialize($contents);
+        return (array)$this->jsonSerializer->unserialize($contents);
     }
 
     /**

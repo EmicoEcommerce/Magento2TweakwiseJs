@@ -23,7 +23,6 @@ class Autocomplete
      * @param Subject $subject
      * @param array $result
      * @return array
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function afterGetItems(Subject $subject, array $result): array
     {

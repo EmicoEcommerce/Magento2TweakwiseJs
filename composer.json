@@ -9,11 +9,7 @@
     },
     "require-dev": {
         "magento/framework": "*",
-        "phpro/grumphp-shim": "^2.7",
-        "squizlabs/php_codesniffer": "^3.10",
-        "phpmd/phpmd": "^2.15",
-        "slevomat/coding-standard": "^8.15",
-        "magento-ecg/coding-standard": "^4.5"
+        "emico/code-quality": "^10.5"
     },
     "autoload": {
         "files": [
@@ -23,17 +19,23 @@
             "Tweakwise\\TweakwiseJs\\": "src/"
         }
     },
-    "repositories": [
-        {
+    "repositories": {
+        "magento": {
             "type": "composer",
             "url": "https://repo.magento.com/"
+        },
+        "emico": {
+            "type": "composer",
+            "url": "https://git.emico.io/api/v4/group/239/-/packages/composer/"
         }
-    ],
+    },
     "config": {
         "allow-plugins": {
-            "phpro/grumphp-shim": true,
             "magento/composer-dependency-version-audit-plugin": false,
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "phpstan/extension-installer": true,
+            "emico/code-quality": true,
+            "phpro/grumphp": true
         }
     }
 }
