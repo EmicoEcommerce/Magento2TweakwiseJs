@@ -25,3 +25,4 @@ parameters:
         - ./vendor/emico/code-quality/phpstan/stubs/Magento/InventoryImportExport/Model/Import/Serializer/Json.stub
     bootstrapFiles:
         - ../../autoload.php
+
