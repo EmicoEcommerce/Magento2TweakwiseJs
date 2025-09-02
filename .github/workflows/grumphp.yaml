@@ -13,16 +13,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Prepare SSH key
-        uses: webfactory/ssh-agent@v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.GITLAB_SSH_KEY }}
-      - name: Add GitLab to known_hosts
+      - name: Setup SSH for GitLab
         run: |
           mkdir -p ~/.ssh
+          echo "${{ secrets.GITLAB_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan git.emico.io >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-          cat ~/.ssh/known_hosts
+        shell: bash
       - name: GrumPHP
         run: |
           composer2 config http-basic.repo.magento.com ${{ secrets.MAGENTO_USERNAME }} ${{ secrets.MAGENTO_PASSWORD }}
