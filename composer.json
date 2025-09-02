@@ -26,7 +26,7 @@
         },
         "emico/code-quality": {
             "type": "vcs",
-            "url": "git@git.emico.io:composer-packages/generic/codequality.git"
+            "url": "https://git.emico.io/composer-packages/generic/codequality.git"
         }
     },
     "config": {
