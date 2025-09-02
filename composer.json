@@ -36,6 +36,9 @@
             "phpstan/extension-installer": true,
             "emico/code-quality": true,
             "phpro/grumphp": true
+        },
+        "preferred-install": {
+            "emico/code-quality": "dist"
         }
     }
 }
