@@ -13,10 +13,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Prepare SSH key
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.GITLAB_SSH_KEY }}
       - name: GrumPHP
         run: |
           composer2 config --global --auth http-basic.git.emico.io gitlab-ci-token ${{ secrets.GITLAB_TOKEN }}
