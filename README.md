@@ -10,7 +10,7 @@ composer require tweakwise/magento2-tweakwise-js
 
 Enable module and run installers
 ```sh
-php bin/magento module:enable Tweakwise_Magento2TweakwiseExport Tweakwise_TweakwiseJs
+php bin/magento module:enable Emico_AttributeLanding Tweakwise_Magento2TweakwiseExport Tweakwise_TweakwiseJs
 php bin/magento setup:upgrade
 php bin/magento setup:static-content:deploy
 ```
