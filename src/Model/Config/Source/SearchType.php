@@ -46,6 +46,7 @@ class SearchType implements OptionSourceInterface
     protected function isSuggestionsFeatureEnabled(): bool
     {
         $featureRequest = $this->requestFactory->create();
+        // @phpstan-ignore-next-line
         return (bool)$this->apiClient->getFeatures($featureRequest)[Feature::SUGGESTIONS->value] ?? false;
     }
 }

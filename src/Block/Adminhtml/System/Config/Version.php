@@ -28,7 +28,7 @@ class Version extends Field
      * @param AbstractElement $element
      * @return string
      * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter.FoundInExtendedClass
      */
     protected function _getElementHtml(AbstractElement $element): string
     {

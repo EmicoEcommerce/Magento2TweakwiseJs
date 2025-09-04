@@ -78,7 +78,7 @@ class ManageLayoutBlocks implements ObserverInterface
         }
 
         $currentCategory = $this->layerResolver->get()->getCurrentCategory();
-        if (!$currentCategory) {
+        if (!$currentCategory->getId()) {
             return false;
         }
 

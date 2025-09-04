@@ -55,6 +55,7 @@ class AttributeLanding extends Base
     {
         $filterAttributes = $this->serializer->unserialize($filterAttributesSerialized);
         $filters = [];
+        // @phpstan-ignore-next-line
         foreach ($filterAttributes as $filterAttribute) {
             $filters[$this->getAttribute($filterAttribute, $addPrefix)] = $this->getValue($filterAttribute);
         }

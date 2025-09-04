@@ -25,7 +25,7 @@ class AddPageAssets implements ObserverInterface
     /**
      * @param Observer $observer
      * @return void
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter.FoundInImplementedInterface
      */
     public function execute(Observer $observer): void
     {

@@ -7,6 +7,7 @@ namespace Tweakwise\TweakwiseJs\ViewModel;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
+use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use Tweakwise\TweakwiseJs\Helper\Data;
 use Tweakwise\TweakwiseJs\Model\Config;
@@ -45,8 +46,10 @@ class Search extends Base
     public function getStoreRootCategory(): int
     {
         try {
+            /** @var Store $store */
+            $store = $this->storeManager->getStore();
             return (int)$this->dataHelper->getTweakwiseId(
-                (int)$this->storeManager->getStore()->getRootCategoryId()
+                (int)$store->getRootCategoryId()
             );
         } catch (NoSuchEntityException $e) {
             return 0;
