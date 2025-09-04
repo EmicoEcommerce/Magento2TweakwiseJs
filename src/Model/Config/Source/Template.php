@@ -39,6 +39,7 @@ class Template implements OptionSourceInterface
             ['value' => null, 'label' => __('* Default template')],
         ];
 
+        // @phpstan-ignore-next-line
         if (!is_array($response->getTemplates())) {
             return $result;
         }

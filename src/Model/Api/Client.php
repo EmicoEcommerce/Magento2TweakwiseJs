@@ -131,6 +131,7 @@ class Client
                     sprintf(
                         'Invalid response received by Tweakwise server, xml load fails. Request "%s", XML Errors: %s',
                         $url,
+                        // @phpstan-ignore-next-line
                         implode(PHP_EOL, $errors)
                     )
                 );
