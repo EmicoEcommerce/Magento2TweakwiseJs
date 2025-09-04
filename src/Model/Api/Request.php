@@ -26,7 +26,6 @@ class Request
      */
     protected array $parameters = [];
 
-
     /**
      * @return string
      */
