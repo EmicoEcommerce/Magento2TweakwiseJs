@@ -5,7 +5,10 @@
     "type": "magento2-module",
     "require": {
         "php": "^8.1",
-        "tweakwise/magento2-tweakwise-export": "^7.0"
+        "tweakwise/magento2-tweakwise-export": "^7.0",
+        "emico/m2-attributelanding": "^6.0",
+        "ext-simplexml": "*",
+        "ext-libxml": "*"
     },
     "require-dev": {
         "magento/framework": "*",

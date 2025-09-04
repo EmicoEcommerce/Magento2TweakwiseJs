@@ -1,0 +1,26 @@
+<?php
+declare(strict_types = 1);
+
+use Emico\AttributeLanding\Block\LandingPage\Content;
+use Tweakwise\TweakwiseJs\ViewModel\AttributeLanding;
+
+/** @var Content $block */
+
+/** @var AttributeLanding $viewModel */
+$viewModel = $block->getViewModel();
+$landingPage = $block->getLandingPage();
+?>
+
+<script>
+    window['twn-starter-config'].navigation.cid = <?= $viewModel->getTweakwiseId((int)$landingPage->getCategoryId());?>;
+
+    <?php if($landingPage->getHideSelectedFilters()) : ?>
+        window['twn-starter-config'].parameters = '<?= $viewModel->getParameters($landingPage->getFilterAttributes());?>';
+    <?php else : ?>
+        window['twn-starter-config'].navigation.filters = <?= /* @noEscape */ $viewModel->getFilters($landingPage->getFilterAttributes());?>;
+    <?php endif; ?>
+
+    window['twn-starter-config'].navigation.filterTemplateId = <?= (int)$landingPage->getTweakwiseFilterTemplate()?>;
+    window['twn-starter-config'].navigation.sortingTemplateId = <?= (int)$landingPage->getTweakwiseSortTemplate()?>;
+    window['twn-starter-config'].navigation.builderTemplateId = <?= (int)$landingPage->getTweakwiseBuilderTemplate()?>;
+</script>

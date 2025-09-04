@@ -1,0 +1,104 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Emico\AttributeLanding\Controller\Adminhtml\Page\Save"
+                type="Tweakwise\TweakwiseJs\Controller\Adminhtml\Page\Save"/>
+    <type name="Emico\AttributeLanding\Model\Page\DataProvider">
+        <plugin name="Tweakwise_TweakwiseJs_Plugin_Model_Page_DataProvider"
+                type="Tweakwise\TweakwiseJs\Plugin\Model\Page\DataProvider"/>
+    </type>
+
+    <virtualType name="Tweakwise\TweakwiseJs\Model\Api\RequestFactory\Catalog\TemplateRequest"
+                 type="Tweakwise\TweakwiseJs\Model\Api\RequestFactory">
+        <arguments>
+            <argument name="type" xsi:type="string">Tweakwise\TweakwiseJs\Model\Api\Request\Catalog\TemplateRequest
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Tweakwise\TweakwiseJs\Model\Api\RequestFactory\Catalog\SortTemplateRequest"
+                 type="Tweakwise\TweakwiseJs\Model\Api\RequestFactory">
+        <arguments>
+            <argument name="type" xsi:type="string">Tweakwise\TweakwiseJs\Model\Api\Request\Catalog\SortTemplateRequest
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Tweakwise\TweakwiseJs\Model\Api\RequestFactory\Catalog\BuilderTemplateRequest"
+                 type="Tweakwise\TweakwiseJs\Model\Api\RequestFactory">
+        <arguments>
+            <argument name="type" xsi:type="string">
+                Tweakwise\TweakwiseJs\Model\Api\Request\Catalog\BuilderTemplateRequest
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Tweakwise\TweakwiseJs\Model\Api\RequestFactory\FacetRequest"
+                 type="Tweakwise\TweakwiseJs\Model\Api\RequestFactory">
+        <arguments>
+            <argument name="type" xsi:type="string">Tweakwise\TweakwiseJs\Model\Api\Request\FacetRequest</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Tweakwise\TweakwiseJs\Model\Api\RequestFactory\FacetAttributeRequest"
+                 type="Tweakwise\TweakwiseJs\Model\Api\RequestFactory">
+        <arguments>
+            <argument name="type" xsi:type="string">Tweakwise\TweakwiseJs\Model\Api\Request\FacetAttributeRequest</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Tweakwise\TweakwiseJs\Model\Api\RequestFactory\FeatureRequest"
+                 type="Tweakwise\TweakwiseJs\Model\Api\RequestFactory">
+        <arguments>
+            <argument name="type" xsi:type="string">Tweakwise\TweakwiseJs\Model\Api\Request\FeatureRequest</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Tweakwise\TweakwiseJs\Model\Config\Source\FilterTemplate"
+                 type="Tweakwise\TweakwiseJs\Model\Config\Source\Template">
+        <arguments>
+            <argument name="requestFactory" xsi:type="object">
+                Tweakwise\TweakwiseJs\Model\Api\RequestFactory\Catalog\TemplateRequest
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Tweakwise\TweakwiseJs\Model\Config\Source\SortTemplate"
+                 type="Tweakwise\TweakwiseJs\Model\Config\Source\Template">
+        <arguments>
+            <argument name="requestFactory" xsi:type="object">
+                Tweakwise\TweakwiseJs\Model\Api\RequestFactory\Catalog\SortTemplateRequest
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Tweakwise\TweakwiseJs\Model\Config\Source\BuilderTemplate"
+                 type="Tweakwise\TweakwiseJs\Model\Config\Source\Template">
+        <arguments>
+            <argument name="requestFactory" xsi:type="object">
+                Tweakwise\TweakwiseJs\Model\Api\RequestFactory\Catalog\BuilderTemplateRequest
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Tweakwise\TweakwiseJs\Controller\Adminhtml\Ajax\Facets">
+        <arguments>
+            <argument name="requestFactory" xsi:type="object">
+                Tweakwise\TweakwiseJs\Model\Api\RequestFactory\FacetRequest
+            </argument>
+        </arguments>
+    </type>
+    <type name="Tweakwise\TweakwiseJs\Controller\Adminhtml\Ajax\FacetAttributes">
+        <arguments>
+            <argument name="requestFactory" xsi:type="object">
+                Tweakwise\TweakwiseJs\Model\Api\RequestFactory\FacetAttributeRequest
+            </argument>
+        </arguments>
+    </type>
+    <type name="Tweakwise\TweakwiseJs\Model\Config\Source\Yesno">
+        <arguments>
+            <argument name="requestFactory" xsi:type="object">
+                Tweakwise\TweakwiseJs\Model\Api\RequestFactory\FeatureRequest
+            </argument>
+        </arguments>
+    </type>
+    <type name="Tweakwise\TweakwiseJs\Model\Config\Source\SearchType">
+        <arguments>
+            <argument name="requestFactory" xsi:type="object">
+                Tweakwise\TweakwiseJs\Model\Api\RequestFactory\FeatureRequest
+            </argument>
+        </arguments>
+    </type>
+</config>

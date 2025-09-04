@@ -10,8 +10,10 @@ use Magento\Framework\App\CacheInterface;
 use Magento\Framework\App\Config as AppConfig;
 use Magento\Framework\Serialize\Serializer\Json;
 use Psr\Log\LoggerInterface;
-use Tweakwise\TweakwiseJs\Model\Api\Exception\ApiException;
+use SimpleXMLElement;
+use Tweakwise\TweakwiseJs\Api\Data\Api\Response\FeatureResponseInterface;
 use Tweakwise\TweakwiseJs\Helper\Data;
+use Tweakwise\TweakwiseJs\Model\Api\Exception\ApiException;
 use Tweakwise\TweakwiseJs\Model\Config;
 use Tweakwise\TweakwiseJs\Model\Enum\Feature;
 
@@ -24,35 +26,22 @@ class Client
      * @param Json $jsonSerializer
      * @param LoggerInterface $logger
      * @param CacheInterface $cache
+     * @param ResponseFactory $responseFactory
      */
     public function __construct(
         private readonly Config $config,
         private readonly Json $jsonSerializer,
         private readonly LoggerInterface $logger,
-        private readonly CacheInterface $cache
+        private readonly CacheInterface $cache,
+        private readonly ResponseFactory $responseFactory,
     ) {
     }
 
     /**
-     * @return bool
-     */
-    public function isNavigationFeatureEnabled(): bool
-    {
-        return $this->getFeatures()[Feature::NAVIGATION->value] ?? false;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isSuggestionsFeatureEnabled(): bool
-    {
-        return $this->getFeatures()[Feature::SUGGESTIONS->value] ?? false;
-    }
-
-    /**
+     * @param Request $request
      * @return array
      */
-    private function getFeatures(): array
+    public function getFeatures(Request $request): array
     {
         $cachedFeatures = $this->cache->load(self::FEATURES_CACHE_KEY);
         if ($cachedFeatures) {
@@ -64,65 +53,95 @@ class Client
             return $this->getFallbackValues();
         }
 
-        $url = sprintf(
-            '%s/instance/%s',
-            Data::GATEWAY_TWEAKWISE_NAVIGATOR_COM_URL,
-            $instanceKey
-        );
+        /** @var FeatureResponseInterface $response */
+        $response = $this->request($request);
 
-        try {
-            $response = $this->doRequest($url);
-        } catch (ApiException $e) {
-            $this->logger->critical(
-                'Tweakwise API error: Unable to retrieve Tweakwise features',
-                [
-                    'url' => $url,
-                    'exception' => $e->getMessage()
-                ]
-            );
+        $features = $response->getFeatures();
+        if (!$response->getFeatures()) {
             return $this->getFallbackValues();
         }
 
-        $features = [];
-        foreach ($response['features'] ?? [] as $feature) {
-            $features[$feature['name']] = $feature['value'];
-        }
-
-        if ($features) {
-            $this->cache->save(
-                $this->jsonSerializer->serialize($features),
-                self::FEATURES_CACHE_KEY,
-                [AppConfig::CACHE_TAG]
-            );
-        }
+        $this->cache->save(
+            $this->jsonSerializer->serialize($features),
+            self::FEATURES_CACHE_KEY,
+            [AppConfig::CACHE_TAG]
+        );
 
         return $features;
     }
 
     /**
-     * @param string $url
-     * @param string $method
-     * @return array
+     * @param Request $request
+     * @return Response|void
+     */
+    public function request(Request $request)
+    {
+        try {
+            return $this->doRequest($request);
+        } catch (ApiException $e) {
+            $this->logger->critical(
+                'Tweakwise API error: Unable to do Tweakwise request',
+                [
+                    'url' => $request->getPath(),
+                    'exception' => $e->getMessage()
+                ]
+            );
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return Response
      * @throws ApiException
      */
-    private function doRequest(string $url, string $method = 'GET'): array
+    private function doRequest(Request $request): Response
     {
+        $url = sprintf(
+            '%s/%s/%s',
+            rtrim(Data::GATEWAY_TWEAKWISE_NAVIGATOR_NET_URL, '/'),
+            trim($request->getPath(), '/'),
+            $this->config->getInstanceKey() ?? ''
+        );
         $httpClient = new HttpClient(
             [
                 'headers' => [
-                    'Accept' => 'application/json',
+                    'Accept' => 'application/xml',
                 ]
             ]
         );
 
         try {
-            $response = $httpClient->request($method, $url);
+            $response = $httpClient->request($request->isPostRequest() ? 'POST' : 'GET', $url, [
+                'query' => $request->getParameters()
+            ]);
         } catch (GuzzleException $e) {
             throw new ApiException('An error occurred while retrieving data via the API', previous: $e);
         }
 
-        $contents = $response->getBody()->getContents();
-        return (array)$this->jsonSerializer->unserialize($contents);
+        $xmlPreviousErrors = libxml_use_internal_errors(true);
+        try {
+            $xmlElement = simplexml_load_string(
+                $response->getBody()->__toString(),
+                SimpleXMLElement::class,
+                LIBXML_NOCDATA
+            );
+            if ($xmlElement === false) {
+                $errors = libxml_get_errors();
+                throw new ApiException(
+                    sprintf(
+                        'Invalid response received by Tweakwise server, xml load fails. Request "%s", XML Errors: %s',
+                        $url,
+                        implode(PHP_EOL, $errors)
+                    )
+                );
+            }
+        } finally {
+            libxml_use_internal_errors($xmlPreviousErrors);
+        }
+
+        $result = $this->xmlToArray($xmlElement);
+        $result['headers'] = $response->getHeaders();
+        return $this->responseFactory->create($request, $result);
     }
 
     /**
@@ -134,5 +153,50 @@ class Client
             Feature::NAVIGATION->value => false,
             Feature::SUGGESTIONS->value => false
         ];
+    }
+
+    /**
+     * @param SimpleXMLElement $element
+     * @return array
+     */
+    protected function xmlToArray(SimpleXMLElement $element): array
+    {
+        $result = [];
+        foreach ($element->attributes() as $attribute => $value) {
+            $result['@' . $attribute] = (string)$value;
+        }
+
+        /** @var SimpleXMLElement $node */
+        foreach ((array)$element as $index => $node) {
+            if ($index === '@attributes') {
+                continue;
+            }
+
+            $result[$index] = $this->xmlToArrayValue($node);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param SimpleXMLElement|array|string $value
+     * @return string|array
+     */
+    protected function xmlToArrayValue(SimpleXMLElement|array|string $value): string|array
+    {
+        if ($value instanceof SimpleXMLElement) {
+            return $this->xmlToArray($value);
+        }
+
+        if (is_array($value)) {
+            $values = [];
+            foreach ($value as $element) {
+                $values[] = $this->xmlToArrayValue($element);
+            }
+
+            return $values;
+        }
+
+        return (string)$value;
     }
 }
