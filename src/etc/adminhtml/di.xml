@@ -15,6 +15,7 @@
             </argument>
         </arguments>
     </virtualType>
+
     <virtualType name="Tweakwise\TweakwiseJs\Model\Api\RequestFactory\Catalog\SortTemplateRequest"
                  type="Tweakwise\TweakwiseJs\Model\Api\RequestFactory">
         <arguments>
@@ -46,6 +47,14 @@
                  type="Tweakwise\TweakwiseJs\Model\Api\RequestFactory">
         <arguments>
             <argument name="type" xsi:type="string">Tweakwise\TweakwiseJs\Model\Api\Request\FeatureRequest</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Tweakwise\TweakwiseJs\Model\Api\RequestFactory\Catalog\LanguageRequest"
+                 type="Tweakwise\TweakwiseJs\Model\Api\RequestFactory">
+        <arguments>
+            <argument name="type" xsi:type="string">Tweakwise\TweakwiseJs\Model\Api\Request\Catalog\LanguageRequest
+            </argument>
         </arguments>
     </virtualType>
 
@@ -98,6 +107,13 @@
         <arguments>
             <argument name="requestFactory" xsi:type="object">
                 Tweakwise\TweakwiseJs\Model\Api\RequestFactory\FeatureRequest
+            </argument>
+        </arguments>
+    </type>
+    <type name="Tweakwise\TweakwiseJs\Model\Config\Source\Language">
+        <arguments>
+            <argument name="requestFactory" xsi:type="object">
+                Tweakwise\TweakwiseJs\Model\Api\RequestFactory\Catalog\LanguageRequest
             </argument>
         </arguments>
     </type>

@@ -12,6 +12,7 @@ class Config
 {
     private const XML_PATH_ENABLED = 'tweakwise/tweakwisejs/general/enabled';
     private const XML_PATH_INSTANCE_KEY = 'tweakwise/tweakwisejs/general/instance_key';
+    private const XML_PATH_LANGUAGE = 'tweakwise/tweakwisejs/general/language';
 
     private const XML_PATH_MERCHANDISING_ENABLED = 'tweakwise/tweakwisejs/merchandising/enabled';
 
@@ -75,5 +76,13 @@ class Config
     public function getEventsCookieName(): string
     {
         return $this->scopeConfig->getValue(self::XML_PATH_EVENTS_COOKIE_NAME, ScopeInterface::SCOPE_STORE);
+    }
+
+    /**
+     * @return string
+     */
+    public function getLanguage(): string
+    {
+        return $this->scopeConfig->getValue(self::XML_PATH_LANGUAGE, ScopeInterface::SCOPE_STORE) ?? '';
     }
 }

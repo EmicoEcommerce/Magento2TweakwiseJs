@@ -49,4 +49,9 @@ class Base implements ArgumentInterface
     {
         return $this->config->isEventsEnabled();
     }
+    
+    public function getLanguage(): string
+    {
+        return $this->config->getLanguage();
+    }
 }

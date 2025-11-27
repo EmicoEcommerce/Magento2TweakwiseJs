@@ -6,6 +6,7 @@ namespace Tweakwise\TweakwiseJs\Model\Api;
 
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Tweakwise\TweakwiseJs\Model\Config;
 
 class Request
 {
@@ -14,6 +15,7 @@ class Request
      */
     public function __construct(
         protected readonly StoreManagerInterface $storeManager,
+        protected readonly Config $config
     ) {
     }
     /**
@@ -74,5 +76,20 @@ class Request
     public function getStores(): array
     {
         return $this->storeManager->getStores();
+    }
+
+    /**
+     * Set language parameter if configured
+     *
+     * @return void
+     */
+    public function setLanguage(): void
+    {
+        $language = $this->config->getLanguage();
+        if (!$language) {
+            return;
+        }
+
+        $this->addParameter('tn_lang', $language);
     }
 }
