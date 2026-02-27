@@ -1,8 +1,17 @@
 <?xml version="1.0" ?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Tweakwise\TweakwiseJs\Api\Event\CheckoutSessionServiceInterface"
+                type="Tweakwise\TweakwiseJs\Service\Event\CheckoutSessionService"/>
+    <preference for="Tweakwise\TweakwiseJs\Api\Event\PriceFormatServiceInterface"
+                type="Tweakwise\TweakwiseJs\Service\Event\PriceFormatService"/>
+
     <type name="Magento\Search\Model\Autocomplete">
         <plugin name="Tweakwise_TweakwiseJs_Plugin_Model_Autocomplete"
                 type="Tweakwise\TweakwiseJs\Plugin\Model\Autocomplete"/>
+    </type>
+    <type name="Magento\Checkout\CustomerData\Cart">
+        <plugin name="Tweakwise_TweakwiseJs_Plugin_Event_CustomerData_Cart_AddEventDataToCartSection"
+                type="Tweakwise\TweakwiseJs\Plugin\Event\CustomerData\Cart\AddEventDataToCartSection"/>
     </type>
 </config>
