@@ -1,0 +1,18 @@
+<script>
+    /**
+     * @param {array} tweakwiseObject
+     */
+    function sendTweakwiseEvents(tweakwiseObject) {
+        if (!tweakwiseObject && tweakwiseObject.length) {
+            return;
+        }
+debugger;
+        Object.entries(tweakwiseObject).forEach(([key, item]) => {
+            tweakwiseLayer.push({
+                event: key,
+                data: item.data
+            });
+        });
+    }
+</script>
+<?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>

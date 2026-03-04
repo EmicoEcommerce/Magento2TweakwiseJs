@@ -38,7 +38,7 @@ class TriggerAddToCartEvent implements ObserverInterface
         }
 
         $this->checkoutSessionService->add(
-            'add_to_cart_event',
+            'AddToCart',
             $this->addToCartEvent->setProduct($product)->setQty($qty)->get()
         );
     }
