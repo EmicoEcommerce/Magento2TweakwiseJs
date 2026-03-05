@@ -1,6 +1,9 @@
 <script>
     window.addEventListener('private-content-loaded', function (event) {
-        if (event?.detail?.data?.cart?.tweakwise_events) {
+        if (
+            event?.detail?.data?.cart?.tweakwise_events ||
+            event?.detail?.data?.customer?.tweakwise_events
+        ) {
             sendTweakwiseEvents(event.detail.data.cart.tweakwise_events)
         }
     });
