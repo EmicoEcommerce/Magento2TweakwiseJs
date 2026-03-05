@@ -1,13 +1,8 @@
 <script>
     require(['Magento_Customer/js/customer-data'], function (customerData) {
         var cartSection = customerData.get('cart');
-        var firstRun = true;
 
         cartSection.subscribe(function (updatedCart) {
-            if (firstRun) {
-                firstRun = false;
-                return;
-            }
             sendTweakwiseEvents(updatedCart?.tweakwise_events)
         });
     });

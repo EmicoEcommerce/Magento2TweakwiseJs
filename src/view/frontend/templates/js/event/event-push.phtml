@@ -3,16 +3,20 @@
      * @param {array} tweakwiseObject
      */
     function sendTweakwiseEvents(tweakwiseObject) {
-        if (!tweakwiseObject && tweakwiseObject.length) {
+        if (!tweakwiseObject || !Object.keys(tweakwiseObject).length) {
             return;
         }
-debugger;
-        Object.entries(tweakwiseObject).forEach(([key, item]) => {
-            tweakwiseLayer.push({
-                event: key,
-                data: item.data
-            });
+
+        Object.entries(tweakwiseObject).forEach(([key, eventData]) => {
+            tweakwiseLayer.push(eventData);
         });
+
+        let mageCacheStorage = JSON.parse(window.localStorage.getItem('mage-cache-storage'));
+        mageCacheStorage.cart.tweakwise_events = {};
+        mageCacheStorage.customer.tweakwise_events = {};
+
+        window.localStorage.setItem('mage-cache-storage', JSON.stringify(mageCacheStorage));
+
     }
 </script>
 <?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
