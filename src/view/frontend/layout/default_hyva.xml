@@ -14,5 +14,11 @@
                 </arguments>
             </block>
         </referenceContainer>
+
+        <referenceBlock name="tweakwise-js-init-event-push">
+            <action method="setTemplate">
+                <argument name="template" xsi:type="string">Tweakwise_TweakwiseJs::js/event/hyva/init-event-push.phtml</argument>
+            </action>
+        </referenceBlock>
     </body>
 </page>

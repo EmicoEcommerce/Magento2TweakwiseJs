@@ -13,4 +13,5 @@ $viewModel = $block->getViewModel();
 <script>
     window['twn-starter-config'].navigation.cid = <?= $viewModel->getTweakwiseId((int)$block->getCurrentCategory()->getId());?>;
 </script>
+<?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
 

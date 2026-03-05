@@ -1,0 +1,8 @@
+<script>
+    window.addEventListener('private-content-loaded', function (event) {
+        if (event?.detail?.data?.cart?.tweakwise_events) {
+            sendTweakwiseEvents(event.detail.data.cart.tweakwise_events)
+        }
+    });
+</script>
+<?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
