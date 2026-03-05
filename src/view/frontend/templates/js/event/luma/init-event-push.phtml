@@ -1,9 +1,11 @@
 <script>
     require(['Magento_Customer/js/customer-data'], function (customerData) {
-        var cartSection = customerData.get('cart');
+        getSectionNames().forEach(sectionName => {
+            let section = customerData.get(sectionName);
 
-        cartSection.subscribe(function (updatedCart) {
-            sendTweakwiseEvents(updatedCart?.tweakwise_events)
+            section.subscribe(function (updatedSection) {
+                sendTweakwiseEvents(updatedSection?.tweakwise_events, sectionName)
+            });
         });
     });
 </script>

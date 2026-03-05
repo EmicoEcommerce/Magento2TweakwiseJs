@@ -1,11 +1,12 @@
 <script>
     window.addEventListener('private-content-loaded', function (event) {
-        if (
-            event?.detail?.data?.cart?.tweakwise_events ||
-            event?.detail?.data?.customer?.tweakwise_events
-        ) {
-            sendTweakwiseEvents(event.detail.data.cart.tweakwise_events)
-        }
+        getSectionNames().forEach(sectionName => {
+            const twEvents = event.detail.data[sectionName];
+
+            if (twEvents.tweakwise_events) {
+                sendTweakwiseEvents(twEvents.tweakwise_events, sectionName)
+            }
+        });
     });
 </script>
 <?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
