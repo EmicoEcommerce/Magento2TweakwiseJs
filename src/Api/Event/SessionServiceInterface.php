@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tweakwise\TweakwiseJs\Api\Event;
 
-interface CheckoutSessionServiceInterface
+interface SessionServiceInterface
 {
     /**
      * @param string $identifier

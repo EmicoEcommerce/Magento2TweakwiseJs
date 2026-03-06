@@ -1,10 +1,10 @@
 <script>
     window.addEventListener('private-content-loaded', function (event) {
         getSectionNames().forEach(sectionName => {
-            const twEvents = event.detail.data[sectionName];
+            const sectionData = event.detail.data[sectionName];
 
-            if (twEvents.tweakwise_events) {
-                sendTweakwiseEvents(twEvents.tweakwise_events, sectionName)
+            if (sectionData.tweakwise_events) {
+                sendTweakwiseEvents(sectionData.tweakwise_events, sectionName)
             }
         });
     });

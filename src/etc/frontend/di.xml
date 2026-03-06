@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <preference for="Tweakwise\TweakwiseJs\Api\Event\CheckoutSessionServiceInterface"
-                type="Tweakwise\TweakwiseJs\Service\Event\CheckoutSessionService"/>
+    <preference for="Tweakwise\TweakwiseJs\Api\Event\SessionServiceInterface"
+                type="Tweakwise\TweakwiseJs\Service\Event\SessionService"/>
     <preference for="Tweakwise\TweakwiseJs\Api\Event\PriceFormatServiceInterface"
                 type="Tweakwise\TweakwiseJs\Service\Event\PriceFormatService"/>
 
@@ -10,8 +10,57 @@
         <plugin name="Tweakwise_TweakwiseJs_Plugin_Model_Autocomplete"
                 type="Tweakwise\TweakwiseJs\Plugin\Model\Autocomplete"/>
     </type>
+
+    <virtualType name="Tweakwise\TweakwiseJs\Service\Event\CheckoutSessionService"
+                 type="Tweakwise\TweakwiseJs\Service\Event\SessionService">
+    <arguments>
+            <argument name="session" xsi:type="object">Magento\Checkout\Model\Session</argument>
+        </arguments>
+    </virtualType>
+    <type name="Tweakwise\TweakwiseJs\Observer\Event\TriggerAddToCartEvent">
+        <arguments>
+            <argument name="sessionService" xsi:type="object">
+                Tweakwise\TweakwiseJs\Service\Event\CheckoutSessionService
+            </argument>
+        </arguments>
+    </type>
+    <virtualType name="Tweakwise\TweakwiseJs\Plugin\Event\CustomerData\Cart\AddEventDataToCartSection"
+                 type="Tweakwise\TweakwiseJs\Plugin\Event\AddEventDataToSection">
+        <arguments>
+            <argument name="sessionService" xsi:type="object">
+                Tweakwise\TweakwiseJs\Service\Event\CheckoutSessionService
+            </argument>
+        </arguments>
+    </virtualType>
     <type name="Magento\Checkout\CustomerData\Cart">
         <plugin name="Tweakwise_TweakwiseJs_Plugin_Event_CustomerData_Cart_AddEventDataToCartSection"
                 type="Tweakwise\TweakwiseJs\Plugin\Event\CustomerData\Cart\AddEventDataToCartSection"/>
+    </type>
+
+    <virtualType name="Tweakwise\TweakwiseJs\Service\Event\CustomerSessionService"
+                 type="Tweakwise\TweakwiseJs\Service\Event\SessionService">
+    <arguments>
+            <argument name="session" xsi:type="object">Magento\Customer\Model\Session</argument>
+        </arguments>
+    </virtualType>
+    <type name="Tweakwise\TweakwiseJs\Observer\Event\TriggerAddToWishlistEvent">
+        <arguments>
+            <argument name="sessionService" xsi:type="object">
+                Tweakwise\TweakwiseJs\Service\Event\CustomerSessionService
+            </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Tweakwise\TweakwiseJs\Plugin\Event\CustomerData\Wishlist\AddEventDataToWishlistSection"
+                 type="Tweakwise\TweakwiseJs\Plugin\Event\AddEventDataToSection">
+        <arguments>
+            <argument name="sessionService" xsi:type="object">
+                Tweakwise\TweakwiseJs\Service\Event\CustomerSessionService
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Wishlist\CustomerData\Wishlist">
+        <plugin name="Tweakwise_TweakwiseJs_Plugin_Event_CustomerData_Wishlist_AddEventDataToWishlistSection"
+                type="Tweakwise\TweakwiseJs\Plugin\Event\CustomerData\Wishlist\AddEventDataToWishlistSection"/>
     </type>
 </config>

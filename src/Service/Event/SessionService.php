@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Tweakwise\TweakwiseJs\Service\Event;
 
-use Magento\Checkout\Model\Session as CheckoutSession;
-use Tweakwise\TweakwiseJs\Api\Event\CheckoutSessionServiceInterface;
+use Magento\Framework\Session\SessionManagerInterface;
+use Tweakwise\TweakwiseJs\Api\Event\SessionServiceInterface;
 
-class CheckoutSessionService implements CheckoutSessionServiceInterface
+class SessionService implements SessionServiceInterface
 {
     /**
-     * @param CheckoutSession $checkoutSession
+     * @param SessionManagerInterface $session
      */
     public function __construct(
-        private readonly CheckoutSession $checkoutSession,
+        private readonly SessionManagerInterface $session,
     ) {
     }
 
@@ -26,7 +26,8 @@ class CheckoutSessionService implements CheckoutSessionServiceInterface
     {
         $eventData = $this->get();
         $eventData[$identifier] = $data;
-        $this->checkoutSession->setTweakwiseEventData($eventData);
+        /** @phpstan-ignore-next-line */
+        $this->session->setTweakwiseEventData($eventData);
     }
 
     /**
@@ -34,7 +35,8 @@ class CheckoutSessionService implements CheckoutSessionServiceInterface
      */
     public function get(): array
     {
-        $eventData = $this->checkoutSession->getTweakwiseEventData();
+        /** @phpstan-ignore-next-line */
+        $eventData = $this->session->getTweakwiseEventData();
         if (is_array($eventData)) {
             return $eventData;
         }
@@ -47,6 +49,7 @@ class CheckoutSessionService implements CheckoutSessionServiceInterface
      */
     public function clear(): void
     {
-        $this->checkoutSession->setTweakwiseEventData([]);
+        /** @phpstan-ignore-next-line */
+        $this->session->setTweakwiseEventData([]);
     }
 }

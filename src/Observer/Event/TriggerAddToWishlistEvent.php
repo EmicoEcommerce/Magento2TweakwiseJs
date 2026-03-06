@@ -9,17 +9,17 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Tweakwise\TweakwiseJs\Api\Event\SessionServiceInterface;
-use Tweakwise\TweakwiseJs\Event\AddToCart as AddToCartEvent;
+use Tweakwise\TweakwiseJs\Event\AddToWishlist as AddToWishlistEvent;
 
-class TriggerAddToCartEvent implements ObserverInterface
+class TriggerAddToWishlistEvent implements ObserverInterface
 {
     /**
      * @param SessionServiceInterface $sessionService
-     * @param AddToCartEvent $addToCartEvent
+     * @param AddToWishlistEvent $addToWishlistEvent
      */
     public function __construct(
         private readonly SessionServiceInterface $sessionService,
-        private readonly AddToCartEvent $addToCartEvent
+        private readonly AddToWishlistEvent $addToWishlistEvent
     ) {
     }
 
@@ -32,14 +32,9 @@ class TriggerAddToCartEvent implements ObserverInterface
     {
         /** @var Product $product */
         $product = $observer->getData('product');
-        $qty = (int)$observer->getData('request')->getParam('qty');
-        if ($qty === 0) {
-            $qty = 1;
-        }
-
         $this->sessionService->add(
-            'AddToCart',
-            $this->addToCartEvent->setProduct($product)->setQty($qty)->get()
+            'AddToWishlist',
+            $this->addToWishlistEvent->setProduct($product)->get()
         );
     }
 }
