@@ -1,0 +1,12 @@
+<script>
+    window.addEventListener('private-content-loaded', function (event) {
+        getSectionNames().forEach(sectionName => {
+            const sectionData = event.detail.data[sectionName];
+
+            if (sectionData.tweakwise_events) {
+                sendTweakwiseEvents(sectionData.tweakwise_events, sectionName)
+            }
+        });
+    });
+</script>
+<?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>

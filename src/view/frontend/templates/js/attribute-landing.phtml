@@ -24,3 +24,4 @@ $landingPage = $block->getLandingPage();
     window['twn-starter-config'].navigation.sortingTemplateId = <?= (int)$landingPage->getTweakwiseSortTemplate()?>;
     window['twn-starter-config'].navigation.builderTemplateId = <?= (int)$landingPage->getTweakwiseBuilderTemplate()?>;
 </script>
+<?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>

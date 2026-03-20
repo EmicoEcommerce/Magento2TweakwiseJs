@@ -1,0 +1,38 @@
+<script>
+    /**
+     * @return array
+     */
+    function getSectionNames() {
+        return ['cart', 'wishlist'];
+    }
+
+    /**
+     * @param {array} tweakwiseObject
+     * @param {string} sectionName
+     */
+    function sendTweakwiseEvents(tweakwiseObject, sectionName) {
+        if (!tweakwiseObject || !Object.keys(tweakwiseObject).length) {
+            return;
+        }
+
+        Object.entries(tweakwiseObject).forEach(([key, eventData]) => {
+            tweakwiseLayer.push(eventData);
+        });
+
+        setTimeout(() => {
+            emptyTwEventsForSection(sectionName)
+        }, 0)
+    }
+
+    /**
+     * @param {string} sectionName
+     */
+    function emptyTwEventsForSection(sectionName) {
+        let mageCacheStorage = JSON.parse(window.localStorage.getItem('mage-cache-storage'));
+        mageCacheStorage[sectionName].tweakwise_events = {};
+
+        window.localStorage.setItem('mage-cache-storage', JSON.stringify(mageCacheStorage));
+    }
+
+</script>
+<?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
