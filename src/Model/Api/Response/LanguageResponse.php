@@ -1,0 +1,18 @@
+<?php // phpcs:ignore SlevomatCodingStandard.TypeHints.DeclareStrictTypes.DeclareStrictTypesMissing
+
+namespace Tweakwise\Magento2Tweakwise\Model\Client\Response\Catalog;
+
+use Tweakwise\Tweakwise\Model\Api\Response;
+
+class LanguageResponse extends Response
+{
+    /**
+     * Format response to a list of languages
+     *
+     * @return array
+     */
+    public function getLanguages(): array
+    {
+        return $this->normalizeArray($this->data, 'language');
+    }
+}
