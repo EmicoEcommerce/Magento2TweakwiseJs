@@ -63,6 +63,7 @@ $viewModel = $block->getViewModel();
             };
         });
     </script>
+    <?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
 <?php elseif ($viewModel->getSearchType()->value === SearchType::INSTANT_SEARCH->value): ?>
     <script>
         window['twn-starter-config'].cid = '<?= $viewModel->getStoreRootCategory();?>';
@@ -79,14 +80,17 @@ $viewModel = $block->getViewModel();
             };
         });
     </script>
+    <?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
 <?php else: ?>
     <script>
         window['twn-starter-config'].input = null;
     </script>
+    <?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
 <?php endif; ?>
 
 <?php if ($viewModel->isSearchResultsPage()): ?>
     <script>
         window['twn-starter-config'].ui.closeSearchButton = false;
     </script>
+    <?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
 <?php endif; ?>

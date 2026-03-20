@@ -42,5 +42,18 @@
                 </arguments>
             </block>
         </referenceContainer>
+
+        <referenceBlock name="before.body.end">
+            <block class="Magento\Framework\View\Element\Template"
+                   name="tweakwise-js-event-push"
+                   template="Tweakwise_TweakwiseJs::js/event/event-push.phtml"
+                   ifconfig="tweakwise/tweakwisejs/general/enabled">
+            </block>
+            <block class="Magento\Framework\View\Element\Template"
+                   name="tweakwise-js-init-event-push"
+                   template="Tweakwise_TweakwiseJs::js/event/luma/init-event-push.phtml"
+                   ifconfig="tweakwise/tweakwisejs/general/enabled">
+            </block>
+        </referenceBlock>
     </body>
 </page>

@@ -24,7 +24,6 @@ class DataProvider
      * @param Subject $subject
      * @param array $result
      * @return array
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function afterGetConfigData(Subject $subject, array $result): array
     {

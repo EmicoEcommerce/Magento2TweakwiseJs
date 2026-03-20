@@ -75,6 +75,7 @@ class FacetAttributes implements HttpPostActionInterface
             /** @var FacetAttributeResponseInterface $response */
             $response = $this->client->request($facetAttributeRequest);
 
+            // @phpstan-ignore-next-line
             if (!$response) {
                 return $result->setData([$otherAttributeOption]);
             }

@@ -104,3 +104,4 @@ $eventsCookieName = $eventViewModel->getEventsCookieName();
         document.cookie = `${cookieName}=${encodeURIComponent(profileKey)}; expires=${expirationDate.toGMTString()}; path=/; secure; SameSite=lax`
     }
 </script>
+<?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
