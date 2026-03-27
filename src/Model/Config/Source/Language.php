@@ -13,35 +13,17 @@ use Magento\Framework\Data\OptionSourceInterface;
 class Language implements OptionSourceInterface
 {
     /**
-     * @var RequestFactory
-     */
-    protected $requestFactory;
-
-    /**
-     * @var Client
-     */
-    protected $client;
-
-    /**
-     * Language constructor.
      * @param RequestFactory $requestFactory
-     * @param Client $client
+     * @param Client $apiClient
      */
     public function __construct(
-        RequestFactory $requestFactory,
-        Client $client
+        private readonly Client $apiClient,
+        private readonly RequestFactory $requestFactory,
     ) {
-        $this->requestFactory = $requestFactory;
-        $this->client = $client;
     }
 
     /**
-     * Return array of options as value-label pairs
-     *
      * @return array
-     * phpcs:disable Magento2.CodeAnalysis.EmptyBlock.DetectedCatch
-     * phpcs:disable Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-     * @SuppressWarnings("PHPMD.EmptyCatchBlock")
      */
     public function toOptionArray()
     {
@@ -55,7 +37,7 @@ class Language implements OptionSourceInterface
         try {
             $request = $this->requestFactory->create();
             /** @var LanguageResponse $response */
-            $response = $this->client->request($request);
+            $response = $this->apiClient->request($request);
 
             $languages = $response->getLanguages();
 
