@@ -13,7 +13,7 @@ class UiLanguage implements OptionSourceInterface
      */
     public function toOptionArray()
     {
-        $options = [
+        return [
             [
                 'label' => __('Default language'),
                 'value' => ''
@@ -25,7 +25,5 @@ class UiLanguage implements OptionSourceInterface
             ['value' => 'es', 'label' => __('Spanish')],
             ['value' => 'it', 'label' => __('Italian')],
         ];
-
-        return $options;
     }
 }

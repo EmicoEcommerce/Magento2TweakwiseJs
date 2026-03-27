@@ -21,11 +21,11 @@ $uiLanguage = (string) $viewModel->getUiLanguage();
     window['twn-starter-config'] = window['twn-starter-config'] || {};
     window['twn-starter-config'].on = window['twn-starter-config'].on || {};
     <?php if ($language !== ''): ?>
-    window['twn-starter-config'].lang = '<?= $block->escapeJs($language) ?>';
+        window['twn-starter-config'].lang = '<?= $block->escapeJs($language) ?>';
     <?php endif; ?>
     <?php if ($uiLanguage !== ''): ?>
-    window['twn-starter-config'].ui = window['twn-starter-config'].ui || {};
-    window['twn-starter-config'].ui.lang = '<?= $block->escapeJs($uiLanguage) ?>';
+        window['twn-starter-config'].ui = window['twn-starter-config'].ui || {};
+        window['twn-starter-config'].ui.lang = '<?= $block->escapeJs($uiLanguage) ?>';
     <?php endif; ?>
 </script>
 
