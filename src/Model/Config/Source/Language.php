@@ -43,8 +43,8 @@ class Language implements OptionSourceInterface
 
             foreach ($languages as $language) {
                 $options[] = [
-                    'label' => $language['name'],
-                    'value' => $language['key']
+                    'label' => $language->getName(),
+                    'value' => $language->getLanguageId()
                 ];
             }
         } catch (ApiException $e) {

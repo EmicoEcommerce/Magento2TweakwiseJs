@@ -53,7 +53,7 @@ class LanguageResponse extends Response implements LanguageResponseInterface
             $values = [];
             foreach ($language as $value) {
                 if (!$value instanceof LanguageType) {
-                    $value = $this->languageTypeFactory->create(['idField' => 'key', 'data' => $value]);
+                    $value = $this->languageTypeFactory->create(['data' => $value]);
                 }
 
                 $values[] = $value;

@@ -8,6 +8,8 @@ interface LanguageTypeInterface
 {
     public const NAME = 'name';
 
+    public const KEY = 'key';
+
     /**
      * @return string
      */
