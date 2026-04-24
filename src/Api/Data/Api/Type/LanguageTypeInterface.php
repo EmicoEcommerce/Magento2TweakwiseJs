@@ -1,0 +1,34 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tweakwise\TweakwiseJs\Api\Data\Api\Type;
+
+interface LanguageTypeInterface
+{
+    public const NAME = 'name';
+
+    public const KEY = 'key';
+
+    /**
+     * @return string
+     */
+    public function getName(): string;
+
+    /**
+     * @param string $name
+     * @return self
+     */
+    public function setName(string $name): self;
+
+    /**
+     * @return string
+     */
+    public function getLanguageId(): string;
+
+    /**
+     * @param string $languageId
+     * @return self
+     */
+    public function setLanguageId(string $languageId): self;
+}
