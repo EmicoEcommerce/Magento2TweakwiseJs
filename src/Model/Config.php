@@ -15,6 +15,9 @@ class Config
 
     private const XML_PATH_MERCHANDISING_ENABLED = 'tweakwise/tweakwisejs/merchandising/enabled';
 
+    private const XML_PATH_UI_LANGUAGE = 'tweakwise/tweakwisejs/general/uilanguage';
+    private const XML_PATH_LANGUAGE = 'tweakwise/tweakwisejs/general/language';
+
     private const XML_PATH_SEARCH_TYPE = 'tweakwise/tweakwisejs/search/type';
     private const XML_PATH_EVENTS_ENABLED = 'tweakwise/tweakwisejs/events/enabled';
     private const XML_PATH_EVENTS_COOKIE_NAME = 'tweakwise/tweakwisejs/events/cookie_name';
@@ -75,5 +78,21 @@ class Config
     public function getEventsCookieName(): string
     {
         return $this->scopeConfig->getValue(self::XML_PATH_EVENTS_COOKIE_NAME, ScopeInterface::SCOPE_STORE);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getUiLanguage(): ?string
+    {
+        return $this->scopeConfig->getValue(self::XML_PATH_UI_LANGUAGE, ScopeInterface::SCOPE_STORE);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getLanguage(): ?string
+    {
+        return $this->scopeConfig->getValue(self::XML_PATH_LANGUAGE, ScopeInterface::SCOPE_STORE);
     }
 }
