@@ -25,6 +25,16 @@
                             <field id="enabled">1</field>
                         </depends>
                     </field>
+                    <field id="uilanguage" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>UI Language</label>
+                        <source_model>Tweakwise\TweakwiseJs\Model\Config\Source\UiLanguage</source_model>
+                        <comment><![CDATA[Choose which language to use for the User interface<br /><strong style="color:red">Important:</strong> Save your instance key so that all options are loaded.]]></comment>
+                    </field>
+                    <field id="language" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Language</label>
+                        <source_model>Tweakwise\TweakwiseJs\Model\Config\Source\Language</source_model>
+                        <comment><![CDATA[Choose which language to use<br /><strong style="color:red">Important:</strong> Save your instance key so that all options are loaded.]]></comment>
+                    </field>
                 </group>
                 <group id="merchandising" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Merchandising</label>
