@@ -7,9 +7,11 @@ namespace Tweakwise\TweakwiseJs\Event;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Pricing\Price\FinalPrice;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Model\Quote\Item;
 use Tweakwise\TweakwiseJs\Api\Data\EventInterface;
 use Tweakwise\TweakwiseJs\Api\Event\PriceFormatServiceInterface;
 use Tweakwise\TweakwiseJs\Helper\Data;
+use Tweakwise\Magento2TweakwiseExport\Model\Config as ExportConfig;
 
 class AddToCart implements EventInterface
 {
@@ -19,6 +21,11 @@ class AddToCart implements EventInterface
     private ?Product $product = null;
 
     /**
+     * @var Item|null
+     */
+    private ?Item $quoteItem = null;
+
+    /**
      * @var int
      */
     private int $qty = 1;
@@ -26,10 +33,12 @@ class AddToCart implements EventInterface
     /**
      * @param PriceFormatServiceInterface $priceFormatService
      * @param Data $dataHelper
+     * @param ExportConfig $exportConfig
      */
     public function __construct(
         private readonly PriceFormatServiceInterface $priceFormatService,
         private readonly Data $dataHelper,
+        private readonly ExportConfig $exportConfig,
     ) {
     }
 
@@ -42,7 +51,7 @@ class AddToCart implements EventInterface
         return [
             'event' => 'addtocart',
             'data' => [
-                'productKey' => $this->dataHelper->getTweakwiseId((int)$this->product->getId()),
+                'productKey' => $this->resolveProductKey(),
                 'quantity' => $this->qty,
                 'totalAmount' => $this->getTotalAmount()
             ]
@@ -60,6 +69,16 @@ class AddToCart implements EventInterface
     }
 
     /**
+     * @param Item $quoteItem
+     * @return AddToCart
+     */
+    public function setQuoteItem(Item $quoteItem): AddToCart
+    {
+        $this->quoteItem = $quoteItem;
+        return $this;
+    }
+
+    /**
      * @param int $qty
      * @return $this
      */
@@ -67,6 +86,29 @@ class AddToCart implements EventInterface
     {
         $this->qty = $qty;
         return $this;
+    }
+
+    /**
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    private function resolveProductKey(): string
+    {
+        if (!$this->exportConfig->isGroupedExport() || $this->quoteItem === null) {
+            return $this->dataHelper->getTweakwiseId((int)$this->product->getId());
+        }
+
+        $parentProductId = (int)$this->quoteItem->getProductId();
+        $simpleProductId = $parentProductId;
+
+        if (!empty($this->quoteItem->getQtyOptions())) {
+            $simpleProductId = (int)array_key_first($this->quoteItem->getQtyOptions());
+        }
+
+        // groupCode must be the full Tweakwise ID of the parent, cast to int, so it is appended as-is.
+        $groupCode = (int)$this->dataHelper->getTweakwiseId($parentProductId);
+
+        return $this->dataHelper->getTweakwiseId($simpleProductId, null, $groupCode);
     }
 
     /**

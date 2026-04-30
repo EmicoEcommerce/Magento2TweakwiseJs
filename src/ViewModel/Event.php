@@ -7,8 +7,10 @@ namespace Tweakwise\TweakwiseJs\ViewModel;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Sales\Model\Order\Item;
 use Tweakwise\TweakwiseJs\Helper\Data;
 use Tweakwise\TweakwiseJs\Model\Config;
+use Tweakwise\Magento2TweakwiseExport\Model\Config as ExportConfig;
 
 class Event extends Base
 {
@@ -17,12 +19,14 @@ class Event extends Base
      * @param Data $dataHelper
      * @param Session $checkoutSession
      * @param Json $jsonSerializer
+     * @param ExportConfig $exportConfig
      */
     public function __construct(
         Config $config,
         Data $dataHelper,
         private readonly Session $checkoutSession,
-        private readonly Json $jsonSerializer
+        private readonly Json $jsonSerializer,
+        private readonly ExportConfig $exportConfig,
     ) {
         parent::__construct($config, $dataHelper);
     }
@@ -42,13 +46,39 @@ class Event extends Base
     {
         $order = $this->checkoutSession->getLastRealOrder();
 
-        $productIds = array_map(function ($orderItem) {
+        if (!$this->exportConfig->isGroupedExport()) {
+            $productIds = array_map(function (Item $orderItem) {
+                try {
+                    return $this->dataHelper->getTweakwiseId((int)$orderItem->getProductId());
+                } catch (NoSuchEntityException $e) {
+                    return '0';
+                }
+            }, $order->getAllVisibleItems());
+
+            return $this->jsonSerializer->serialize(array_values($productIds));
+        }
+
+        // When grouped export is enabled, map each order item to simpleId-parentId format.
+        $filteredItems = [];
+        foreach ($order->getAllItems() as $originalItem) {
+            /** @var Item $originalItem */
+            $returnedItem = $originalItem->getParentItem() ?? $originalItem;
+            $returnedItem->setData('groupCode', $originalItem->getProductId());
+            $filteredItems[(int)$returnedItem->getId()] = $returnedItem;
+        }
+
+        $productIds = [];
+        foreach ($filteredItems as $item) {
             try {
-                return $this->dataHelper->getTweakwiseId((int)$orderItem->getProductId());
+                $simpleProductId = (int)$item->getData('groupCode');
+                $parentProductId = (int)$item->getProductId();
+                // groupCode must be the full Tweakwise ID of the parent, cast to int, so it is appended as-is.
+                $groupCode = (int)$this->dataHelper->getTweakwiseId($parentProductId);
+                $productIds[] = $this->dataHelper->getTweakwiseId($simpleProductId, null, $groupCode);
             } catch (NoSuchEntityException $e) {
-                return '0';
+                $productIds[] = '0';
             }
-        }, $order->getAllVisibleItems());
+        }
 
         return $this->jsonSerializer->serialize($productIds);
     }
@@ -62,3 +92,4 @@ class Event extends Base
         return (float)$order->getSubtotal() + (float)$order->getDiscountAmount();
     }
 }
+

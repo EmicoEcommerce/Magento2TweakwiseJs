@@ -33,7 +33,10 @@ class AddToWishlist implements EventInterface
         return [
             'event' => 'addtowishlist',
             'data' => [
-                'productKey' => $this->dataHelper->getTweakwiseId((int)$this->product->getId())
+                'productKey' => $this->dataHelper->resolveGroupedExportProductKey(
+                    (int)$this->product->getId(),
+                    $this->product->getTypeId()
+                )
             ]
         ];
     }
