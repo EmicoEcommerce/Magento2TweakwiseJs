@@ -33,10 +33,7 @@ class AddToWishlist implements EventInterface
         return [
             'event' => 'addtowishlist',
             'data' => [
-                'productKey' => $this->dataHelper->resolveGroupedExportProductKey(
-                    (int)$this->product->getId(),
-                    $this->product->getTypeId()
-                )
+                'productKey' => $this->resolveProductKey()
             ]
         ];
     }
@@ -49,5 +46,21 @@ class AddToWishlist implements EventInterface
     {
         $this->product = $product;
         return $this;
+    }
+
+    /**
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    private function resolveProductKey(): string
+    {
+        $productId = (int)$this->product->getId();
+        $typeId = $this->product->getTypeId();
+
+        if (!is_string($typeId)) {
+            return $this->dataHelper->getTweakwiseId($productId);
+        }
+
+        return $this->dataHelper->resolveGroupedExportProductKey($productId, $typeId);
     }
 }

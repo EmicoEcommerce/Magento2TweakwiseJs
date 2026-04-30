@@ -61,8 +61,8 @@ class Event extends Base
         // When grouped export is enabled, map each order item to simpleId-parentId format.
         $filteredItems = [];
         foreach ($order->getAllItems() as $originalItem) {
-            /** @var Item $originalItem */
-            $returnedItem = $originalItem->getParentItem() ?? $originalItem;
+            $parentItem = $originalItem->getParentItem();
+            $returnedItem = $parentItem instanceof Item ? $parentItem : $originalItem;
             $returnedItem->setData('groupCode', $originalItem->getProductId());
             $filteredItems[(int)$returnedItem->getId()] = $returnedItem;
         }
@@ -92,4 +92,3 @@ class Event extends Base
         return (float)$order->getSubtotal() + (float)$order->getDiscountAmount();
     }
 }
-
