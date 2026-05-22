@@ -45,6 +45,14 @@ class Base implements ArgumentInterface
     /**
      * @return bool
      */
+    public function isAutoInitEnabled(): bool
+    {
+        return $this->config->isAutoInitEnabled();
+    }
+
+    /**
+     * @return bool
+     */
     public function isEventsEnabled(): bool
     {
         return $this->config->isEventsEnabled();

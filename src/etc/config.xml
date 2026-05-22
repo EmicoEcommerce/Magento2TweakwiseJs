@@ -6,6 +6,7 @@
             <tweakwisejs>
                 <general>
                     <enabled>0</enabled>
+                    <auto_init>1</auto_init>
                 </general>
                 <merchandising>
                     <enabled>0</enabled>
