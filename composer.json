@@ -12,7 +12,8 @@
     },
     "require-dev": {
         "magento/framework": "*",
-        "emico/code-quality": "^10.0"
+        "emico/code-quality": "^10.0",
+        "symfony/config": "^6.0"
     },
     "autoload": {
         "files": [
