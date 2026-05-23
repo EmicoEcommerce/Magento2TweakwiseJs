@@ -67,8 +67,8 @@ github-release:
             target_commitish: $target_commitish,
             name: $name,
             body: $body,
-            draft: true,
-            prerelease: true
+            draft: false,
+            prerelease: false
           }'
       )"
 
