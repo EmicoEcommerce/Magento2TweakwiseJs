@@ -7,11 +7,11 @@
         "php": "^8.1",
         "tweakwise/magento2-tweakwise-export": "^7.0",
         "emico/m2-attributelanding": "^6.0.5",
+        "magento/module-search": "^101.1",
         "ext-simplexml": "*",
         "ext-libxml": "*"
     },
     "require-dev": {
-        "magento/framework": "*",
         "emico/code-quality": "^10.0",
         "symfony/config": "^6.0"
     },
@@ -40,7 +40,7 @@
             "phpstan/extension-installer": true,
             "phpro/grumphp": true,
             "emico/code-quality": true
-        },
+        },pl
         "preferred-install": {
             "emico/code-quality": "dist"
         }

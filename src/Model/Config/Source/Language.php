@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tweakwise\TweakwiseJs\Model\Config\Source;
 
-use Tweakwise\TweakwiseJs\Exception\ApiException;
 use Tweakwise\TweakwiseJs\Model\Api\Client;
+use Tweakwise\TweakwiseJs\Model\Api\Exception\ApiException;
 use Tweakwise\TweakwiseJs\Model\Api\RequestFactory;
 use Tweakwise\TweakwiseJs\Model\Api\Response\Catalog\LanguageResponse;
 use Magento\Framework\Data\OptionSourceInterface;
