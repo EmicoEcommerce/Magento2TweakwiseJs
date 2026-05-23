@@ -29,7 +29,7 @@ release:
     - when: never
 
 github-release:
-  image: $DOCKER_IMAGE:$DOCKER_TAG
+  image: alpine:latest
   stage: release
   variables:
     GIT_STRATEGY: none
