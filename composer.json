@@ -40,7 +40,7 @@
             "phpstan/extension-installer": true,
             "phpro/grumphp": true,
             "emico/code-quality": true
-        },pl
+        },
         "preferred-install": {
             "emico/code-quality": "dist"
         }
