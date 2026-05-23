@@ -1,5 +1,5 @@
 # Tweakwise JS
-Magento 2 module for Tweakwise JS
+Magento 2 module for Tweakwise JS 
 
 ## Installation
 
