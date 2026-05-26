@@ -9,11 +9,6 @@ use Tweakwise\TweakwiseJs\ViewModel\Search;
 
 /** @var Search $viewModel */
 $viewModel = $block->getViewModel();
-
-if ($viewModel->isAutoInitEnabled()) {
-    return;
-}
-
 $cid = $viewModel->getStoreRootCategory();
 ?>
 

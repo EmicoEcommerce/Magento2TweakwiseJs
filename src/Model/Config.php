@@ -15,8 +15,6 @@ class Config
 
     private const XML_PATH_MERCHANDISING_ENABLED = 'tweakwise/tweakwisejs/merchandising/enabled';
 
-    private const XML_PATH_AUTO_INIT = 'tweakwise/tweakwisejs/general/auto_init';
-
     private const XML_PATH_UI_LANGUAGE = 'tweakwise/tweakwisejs/general/uilanguage';
     private const XML_PATH_LANGUAGE = 'tweakwise/tweakwisejs/general/language';
 
@@ -46,14 +44,6 @@ class Config
     public function getInstanceKey(): ?string
     {
         return $this->scopeConfig->getValue(self::XML_PATH_INSTANCE_KEY, ScopeInterface::SCOPE_STORE);
-    }
-
-    /**
-     * @return bool
-     */
-    public function isAutoInitEnabled(): bool
-    {
-        return $this->scopeConfig->isSetFlag(self::XML_PATH_AUTO_INIT, ScopeInterface::SCOPE_STORE);
     }
 
     /**

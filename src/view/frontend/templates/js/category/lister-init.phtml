@@ -9,11 +9,6 @@ use Tweakwise\TweakwiseJs\ViewModel\Merchandising;
 
 /** @var Merchandising $viewModel */
 $viewModel = $block->getViewModel();
-
-if ($viewModel->isAutoInitEnabled()) {
-    return;
-}
-
 $cid = $viewModel->getTweakwiseId((int) $block->getCurrentCategory()->getId());
 ?>
 
