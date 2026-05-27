@@ -16,6 +16,8 @@
         <referenceContainer name="div.sidebar.main" remove="true"/>
         <referenceContainer name="div.sidebar.additional" remove="true"/>
         <referenceContainer name="page.wrapper">
+            <block class="Magento\Framework\View\Element\Template" name="tweakwise-js-search-output"
+                   template="Tweakwise_TweakwiseJs::js/category/lister-output.phtml"/>
             <block class="Magento\Framework\View\Element\Template" name="tweakwise-js-search-lister-init"
                    template="Tweakwise_TweakwiseJs::js/search/lister-init.phtml">
                 <arguments>

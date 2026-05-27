@@ -13,13 +13,21 @@ $cid = $viewModel->getStoreRootCategory();
 ?>
 
 <script>
-    window.addEventListener('twn.starter.ready', function () {
-        const params = new URLSearchParams(location.search);
-        tweakwiseListerPage({
-            query: params.get("tn_q"),
-            output: "#tweakwise-output",
-            cid: "<?= $block->escapeJs((string) $cid) ?>"
-        });
-    });
+    (function () {
+        function init() {
+            const params = new URLSearchParams(location.search);
+            tweakwiseListerPage({
+                query: params.get("tn_q") || params.get("q"),
+                output: "#tweakwise-output",
+                cid: "<?= $block->escapeJs((string) $cid) ?>"
+            });
+        }
+
+        if (window['twn-starter-ready']) {
+            init();
+        } else {
+            window.addEventListener('twn.starter.ready', init);
+        }
+    }());
 </script>
 <?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
