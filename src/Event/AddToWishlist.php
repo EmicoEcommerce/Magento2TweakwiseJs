@@ -52,7 +52,7 @@ class AddToWishlist implements EventInterface
      * @return string
      * @throws NoSuchEntityException
      */
-    private function resolveProductKey(): string
+    protected function resolveProductKey(): string
     {
         $productId = (int)$this->product->getId();
         $typeId = $this->product->getTypeId();
