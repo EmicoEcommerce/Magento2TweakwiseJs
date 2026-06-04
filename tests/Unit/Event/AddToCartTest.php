@@ -6,13 +6,11 @@ namespace Tweakwise\Test\Unit\Event;
 
 use Emico\CodeCept\Test\Unit;
 use Magento\Catalog\Model\Product;
-use Magento\Quote\Model\Quote\Item;
 use PHPUnit\Framework\MockObject\MockObject;
 use stdClass;
 use Tweakwise\Magento2TweakwiseExport\Model\Config as ExportConfig;
 use Tweakwise\Test\Support\UnitTester;
 use Tweakwise\TweakwiseJs\Api\Event\PriceFormatServiceInterface;
-use Tweakwise\TweakwiseJs\Event\AddToCart;
 use Tweakwise\TweakwiseJs\Helper\Data;
 
 class AddToCartTest extends Unit
@@ -135,4 +133,3 @@ class AddToCartTest extends Unit
         return $this->createMock(QuoteItemWithProductId::class);
     }
 }
-
