@@ -16,6 +16,11 @@
         "emico/code-quality": "^10.0",
         "symfony/config": "^6.0"
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Tweakwise\\Test\\": "tests/"
+        }
+    },
     "autoload": {
         "files": [
             "src/registration.php"

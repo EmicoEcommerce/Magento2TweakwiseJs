@@ -92,7 +92,7 @@ class AddToCart implements EventInterface
      * @return string
      * @throws NoSuchEntityException
      */
-    private function resolveProductKey(): string
+    protected function resolveProductKey(): string
     {
         if (!$this->exportConfig->isGroupedExport() || $this->quoteItem === null) {
             return $this->dataHelper->getTweakwiseId((int)$this->product->getId());
