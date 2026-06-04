@@ -10,6 +10,7 @@ class AddToCartExposed extends AddToCart
 {
     /**
      * @return string
+     * @phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found
      */
     public function resolveProductKey(): string
     {
