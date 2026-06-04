@@ -7,6 +7,7 @@
         "php": "^8.1",
         "tweakwise/magento2-tweakwise-export": "^7.8.3",
         "emico/m2-attributelanding": "^6.0.5",
+        "magento/module-configurable-product": "*",
         "magento/module-search": "^101.1",
         "ext-simplexml": "*",
         "ext-libxml": "*"

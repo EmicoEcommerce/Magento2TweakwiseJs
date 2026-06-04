@@ -8,6 +8,7 @@ use Emico\CodeCept\Test\Unit;
 use Magento\Catalog\Model\Product;
 use Magento\Quote\Model\Quote\Item;
 use PHPUnit\Framework\MockObject\MockObject;
+use stdClass;
 use Tweakwise\Magento2TweakwiseExport\Model\Config as ExportConfig;
 use Tweakwise\Test\Support\UnitTester;
 use Tweakwise\TweakwiseJs\Api\Event\PriceFormatServiceInterface;
@@ -78,7 +79,7 @@ class AddToCartTest extends Unit
 
         $quoteItem = $this->buildQuoteItemMock();
         $quoteItem->method('getProductId')->willReturn(10);
-        $quoteItem->method('getQtyOptions')->willReturn([99 => new \stdClass()]);
+        $quoteItem->method('getQtyOptions')->willReturn([99 => new stdClass()]);
         $quoteItem->method('getQty')->willReturn(2);
 
         $this->subject->setProduct($product)->setQuoteItem($quoteItem)->setQty(2);
@@ -135,24 +136,3 @@ class AddToCartTest extends Unit
     }
 }
 
-class AddToCartExposed extends AddToCart
-{
-    /**
-     * @return string
-     */
-    public function resolveProductKey(): string
-    {
-        return parent::resolveProductKey();
-    }
-}
-
-class QuoteItemWithProductId extends Item
-{
-    /**
-     * @return int|null
-     */
-    public function getProductId(): ?int
-    {
-        return null;
-    }
-}
