@@ -1,0 +1,33 @@
+<?php
+
+declare(strict_types=1);
+
+use Magento\Framework\View\Element\Template;
+use Tweakwise\TweakwiseJs\ViewModel\Search;
+
+/** @var Template $block */
+
+/** @var Search $viewModel */
+$viewModel = $block->getViewModel();
+$cid = $viewModel->getStoreRootCategory();
+?>
+
+<script>
+    (function () {
+        function init() {
+            const params = new URLSearchParams(location.search);
+            tweakwiseListerPage({
+                query: params.get("tn_q") || params.get("q"),
+                output: "#tweakwise-output",
+                cid: "<?= $block->escapeJs((string) $cid) ?>"
+            });
+        }
+
+        if (window['twn-starter-ready']) {
+            init();
+        } else {
+            window.addEventListener('twn.starter.ready', init);
+        }
+    }());
+</script>
+<?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>

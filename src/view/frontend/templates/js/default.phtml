@@ -20,6 +20,10 @@ $uiLanguage = (string) $viewModel->getUiLanguage();
     };
     window['twn-starter-config'] = window['twn-starter-config'] || {};
     window['twn-starter-config'].on = window['twn-starter-config'].on || {};
+    window['twn-starter-config'].auto = false;
+    window.addEventListener('twn.starter.ready', function () {
+        window['twn-starter-ready'] = true;
+    });
     <?php if ($language !== ''): ?>
         window['twn-starter-config'].lang = '<?= $block->escapeJs($language) ?>';
     <?php endif; ?>
