@@ -84,7 +84,7 @@ class DataTest extends Unit
     /**
      * @return void
      */
-    public function testResolveGroupedExportProductKeyReturnsGroupedFormatForConfigurableWhenGroupedExportEnabled(): void
+    public function testResolveGroupedExportProductKeyReturnsParentSimpleFormatForConfigurableWhenGroupedExportEnabled(): void
     {
         $this->exportConfig->method('isGroupedExport')->willReturn(true);
 
@@ -94,19 +94,19 @@ class DataTest extends Unit
             ->willReturn([[99 => 99]]);
 
         $this->exportHelper->method('getTweakwiseId')->willReturnMap([
-            [1, 10, null, '1000110'],  // parent plain ID (used to compute groupCode)
-            [1, 99, 1000110, '1000199-1000110'],  // simple with groupCode
+            [1, 10, null, '1000110'],
+            [1, 99, 1000110, '1000110-1000199'],
         ]);
 
         $result = $this->subject->resolveGroupedExportProductKey(10, Configurable::TYPE_CODE);
 
-        $this->assertEquals('1000199-1000110', $result);
+        $this->assertEquals('1000110-1000199', $result);
     }
 
     /**
      * @return void
      */
-    public function testResolveGroupedExportProductKeyReturnsGroupedFormatForSimpleWithConfigurableParent(): void
+    public function testResolveGroupedExportProductKeyReturnsParentSimpleFormatForSimpleWithConfigurableParent(): void
     {
         $this->exportConfig->method('isGroupedExport')->willReturn(true);
 
@@ -115,19 +115,19 @@ class DataTest extends Unit
             ->willReturn([10]);
 
         $this->exportHelper->method('getTweakwiseId')->willReturnMap([
-            [1, 10, null, '1000110'],  // parent plain ID (used to compute groupCode)
-            [1, 99, 1000110, '1000199-1000110'],  // simple with groupCode
+            [1, 10, null, '1000110'],
+            [1, 99, 1000110, '1000110-1000199'],
         ]);
 
         $result = $this->subject->resolveGroupedExportProductKey(99, 'simple');
 
-        $this->assertEquals('1000199-1000110', $result);
+        $this->assertEquals('1000110-1000199', $result);
     }
 
     /**
      * @return void
      */
-    public function testResolveGroupedExportProductKeyReturnsPlainIdForSimpleWithNoConfigurableParent(): void
+    public function testResolveGroupedExportProductKeyReturnsSimpleSimpleFormatForSimpleWithNoConfigurableParent(): void
     {
         $this->exportConfig->method('isGroupedExport')->willReturn(true);
 
@@ -135,17 +135,20 @@ class DataTest extends Unit
             ->with(42)
             ->willReturn([]);
 
-        $this->exportHelper->method('getTweakwiseId')->with(1, 42, null)->willReturn('1000142');
+        $this->exportHelper->method('getTweakwiseId')->willReturnMap([
+            [1, 42, null, '1000142'],
+            [1, 42, 1000142, '1000142-1000142'],
+        ]);
 
         $result = $this->subject->resolveGroupedExportProductKey(42, 'simple');
 
-        $this->assertEquals('1000142', $result);
+        $this->assertEquals('1000142-1000142', $result);
     }
 
     /**
      * @return void
      */
-    public function testResolveGroupedExportProductKeyReturnsPlainIdForConfigurableWithNoChildren(): void
+    public function testResolveGroupedExportProductKeyReturnsParentSimpleFormatForConfigurableWithNoChildren(): void
     {
         $this->exportConfig->method('isGroupedExport')->willReturn(true);
 
@@ -153,10 +156,13 @@ class DataTest extends Unit
             ->with(10)
             ->willReturn([]);
 
-        $this->exportHelper->method('getTweakwiseId')->with(1, 10, null)->willReturn('1000110');
+        $this->exportHelper->method('getTweakwiseId')->willReturnMap([
+            [1, 10, null, '1000110'],
+            [1, 10, 1000110, '1000110-1000110'],
+        ]);
 
         $result = $this->subject->resolveGroupedExportProductKey(10, Configurable::TYPE_CODE);
 
-        $this->assertEquals('1000110', $result);
+        $this->assertEquals('1000110-1000110', $result);
     }
 }

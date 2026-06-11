@@ -90,8 +90,8 @@ class EventTest extends Unit
 
         $this->dataHelper->method('getTweakwiseId')->willReturnMap(
             [
-            [10, null, null, '1000110'],
-            [42, null, null, '1000142'],
+            [10, 0, null, '1000110'],
+            [42, 0, null, '1000142'],
             ]
         );
 
@@ -136,8 +136,8 @@ class EventTest extends Unit
 
         $this->dataHelper->method('getTweakwiseId')->willReturnMap(
             [
-            [10, null, null, '1000110'],
-            [99, null, 1000110, '1000199-1000110'],
+            [10, 0, null, '1000110'],
+            [99, 0, 1000110, '1000199-1000110'],
             ]
         );
 
@@ -163,8 +163,8 @@ class EventTest extends Unit
 
         $this->dataHelper->method('getTweakwiseId')->willReturnMap(
             [
-            [42, null, null, '1000142'],
-            [42, null, 1000142, '1000142-1000142'],
+            [42, 0, null, '1000142'],
+            [42, 0, 1000142, '1000142-1000142'],
             ]
         );
 

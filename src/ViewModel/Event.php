@@ -7,6 +7,7 @@ namespace Tweakwise\TweakwiseJs\ViewModel;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Item;
 use Tweakwise\TweakwiseJs\Helper\Data;
 use Tweakwise\TweakwiseJs\Model\Config;
@@ -45,11 +46,12 @@ class Event extends Base
     public function getOrderProductIds(): string
     {
         $order = $this->checkoutSession->getLastRealOrder();
+        $storeId = $this->getOrderStoreId($order);
 
         if (!$this->exportConfig->isGroupedExport()) {
-            $productIds = array_map(function (Item $orderItem) {
+            $productIds = array_map(function (Item $orderItem) use ($storeId) {
                 try {
-                    return $this->dataHelper->getTweakwiseId((int)$orderItem->getProductId());
+                    return $this->dataHelper->getTweakwiseId((int)$orderItem->getProductId(), $storeId);
                 } catch (NoSuchEntityException $e) {
                     return '0';
                 }
@@ -73,14 +75,23 @@ class Event extends Base
                 $simpleProductId = (int)$item->getData('groupCode');
                 $parentProductId = (int)$item->getProductId();
                 // groupCode must be the full Tweakwise ID of the parent, cast to int, so it is appended as-is.
-                $groupCode = (int)$this->dataHelper->getTweakwiseId($parentProductId);
-                $productIds[] = $this->dataHelper->getTweakwiseId($simpleProductId, null, $groupCode);
+                $groupCode = (int)$this->dataHelper->getTweakwiseId($parentProductId, $storeId);
+                $productIds[] = $this->dataHelper->getTweakwiseId($simpleProductId, $storeId, $groupCode);
             } catch (NoSuchEntityException $e) {
                 $productIds[] = '0';
             }
         }
 
         return $this->jsonSerializer->serialize($productIds);
+    }
+
+    /**
+     * @param Order $order
+     * @return int
+     */
+    private function getOrderStoreId(Order $order): int
+    {
+        return (int)$order->getStoreId();
     }
 
     /**

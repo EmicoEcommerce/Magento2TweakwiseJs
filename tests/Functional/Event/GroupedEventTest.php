@@ -4,17 +4,20 @@ declare(strict_types=1);
 
 namespace Tweakwise\Test\Functional\Event;
 
+use Magento\Sales\Model\Order\Item;
+use Magento\Checkout\Model\Session;
 use Emico\CodeCept\Test\Unit;
 use Magento\Catalog\Model\Product;
-use Magento\Checkout\Model\Session;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
+use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Quote\Model\Quote\Item as QuoteItem;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Item;
 use Mockery;
-use Tweakwise\Magento2TweakwiseExport\Model\Helper;
+use Tweakwise\Magento2TweakwiseExport\Model\Config as ExportConfig;
 use Tweakwise\TweakwiseJs\Api\Event\SessionServiceInterface;
+use Tweakwise\TweakwiseJs\Helper\Data;
+use Tweakwise\TweakwiseJs\Model\Config;
 use Tweakwise\TweakwiseJs\Observer\Event\TriggerAddToCartEvent;
 use Tweakwise\TweakwiseJs\ViewModel\Event;
 use Tweakwise\Test\Support\FunctionalTester;
@@ -24,107 +27,44 @@ class GroupedEventTest extends Unit
     protected FunctionalTester $tester;
 
     /**
-     * Mock ExportHelper::getTweakwiseId with a returnMap of [storeId, entityId, groupCode, return].
-     *
-     * @param array<array{int, int, int|null, string}> $returnMap
-     */
-    private function mockExportHelper(array $returnMap): void
-    {
-        $helper = Mockery::mock(Helper::class);
-        foreach ($returnMap as [$storeId, $entityId, $groupCode, $return]) {
-            $helper->shouldReceive('getTweakwiseId')
-                ->with($storeId, $entityId, $groupCode)
-                ->andReturn($return);
-        }
-
-        $this->tester->mockService(Helper::class, $helper);
-    }
-
-    /**
-     * @param int $productId
-     * @param int $itemId
-     * @param Item|null $parentItem
-     *
-     * @return Item
-     */
-    private function buildOrderItem(int $productId, int $itemId, ?Item $parentItem = null): Item
-    {
-        /** @var Item $item */
-        $item = $this->tester->getObjectManager()->create(Item::class);
-        $item->setProductId($productId);
-        $item->setItemId($itemId);
-        if ($parentItem !== null) {
-            $item->setParentItem($parentItem);
-        }
-
-        return $item;
-    }
-
-    /**
-     * @param Order $order
-     */
-    private function mockCheckoutSession(Order $order): void
-    {
-        $session = Mockery::mock(Session::class)->makePartial();
-        $session->shouldReceive('getLastRealOrder')->andReturn($order);
-        $this->tester->mockService(Session::class, $session);
-    }
-
-    /**
      * @covers \Tweakwise\TweakwiseJs\ViewModel\Event::getOrderProductIds
      * @return void
      */
     public function testGetOrderProductIdsReturnsPlainIdsWhenGroupedExportDisabled(): void
     {
-        $this->mockExportHelper(
+        $itemOne = $this->createMock(Item::class);
+        $itemOne->method('getProductId')->willReturn(10);
+
+        $itemTwo = $this->createMock(Item::class);
+        $itemTwo->method('getProductId')->willReturn(42);
+
+        $order = $this->createMock(Order::class);
+        $order->method('getAllVisibleItems')->willReturn([$itemOne, $itemTwo]);
+        $order->method('getStoreId')->willReturn(1);
+
+        $checkoutSession = $this->createMock(Session::class);
+        $checkoutSession->method('getLastRealOrder')->willReturn($order);
+
+        $exportConfig = $this->createMock(ExportConfig::class);
+        $exportConfig->method('isGroupedExport')->willReturn(false);
+
+        $dataHelper = $this->createMock(Data::class);
+        $dataHelper->method('getTweakwiseId')->willReturnMap(
             [
-                [1, 10, null, '1000110'],
-                [1, 42, null, '1000142'],
+                [10, 1, null, '1000110'],
+                [42, 1, null, '1000142'],
             ]
         );
 
-        $order = $this->tester->getObjectManager()->get(Order::class);
-        $order->setItems([
-            $this->buildOrderItem(10, 1),
-            $this->buildOrderItem(42, 2),
-        ]);
-
-        $this->mockCheckoutSession($order);
-
-        $this->tester->mockConfig('tweakwise/export/grouped_export_enabled', '0');
-
-        /** @var Event $viewModel */
-        $viewModel = $this->tester->grabService(Event::class);
-
-        $this->tester->assertEquals('["1000110","1000142"]', $viewModel->getOrderProductIds());
-    }
-
-    /**
-     * @covers \Tweakwise\TweakwiseJs\ViewModel\Event::getOrderProductIds
-     * @return void
-     */
-    public function testGetOrderProductIdsReturnsGroupedFormatForConfigurableOrderItem(): void
-    {
-        $this->mockExportHelper(
-            [
-            [1, 10, null, '1000110'],
-            [1, 99, 1000110, '1000199-1000110'],
-            ]
+        $viewModel = new Event(
+            $this->createMock(Config::class),
+            $dataHelper,
+            $checkoutSession,
+            new Json(),
+            $exportConfig,
         );
 
-        $parentItem = $this->buildOrderItem(10, 1);
-        $childItem = $this->buildOrderItem(99, 2, $parentItem);
-
-        $order = Mockery::mock(Order::class)->makePartial();
-        $order->shouldReceive('getAllItems')->andReturn([$parentItem, $childItem]);
-        $this->mockCheckoutSession($order);
-
-        $this->tester->mockConfig('tweakwise/export/grouped_export_enabled', '1');
-
-        /** @var Event $viewModel */
-        $viewModel = $this->tester->grabService(Event::class);
-
-        $this->tester->assertEquals('["1000199-1000110"]', $viewModel->getOrderProductIds());
+        $this->assertEquals('["1000110","1000142"]', $viewModel->getOrderProductIds());
     }
 
     /**
@@ -133,27 +73,37 @@ class GroupedEventTest extends Unit
      */
     public function testGetOrderProductIdsReturnsSimpleItemWithItselfAsGroupCodeWhenNoParent(): void
     {
-        $this->mockExportHelper(
+        $item = $this->createMock(Item::class);
+        $item->method('getProductId')->willReturn(10);
+        $item->method('getData')->with('groupCode')->willReturn(10);
+
+        $order = $this->createMock(Order::class);
+        $order->method('getAllItems')->willReturn([$item]);
+        $order->method('getStoreId')->willReturn(1);
+
+        $checkoutSession = $this->createMock(Session::class);
+        $checkoutSession->method('getLastRealOrder')->willReturn($order);
+
+        $exportConfig = $this->createMock(ExportConfig::class);
+        $exportConfig->method('isGroupedExport')->willReturn(true);
+
+        $dataHelper = $this->createMock(Data::class);
+        $dataHelper->method('getTweakwiseId')->willReturnMap(
             [
-            [1, 42, null, '1000142'],
-            [1, 42, 1000142, '1000142-1000142'],
+                [10, 1, null, '1000110'],
+                [10, 1, 1000110, '1000110-1000110'],
             ]
         );
 
-        $order = Mockery::mock(Order::class)->makePartial();
-        $order->shouldReceive('getAllItems')->andReturn(
-            [
-            $this->buildOrderItem(42, 5),
-            ]
+        $viewModel = new Event(
+            $this->createMock(Config::class),
+            $dataHelper,
+            $checkoutSession,
+            new Json(),
+            $exportConfig,
         );
-        $this->mockCheckoutSession($order);
 
-        $this->tester->mockConfig('tweakwise/export/grouped_export_enabled', '1');
-
-        /** @var Event $viewModel */
-        $viewModel = $this->tester->grabService(Event::class);
-
-        $this->tester->assertEquals('["1000142-1000142"]', $viewModel->getOrderProductIds());
+        $this->assertEquals('["1000110-1000110"]', $viewModel->getOrderProductIds());
     }
 
     /**

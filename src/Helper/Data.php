@@ -72,7 +72,8 @@ class Data extends AbstractHelper
             $childIds = $this->configurableResource->getChildrenIds($productId);
             $simpleProductId = (int)array_key_first(array_key_first($childIds) !== null ? reset($childIds) : []);
             if (!$simpleProductId) {
-                return $this->getTweakwiseId($productId);
+                $groupCode = (int)$this->getTweakwiseId($productId);
+                return $this->getTweakwiseId($productId, null, $groupCode);
             }
             $groupCode = (int)$this->getTweakwiseId($productId);
             return $this->getTweakwiseId($simpleProductId, null, $groupCode);
@@ -81,7 +82,8 @@ class Data extends AbstractHelper
         // Simple product — look up its configurable parent.
         $parentIds = $this->configurableResource->getParentIdsByChild($productId);
         if (empty($parentIds)) {
-            return $this->getTweakwiseId($productId);
+            $groupCode = (int)$this->getTweakwiseId($productId);
+            return $this->getTweakwiseId($productId, null, $groupCode);
         }
 
         $parentProductId = (int)reset($parentIds);
