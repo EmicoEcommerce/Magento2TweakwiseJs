@@ -69,7 +69,7 @@ class AddToCartTest extends Unit
     {
         $this->exportConfig->method('isGroupedExport')->willReturn(true);
         $this->dataHelper->method('getTweakwiseId')->willReturnMap([
-            [10, '1000110'],
+            [10, null, '1000110'],
             [99, null, 1000110, '1000199-1000110'],
         ]);
 
@@ -92,7 +92,7 @@ class AddToCartTest extends Unit
     {
         $this->exportConfig->method('isGroupedExport')->willReturn(true);
         $this->dataHelper->method('getTweakwiseId')->willReturnMap([
-            [10, '1000110'],
+            [10, null, '1000110'],
             [10, null, 1000110, '1000110-1000110'],
         ]);
 
