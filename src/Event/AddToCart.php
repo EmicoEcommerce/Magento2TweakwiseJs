@@ -94,8 +94,13 @@ class AddToCart implements EventInterface
      */
     protected function resolveProductKey(): string
     {
-        if (!$this->exportConfig->isGroupedExport() || $this->quoteItem === null) {
+        if (!$this->exportConfig->isGroupedExport()) {
             return $this->dataHelper->getTweakwiseId((int)$this->product->getId());
+        }
+
+        if ($this->quoteItem === null) {
+            $groupCode  = (int)$this->dataHelper->getTweakwiseId((int)$this->product->getId());
+            return $this->dataHelper->getTweakwiseId((int)$this->product->getId(), null, $groupCode);
         }
 
         $parentProductId = (int)$this->quoteItem->getProductId();

@@ -69,7 +69,7 @@ class AddToCartTest extends Unit
     {
         $this->exportConfig->method('isGroupedExport')->willReturn(true);
         $this->dataHelper->method('getTweakwiseId')->willReturnMap([
-            [10, null, '1000110'],
+            [10, null, null, '1000110'],
             [99, null, 1000110, '1000199-1000110'],
         ]);
 
@@ -92,7 +92,7 @@ class AddToCartTest extends Unit
     {
         $this->exportConfig->method('isGroupedExport')->willReturn(true);
         $this->dataHelper->method('getTweakwiseId')->willReturnMap([
-            [10, null, '1000110'],
+            [10, null, null, '1000110'],
             [10, null, 1000110, '1000110-1000110'],
         ]);
 
@@ -114,7 +114,10 @@ class AddToCartTest extends Unit
     public function testProductKeyIsPlainIdWhenQuoteItemIsNull(): void
     {
         $this->exportConfig->method('isGroupedExport')->willReturn(true);
-        $this->dataHelper->method('getTweakwiseId')->with(42)->willReturn('1000142');
+        $this->dataHelper->method('getTweakwiseId')->willReturnMap([
+            [42, null, null, '1000142'],
+            [42, null, 1000142, '1000142-1000142'],
+        ]);
 
         $product = $this->createMock(Product::class);
         $product->method('getId')->willReturn(42);
@@ -122,7 +125,7 @@ class AddToCartTest extends Unit
         // No quoteItem set — grouped export on but no item context
         $this->subject->setProduct($product)->setQty(1);
 
-        $this->assertEquals('1000142', $this->subject->resolveProductKey());
+        $this->assertEquals('1000142-1000142', $this->subject->resolveProductKey());
     }
 
     /**
