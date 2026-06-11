@@ -17,7 +17,9 @@ spl_autoload_register(static function (string $class): void {
 
     $file = $baseDir . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
 
-    if (file_exists($file)) {
-        require $file;
+    if (!file_exists($file)) {
+        return;
     }
+
+    require $file;
 });
