@@ -103,6 +103,7 @@ define([
             formData.append('product', options.productId);
             formData.append('form_key', configData.formKey);
             formData.append('uenc', btoa(window.location.href));
+            formData.append('tweakwise_event_handled', '1');
 
             return formData;
         }
@@ -119,7 +120,8 @@ define([
             const data = {
                 product: options.productId,
                 form_key: configData.formKey,
-                uenc: btoa(window.location.href)
+                uenc: btoa(window.location.href),
+                tweakwise_event_handled: '1'
             };
 
             $.each(data, function (key, value) {

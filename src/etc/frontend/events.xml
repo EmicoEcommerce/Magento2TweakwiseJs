@@ -9,7 +9,7 @@
         <observer name="Tweakwise_TweakwiseJs_Observer_AddJsToPages"
                   instance="Tweakwise\TweakwiseJs\Observer\AddPageAssets"/>
     </event>
-    <event name="checkout_cart_add_product_complete">
+    <event name="checkout_cart_product_add_after">
         <observer name="Tweakwise_TweakwiseJs_Observer_Event_TriggerAddToCartEvent"
                   instance="Tweakwise\TweakwiseJs\Observer\Event\TriggerAddToCartEvent"/>
     </event>
