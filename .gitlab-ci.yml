@@ -26,7 +26,36 @@ magento-module/test/functional:
   variables:
     MIN_PHP_VERSION: '8.1'
     DISABLE_DEPENDENCY_AUDIT: "true"
-
+  before_script:
+    - COMPOSER_PACKAGE_NAME=$(sed -n 's/.*"name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' composer.json)
+    - if dpkg --compare-versions "${MIN_MAGENTO_VERSION}" ">>" "${MAGENTO_VERSION}"; then exit 125; fi
+    - if dpkg --compare-versions "${MIN_PHP_VERSION}" ">>" "${PHP_VERSION}"; then exit 125; fi
+    - '[ -f "codeception.yml" ] && cp -Rf codeception.yml /var/www/html'
+    - cp -Rf tests /var/www/html
+    - cd /var/www/html
+    - git config --global --add safe.directory $CI_PROJECT_DIR
+    - $COMPOSER_COMMAND config minimum-stability dev
+    - |
+      if jq -e '.repositories // empty' "$CI_PROJECT_DIR/composer.json" > /dev/null; then
+        jq -r '
+          .repositories
+          | to_entries
+          | .[]
+          | @base64
+        ' "$CI_PROJECT_DIR/composer.json" | while read -r REPOSITORY_ENTRY; do
+          REPOSITORY_NAME=$(printf '%s' "$REPOSITORY_ENTRY" | base64 -d | jq -r '.key')
+          REPOSITORY_CONFIG=$(printf '%s' "$REPOSITORY_ENTRY" | base64 -d | jq -c '.value')
+          $COMPOSER_COMMAND config --json "repositories.${REPOSITORY_NAME}" "$REPOSITORY_CONFIG"
+        done
+      fi
+    - $COMPOSER_COMMAND config repositories.currentbranch path $CI_PROJECT_DIR
+    # `MAGENTO_USERNAME` and `MAGENTO_PASSWORD` is inherited from Magento Modules Gitlab Group
+    - $COMPOSER_COMMAND config --global http-basic.repo.magento.com $MAGENTO_USERNAME $MAGENTO_PASSWORD
+    # `HYVA_PASSWORD` is inherited from Magento Modules Gitlab Group
+    - $COMPOSER_COMMAND config --global http-basic.hyva-themes.repo.packagist.com token $HYVA_PASSWORD
+    - $COMPOSER_COMMAND config --global -- bearer.git.emico.io ${GITLAB_TOKEN}
+    - if [ "${DISABLE_DEPENDENCY_AUDIT}" = "true" ]; then $COMPOSER_COMMAND config allow-plugins.magento/composer-dependency-version-audit-plugin false; fi
+    - if [ "${DISABLE_DEPENDENCY_AUDIT}" = "true" ]; then $COMPOSER_COMMAND config allow-plugins true; fi
 release:
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
