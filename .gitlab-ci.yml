@@ -55,7 +55,6 @@ magento-module/test/functional:
     - $COMPOSER_COMMAND config --global http-basic.hyva-themes.repo.packagist.com token $HYVA_PASSWORD
     - $COMPOSER_COMMAND config --global -- bearer.git.emico.io ${GITLAB_TOKEN}
     - if [ "${DISABLE_DEPENDENCY_AUDIT}" = "true" ]; then $COMPOSER_COMMAND config allow-plugins.magento/composer-dependency-version-audit-plugin false; fi
-    - if [ "${DISABLE_DEPENDENCY_AUDIT}" = "true" ]; then $COMPOSER_COMMAND config allow-plugins true; fi
 release:
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
