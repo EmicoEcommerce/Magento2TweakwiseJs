@@ -57,6 +57,7 @@ magento-module/test/functional:
     - if [ "${DISABLE_DEPENDENCY_AUDIT}" = "true" ]; then
       $COMPOSER_COMMAND config allow-plugins.magento/composer-dependency-version-audit-plugin false;
       $COMPOSER_COMMAND config allow-plugins.magento/magento-composer-installer true;
+      $COMPOSER_COMMAND config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true;
       fi
 
 release:
