@@ -60,6 +60,7 @@ magento-module/test/functional:
       $COMPOSER_COMMAND config allow-plugins.magento/inventory-composer-installer true;
       $COMPOSER_COMMAND config allow-plugins.magento/composer-root-update-plugin true;
       $COMPOSER_COMMAND config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true;
+      $COMPOSER_COMMAND config allow-plugins.emico/codeception-m2 true;
       fi
 
 release:
