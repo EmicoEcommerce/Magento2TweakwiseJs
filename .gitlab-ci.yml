@@ -58,6 +58,7 @@ magento-module/test/functional:
       $COMPOSER_COMMAND config allow-plugins.magento/composer-dependency-version-audit-plugin false;
       $COMPOSER_COMMAND config allow-plugins.magento/magento-composer-installer true;
       $COMPOSER_COMMAND config allow-plugins.magento/inventory-composer-installer true;
+      $COMPOSER_COMMAND config allow-plugins.magento/composer-root-update-plugin true;
       $COMPOSER_COMMAND config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true;
       fi
 
