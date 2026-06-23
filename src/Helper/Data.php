@@ -84,7 +84,8 @@ class Data extends AbstractHelper
     {
         $childIds = $this->configurableResource->getChildrenIds($productId);
         $firstGroup = !empty($childIds) ? reset($childIds) : [];
-        $simpleProductId = (int)array_key_first($firstGroup) ?: $productId;
+        $firstGroupKey = array_key_first($firstGroup);
+        $simpleProductId = $firstGroupKey !== null ? (int)$firstGroupKey : $productId;
         return [$simpleProductId, $productId];
     }
 

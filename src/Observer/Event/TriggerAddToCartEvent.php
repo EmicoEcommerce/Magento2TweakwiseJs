@@ -41,7 +41,8 @@ class TriggerAddToCartEvent implements ObserverInterface
         /** @var Item $quoteItem */
         $quoteItem = $observer->getData('quote_item');
         // getQtyToAdd() reflects the qty added in this request; getQty() is the total cart qty for the item.
-        $qty = (int)($quoteItem->getQtyToAdd() ?: $quoteItem->getQty());
+        $qtyToAdd = $quoteItem->getQtyToAdd();
+        $qty = (int)($qtyToAdd ? $qtyToAdd : $quoteItem->getQty());
         if ($qty === 0) {
             $qty = 1;
         }
