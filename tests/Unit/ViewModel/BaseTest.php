@@ -6,7 +6,8 @@ namespace Tweakwise\Test\Unit\ViewModel;
 
 use Emico\CodeCept\Test\Unit;
 use Magento\Framework\Exception\NoSuchEntityException;
-use PHPUnit\Framework\MockObject\MockObject;
+use Mockery;
+use Mockery\MockInterface;
 use Tweakwise\Test\Support\UnitTester;
 use Tweakwise\TweakwiseJs\Helper\Data;
 use Tweakwise\TweakwiseJs\Model\Config;
@@ -16,15 +17,9 @@ class BaseTest extends Unit
 {
     protected UnitTester $tester;
 
-    /**
-     * @var Config&MockObject
-     */
-    private Config|MockObject $config;
+    private Config|MockInterface $config;
 
-    /**
-     * @var Data&MockObject
-     */
-    private Data|MockObject $dataHelper;
+    private Data|MockInterface $dataHelper;
 
     private Base $subject;
 
@@ -32,9 +27,15 @@ class BaseTest extends Unit
     {
         parent::setUp();
 
-        $this->config = $this->createMock(Config::class);
-        $this->dataHelper = $this->createMock(Data::class);
+        $this->config = Mockery::mock(Config::class);
+        $this->dataHelper = Mockery::mock(Data::class);
         $this->subject = new Base($this->config, $this->dataHelper);
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        Mockery::close();
     }
 
     /**
@@ -44,9 +45,9 @@ class BaseTest extends Unit
     public function testResolveGroupedExportProductKeyDelegatesToDataHelper(): void
     {
         $this->dataHelper
-            ->method('resolveGroupedExportProductKey')
+            ->shouldReceive('resolveGroupedExportProductKey')
             ->with(42, 'configurable')
-            ->willReturn('1000199-1000142');
+            ->andReturn('1000199-1000142');
 
         $this->assertEquals('1000199-1000142', $this->subject->resolveGroupedExportProductKey(42, 'configurable'));
     }
@@ -58,8 +59,8 @@ class BaseTest extends Unit
     public function testResolveGroupedExportProductKeyReturnsFallbackIdOnException(): void
     {
         $this->dataHelper
-            ->method('resolveGroupedExportProductKey')
-            ->willThrowException(new NoSuchEntityException());
+            ->shouldReceive('resolveGroupedExportProductKey')
+            ->andThrow(new NoSuchEntityException());
 
         $this->assertEquals('0', $this->subject->resolveGroupedExportProductKey(42, 'simple'));
     }

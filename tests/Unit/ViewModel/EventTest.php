@@ -10,7 +10,8 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Item;
-use PHPUnit\Framework\MockObject\MockObject;
+use Mockery;
+use Mockery\MockInterface;
 use Tweakwise\Magento2TweakwiseExport\Model\Config as ExportConfig;
 use Tweakwise\Test\Support\UnitTester;
 use Tweakwise\TweakwiseJs\Helper\Data;
@@ -21,30 +22,15 @@ class EventTest extends Unit
 {
     protected UnitTester $tester;
 
-    /**
-     * @var Config&MockObject
-     */
-    private Config|MockObject $config;
+    private Config|MockInterface $config;
 
-    /**
-     * @var Data&MockObject
-     */
-    private Data|MockObject $dataHelper;
+    private Data|MockInterface $dataHelper;
 
-    /**
-     * @var Session&MockObject
-     */
-    private Session|MockObject $checkoutSession;
+    private Session|MockInterface $checkoutSession;
 
-    /**
-     * @var ExportConfig&MockObject
-     */
-    private ExportConfig|MockObject $exportConfig;
+    private ExportConfig|MockInterface $exportConfig;
 
-    /**
-     * @var Order&MockObject
-     */
-    private Order|MockObject $order;
+    private Order|MockInterface $order;
 
     private Event $subject;
 
@@ -52,17 +38,13 @@ class EventTest extends Unit
     {
         parent::setUp();
 
-        $this->config = $this->createMock(Config::class);
-        $this->dataHelper = $this->createMock(Data::class);
-        $this->checkoutSession = $this->createMock(Session::class);
-        $this->exportConfig = $this->createMock(ExportConfig::class);
+        $this->config = Mockery::mock(Config::class);
+        $this->dataHelper = Mockery::mock(Data::class);
+        $this->checkoutSession = Mockery::mock(Session::class);
+        $this->exportConfig = Mockery::mock(ExportConfig::class);
 
-        $this->order = $this->getMockBuilder(Order::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getAllItems', 'getAllVisibleItems'])
-            ->getMock();
-
-        $this->checkoutSession->method('getLastRealOrder')->willReturn($this->order);
+        $this->order = Mockery::mock(Order::class);
+        $this->checkoutSession->shouldReceive('getLastRealOrder')->andReturn($this->order);
 
         $this->subject = new Event(
             $this->config,
@@ -73,27 +55,29 @@ class EventTest extends Unit
         );
     }
 
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        Mockery::close();
+    }
+
     /**
      * @covers \Tweakwise\TweakwiseJs\ViewModel\Event::getOrderProductIds
      * @return void
      */
     public function testGetOrderProductIdsReturnsPlainIdsWhenGroupedExportDisabled(): void
     {
-        $this->exportConfig->method('isGroupedExport')->willReturn(false);
-
-        $this->order->method('getAllVisibleItems')->willReturn(
+        $this->exportConfig->shouldReceive('isGroupedExport')->andReturn(false);
+        $this->order->shouldReceive('getStoreId')->andReturn(0);
+        $this->order->shouldReceive('getAllVisibleItems')->andReturn(
             [
-            $this->buildOrderItemMock(10, 1),
-            $this->buildOrderItemMock(42, 2),
+                $this->buildOrderItemMock(10, 1),
+                $this->buildOrderItemMock(42, 2),
             ]
         );
 
-        $this->dataHelper->method('getTweakwiseId')->willReturnMap(
-            [
-            [10, 0, null, '1000110'],
-            [42, 0, null, '1000142'],
-            ]
-        );
+        $this->dataHelper->shouldReceive('getTweakwiseId')->with(10, 0, null)->andReturn('1000110');
+        $this->dataHelper->shouldReceive('getTweakwiseId')->with(42, 0, null)->andReturn('1000142');
 
         $this->assertEquals('["1000110","1000142"]', $this->subject->getOrderProductIds());
     }
@@ -104,15 +88,15 @@ class EventTest extends Unit
      */
     public function testGetOrderProductIdsReturnsFallbackIdOnExceptionWhenGroupedExportDisabled(): void
     {
-        $this->exportConfig->method('isGroupedExport')->willReturn(false);
-
-        $this->order->method('getAllVisibleItems')->willReturn(
+        $this->exportConfig->shouldReceive('isGroupedExport')->andReturn(false);
+        $this->order->shouldReceive('getStoreId')->andReturn(0);
+        $this->order->shouldReceive('getAllVisibleItems')->andReturn(
             [
-            $this->buildOrderItemMock(42, 1),
+                $this->buildOrderItemMock(42, 1),
             ]
         );
 
-        $this->dataHelper->method('getTweakwiseId')->willThrowException(new NoSuchEntityException());
+        $this->dataHelper->shouldReceive('getTweakwiseId')->andThrow(new NoSuchEntityException());
 
         $this->assertEquals('["0"]', $this->subject->getOrderProductIds());
     }
@@ -127,19 +111,16 @@ class EventTest extends Unit
      */
     public function testGetOrderProductIdsReturnsGroupedFormatForConfigurableOrderItem(): void
     {
-        $this->exportConfig->method('isGroupedExport')->willReturn(true);
+        $this->exportConfig->shouldReceive('isGroupedExport')->andReturn(true);
+        $this->order->shouldReceive('getStoreId')->andReturn(0);
 
         $parentItem = $this->buildOrderItemMock(10, 1, null);
         $childItem = $this->buildOrderItemMock(99, 2, $parentItem);
 
-        $this->order->method('getAllItems')->willReturn([$parentItem, $childItem]);
+        $this->order->shouldReceive('getAllItems')->andReturn([$parentItem, $childItem]);
 
-        $this->dataHelper->method('getTweakwiseId')->willReturnMap(
-            [
-            [10, 0, null, '1000110'],
-            [99, 0, 1000110, '1000199-1000110'],
-            ]
-        );
+        $this->dataHelper->shouldReceive('getTweakwiseId')->with(10, 0, null)->andReturn('1000110');
+        $this->dataHelper->shouldReceive('getTweakwiseId')->with(99, 0, 1000110)->andReturn('1000199-1000110');
 
         $this->assertEquals('["1000199-1000110"]', $this->subject->getOrderProductIds());
     }
@@ -153,20 +134,17 @@ class EventTest extends Unit
      */
     public function testGetOrderProductIdsReturnsItemWithItselfAsGroupCodeWhenNoParent(): void
     {
-        $this->exportConfig->method('isGroupedExport')->willReturn(true);
+        $this->exportConfig->shouldReceive('isGroupedExport')->andReturn(true);
+        $this->order->shouldReceive('getStoreId')->andReturn(0);
 
-        $this->order->method('getAllItems')->willReturn(
+        $this->order->shouldReceive('getAllItems')->andReturn(
             [
-            $this->buildOrderItemMock(42, 5, null),
+                $this->buildOrderItemMock(42, 5, null),
             ]
         );
 
-        $this->dataHelper->method('getTweakwiseId')->willReturnMap(
-            [
-            [42, 0, null, '1000142'],
-            [42, 0, 1000142, '1000142-1000142'],
-            ]
-        );
+        $this->dataHelper->shouldReceive('getTweakwiseId')->with(42, 0, null)->andReturn('1000142');
+        $this->dataHelper->shouldReceive('getTweakwiseId')->with(42, 0, 1000142)->andReturn('1000142-1000142');
 
         $this->assertEquals('["1000142-1000142"]', $this->subject->getOrderProductIds());
     }
@@ -176,18 +154,14 @@ class EventTest extends Unit
      * @param int $itemId
      * @param Item|null $parentItem
      *
-     * @return Item&MockObject
+     * @return Item&MockInterface
      */
-    private function buildOrderItemMock(int $productId, int $itemId, ?Item $parentItem = null): Item&MockObject
+    private function buildOrderItemMock(int $productId, int $itemId, ?Item $parentItem = null): Item&MockInterface
     {
-        $mock = $this->getMockBuilder(Item::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getProductId', 'getId', 'getParentItem'])
-            ->getMock();
-
-        $mock->method('getProductId')->willReturn($productId);
-        $mock->method('getId')->willReturn($itemId);
-        $mock->method('getParentItem')->willReturn($parentItem);
+        $mock = Mockery::mock(Item::class)->makePartial();
+        $mock->shouldReceive('getProductId')->andReturn($productId);
+        $mock->shouldReceive('getId')->andReturn($itemId);
+        $mock->shouldReceive('getParentItem')->andReturn($parentItem);
 
         return $mock;
     }

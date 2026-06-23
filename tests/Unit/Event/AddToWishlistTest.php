@@ -6,7 +6,8 @@ namespace Tweakwise\Test\Unit\Event;
 
 use Emico\CodeCept\Test\Unit;
 use Magento\Catalog\Model\Product;
-use PHPUnit\Framework\MockObject\MockObject;
+use Mockery;
+use Mockery\MockInterface;
 use Tweakwise\Test\Support\UnitTester;
 use Tweakwise\TweakwiseJs\Event\AddToWishlist;
 use Tweakwise\TweakwiseJs\Helper\Data;
@@ -15,7 +16,7 @@ class AddToWishlistTest extends Unit
 {
     protected UnitTester $tester;
 
-    private Data|MockObject $dataHelper;
+    private Data|MockInterface $dataHelper;
 
     private AddToWishlist $subject;
 
@@ -23,8 +24,14 @@ class AddToWishlistTest extends Unit
     {
         parent::setUp();
 
-        $this->dataHelper = $this->createMock(Data::class);
+        $this->dataHelper = Mockery::mock(Data::class);
         $this->subject = new AddToWishlist($this->dataHelper);
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        Mockery::close();
     }
 
     /**
@@ -33,11 +40,11 @@ class AddToWishlistTest extends Unit
     public function testProductKeyIsPlainIdWhenGroupedExportDisabled(): void
     {
         // Data::resolveGroupedExportProductKey returns plain ID when grouped export is off
-        $this->dataHelper->method('resolveGroupedExportProductKey')->willReturn('1000142');
+        $this->dataHelper->shouldReceive('resolveGroupedExportProductKey')->andReturn('1000142');
 
-        $product = $this->createMock(Product::class);
-        $product->method('getId')->willReturn(42);
-        $product->method('getTypeId')->willReturn('simple');
+        $product = Mockery::mock(Product::class);
+        $product->shouldReceive('getId')->andReturn(42);
+        $product->shouldReceive('getTypeId')->andReturn('simple');
 
         $this->subject->setProduct($product);
 
@@ -51,14 +58,13 @@ class AddToWishlistTest extends Unit
      */
     public function testProductKeyUsesGroupedFormatForConfigurableProduct(): void
     {
-        // Data::resolveGroupedExportProductKey returns grouped format when grouped export is on
-        $this->dataHelper->method('resolveGroupedExportProductKey')
+        $this->dataHelper->shouldReceive('resolveGroupedExportProductKey')
             ->with(10, 'configurable')
-            ->willReturn('1000199-1000110');
+            ->andReturn('1000199-1000110');
 
-        $product = $this->createMock(Product::class);
-        $product->method('getId')->willReturn(10);
-        $product->method('getTypeId')->willReturn('configurable');
+        $product = Mockery::mock(Product::class);
+        $product->shouldReceive('getId')->andReturn(10);
+        $product->shouldReceive('getTypeId')->andReturn('configurable');
 
         $this->subject->setProduct($product);
 
@@ -72,13 +78,13 @@ class AddToWishlistTest extends Unit
      */
     public function testProductKeyUsesGroupedFormatForSimpleProductWithConfigurableParent(): void
     {
-        $this->dataHelper->method('resolveGroupedExportProductKey')
+        $this->dataHelper->shouldReceive('resolveGroupedExportProductKey')
             ->with(99, 'simple')
-            ->willReturn('1000199-1000110');
+            ->andReturn('1000199-1000110');
 
-        $product = $this->createMock(Product::class);
-        $product->method('getId')->willReturn(99);
-        $product->method('getTypeId')->willReturn('simple');
+        $product = Mockery::mock(Product::class);
+        $product->shouldReceive('getId')->andReturn(99);
+        $product->shouldReceive('getTypeId')->andReturn('simple');
 
         $this->subject->setProduct($product);
 
@@ -92,11 +98,11 @@ class AddToWishlistTest extends Unit
      */
     public function testProductKeyUsesPlainIdWhenTypeIdIsNotString(): void
     {
-        $this->dataHelper->method('getTweakwiseId')->with(42)->willReturn('1000142');
+        $this->dataHelper->shouldReceive('getTweakwiseId')->with(42)->andReturn('1000142');
 
-        $product = $this->createMock(Product::class);
-        $product->method('getId')->willReturn(42);
-        $product->method('getTypeId')->willReturn(null);
+        $product = Mockery::mock(Product::class);
+        $product->shouldReceive('getId')->andReturn(42);
+        $product->shouldReceive('getTypeId')->andReturn(null);
 
         $this->subject->setProduct($product);
 

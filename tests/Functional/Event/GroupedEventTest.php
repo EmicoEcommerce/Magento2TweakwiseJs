@@ -4,106 +4,96 @@ declare(strict_types=1);
 
 namespace Tweakwise\Test\Functional\Event;
 
-use Magento\Sales\Model\Order\Item;
-use Magento\Checkout\Model\Session;
-use Emico\CodeCept\Test\Unit;
+use Emico\CodeCept\Test\Functional;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\App\RequestInterface;
-use Magento\Framework\Event\Observer;
-use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Framework\Event\Manager as EventManager;
 use Magento\Quote\Model\Quote\Item as QuoteItem;
-use Magento\Sales\Model\Order;
 use Mockery;
 use Tweakwise\Magento2TweakwiseExport\Model\Config as ExportConfig;
 use Tweakwise\TweakwiseJs\Api\Event\SessionServiceInterface;
-use Tweakwise\TweakwiseJs\Helper\Data;
-use Tweakwise\TweakwiseJs\Model\Config;
-use Tweakwise\TweakwiseJs\Observer\Event\TriggerAddToCartEvent;
-use Tweakwise\TweakwiseJs\ViewModel\Event;
 use Tweakwise\Test\Support\FunctionalTester;
 
-class GroupedEventTest extends Unit
+class GroupedEventTest extends Functional
 {
     protected FunctionalTester $tester;
 
     /**
-     * @covers \Tweakwise\TweakwiseJs\ViewModel\Event::getOrderProductIds
      * @return void
+     * @throws \Exception
+     * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
      */
-    public function testGetOrderProductIdsReturnsPlainIdsWhenGroupedExportDisabled(): void
+    public function _before(): void
     {
-        $itemOne = $this->createMock(Item::class);
-        $itemOne->method('getProductId')->willReturn(10);
-
-        $itemTwo = $this->createMock(Item::class);
-        $itemTwo->method('getProductId')->willReturn(42);
-
-        $order = $this->createMock(Order::class);
-        $order->method('getAllVisibleItems')->willReturn([$itemOne, $itemTwo]);
-        $order->method('getStoreId')->willReturn(1);
-
-        $checkoutSession = $this->createMock(Session::class);
-        $checkoutSession->method('getLastRealOrder')->willReturn($order);
-
-        $exportConfig = $this->createMock(ExportConfig::class);
-        $exportConfig->method('isGroupedExport')->willReturn(false);
-
-        $dataHelper = $this->createMock(Data::class);
-        $dataHelper->method('getTweakwiseId')->willReturnMap(
-            [
-                [10, 1, null, '1000110'],
-                [42, 1, null, '1000142'],
-            ]
-        );
-
-        $viewModel = new Event(
-            $this->createMock(Config::class),
-            $dataHelper,
-            $checkoutSession,
-            new Json(),
-            $exportConfig,
-        );
-
-        $this->assertEquals('["1000110","1000142"]', $viewModel->getOrderProductIds());
+        $this->tester->mockConfig(ExportConfig::PATH_GROUPED_EXPORT_ENABLED, '1');
     }
 
     /**
-     * @covers \Tweakwise\TweakwiseJs\ViewModel\Event::getOrderProductIds
+     * Dispatching checkout_cart_product_add_after adds the event data to the session.
+     *
      * @return void
      */
-    public function testGetOrderProductIdsReturnsSimpleItemWithItselfAsGroupCodeWhenNoParent(): void
+    public function testAddToCartEventIsStoredInSession(): void
     {
-        $item = $this->createMock(Item::class);
-        $item->method('getProductId')->willReturn(10);
-        $item->method('getData')->with('groupCode')->willReturn(10);
+        $request = Mockery::mock(RequestInterface::class)->makePartial();
+        $request->shouldReceive('getParam')->with('tweakwise_event_handled')->andReturn(null);
+        $this->tester->mockService(RequestInterface::class, $request);
 
-        $order = $this->createMock(Order::class);
-        $order->method('getAllItems')->willReturn([$item]);
-        $order->method('getStoreId')->willReturn(1);
+        /** @var Product $product */
+        $product = $this->tester->getObjectManager()->create(Product::class);
+        $product->setId(42);
+        $product->setTypeId('simple');
 
-        $checkoutSession = $this->createMock(Session::class);
-        $checkoutSession->method('getLastRealOrder')->willReturn($order);
+        /** @var QuoteItem $quoteItem */
+        $quoteItem = $this->tester->getObjectManager()->create(QuoteItem::class);
+        $quoteItem->setProductId(42);
+        $quoteItem->setQtyToAdd(1);
 
-        $exportConfig = $this->createMock(ExportConfig::class);
-        $exportConfig->method('isGroupedExport')->willReturn(true);
+        /** @var EventManager $eventManager */
+        $eventManager = $this->tester->getObjectManager()->create(EventManager::class);
+        $eventManager->dispatch('checkout_cart_product_add_after', [
+            'product' => $product,
+            'quote_item' => $quoteItem,
+        ]);
 
-        $dataHelper = $this->createMock(Data::class);
-        $dataHelper->method('getTweakwiseId')->willReturnMap(
-            [
-                [10, 1, null, '1000110'],
-                [10, 1, 1000110, '1000110-1000110'],
-            ]
-        );
+        /** @var SessionServiceInterface $sessionService */
+        $sessionService = $this->tester->getObjectManager()->create(SessionServiceInterface::class);
+        $events = $sessionService->get();
 
-        $viewModel = new Event(
-            $this->createMock(Config::class),
-            $dataHelper,
-            $checkoutSession,
-            new Json(),
-            $exportConfig,
-        );
+        $this->assertArrayHasKey('AddToCart', $events);
+        $this->assertEquals('addtocart', $events['AddToCart']['event']);
+        $this->assertArrayHasKey('productKey', $events['AddToCart']['data']);
+    }
 
-        $this->assertEquals('["1000110-1000110"]', $viewModel->getOrderProductIds());
+    /**
+     * Dispatching wishlist_add_product adds the event data to the session.
+     *
+     * @return void
+     */
+    public function testAddToWishlistEventIsStoredInSession(): void
+    {
+        $request = Mockery::mock(RequestInterface::class)->makePartial();
+        $request->shouldReceive('getParam')->with('tweakwise_event_handled')->andReturn(null);
+        $this->tester->mockService(RequestInterface::class, $request);
+
+        /** @var Product $product */
+        $product = $this->tester->getObjectManager()->create(Product::class);
+        $product->setId(42);
+        $product->setTypeId('simple');
+
+        /** @var EventManager $eventManager */
+        $eventManager = $this->tester->getObjectManager()->create(EventManager::class);
+        $eventManager->dispatch('wishlist_add_product', [
+            'product' => $product,
+        ]);
+
+        /** @var SessionServiceInterface $sessionService */
+        $sessionService = $this->tester->getObjectManager()->create(SessionServiceInterface::class);
+        $events = $sessionService->get();
+
+        $this->assertArrayHasKey('AddToWishlist', $events);
+        $this->assertEquals('addtowishlist', $events['AddToWishlist']['event']);
+        $this->assertArrayHasKey('productKey', $events['AddToWishlist']['data']);
     }
 
     /**
@@ -123,17 +113,10 @@ class GroupedEventTest extends Unit
         $sessionService->shouldReceive('add')->never();
         $this->tester->mockService(SessionServiceInterface::class, $sessionService);
 
-        /** @var TriggerAddToCartEvent $observerInstance */
-        $observerInstance = $this->tester->getObjectManager()->create(
-            TriggerAddToCartEvent::class,
-            ['request' => $request, 'sessionService' => $sessionService]
-        );
-
-        $magentoObserver = new Observer();
-        $magentoObserver->setData([
+        $eventManager = $this->tester->getObjectManager()->create(EventManager::class);
+        $eventManager->dispatch('checkout_cart_product_add_after', [
             'product' => Mockery::mock(Product::class),
             'quote_item' => Mockery::mock(QuoteItem::class),
         ]);
-        $observerInstance->execute($magentoObserver);
     }
 }

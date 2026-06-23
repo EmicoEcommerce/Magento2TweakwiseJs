@@ -10,7 +10,8 @@ use Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable as
 use Magento\Framework\App\Helper\Context;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use PHPUnit\Framework\MockObject\MockObject;
+use Mockery;
+use Mockery\MockInterface;
 use Tweakwise\Magento2TweakwiseExport\Model\Config as ExportConfig;
 use Tweakwise\Magento2TweakwiseExport\Model\Helper as ExportHelper;
 use Tweakwise\Test\Support\UnitTester;
@@ -20,13 +21,13 @@ class DataTest extends Unit
 {
     protected UnitTester $tester;
 
-    private StoreManagerInterface|MockObject $storeManager;
+    private StoreManagerInterface|MockInterface $storeManager;
 
-    private ExportHelper|MockObject $exportHelper;
+    private ExportHelper|MockInterface $exportHelper;
 
-    private ExportConfig|MockObject $exportConfig;
+    private ExportConfig|MockInterface $exportConfig;
 
-    private ConfigurableResource|MockObject $configurableResource;
+    private ConfigurableResource|MockInterface $configurableResource;
 
     private Data $subject;
 
@@ -34,17 +35,17 @@ class DataTest extends Unit
     {
         parent::setUp();
 
-        $store = $this->createMock(StoreInterface::class);
-        $store->method('getId')->willReturn(1);
+        $store = Mockery::mock(StoreInterface::class);
+        $store->shouldReceive('getId')->andReturn(1);
 
-        $this->storeManager = $this->createMock(StoreManagerInterface::class);
-        $this->storeManager->method('getStore')->willReturn($store);
+        $this->storeManager = Mockery::mock(StoreManagerInterface::class);
+        $this->storeManager->shouldReceive('getStore')->andReturn($store);
 
-        $this->exportHelper = $this->createMock(ExportHelper::class);
-        $this->exportConfig = $this->createMock(ExportConfig::class);
-        $this->configurableResource = $this->createMock(ConfigurableResource::class);
+        $this->exportHelper = Mockery::mock(ExportHelper::class);
+        $this->exportConfig = Mockery::mock(ExportConfig::class);
+        $this->configurableResource = Mockery::mock(ConfigurableResource::class);
 
-        $context = $this->createMock(Context::class);
+        $context = Mockery::mock(Context::class);
 
         $this->subject = new Data(
             $context,
@@ -55,13 +56,19 @@ class DataTest extends Unit
         );
     }
 
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        Mockery::close();
+    }
+
     /**
      * @return void
      */
     public function testResolveGroupedExportProductKeyReturnsPlainIdWhenGroupedExportDisabled(): void
     {
-        $this->exportConfig->method('isGroupedExport')->willReturn(false);
-        $this->exportHelper->method('getTweakwiseId')->with(1, 42, null)->willReturn('1000142');
+        $this->exportConfig->shouldReceive('isGroupedExport')->andReturn(false);
+        $this->exportHelper->shouldReceive('getTweakwiseId')->with(1, 42, null)->andReturn('1000142');
 
         $result = $this->subject->resolveGroupedExportProductKey(42, 'simple');
 
@@ -73,8 +80,8 @@ class DataTest extends Unit
      */
     public function testResolveGroupedExportProductKeyReturnsPlainIdForConfigurableTypeWhenGroupedExportDisabled(): void
     {
-        $this->exportConfig->method('isGroupedExport')->willReturn(false);
-        $this->exportHelper->method('getTweakwiseId')->with(1, 10, null)->willReturn('1000110');
+        $this->exportConfig->shouldReceive('isGroupedExport')->andReturn(false);
+        $this->exportHelper->shouldReceive('getTweakwiseId')->with(1, 10, null)->andReturn('1000110');
 
         $result = $this->subject->resolveGroupedExportProductKey(10, Configurable::TYPE_CODE);
 
@@ -86,17 +93,14 @@ class DataTest extends Unit
      */
     public function testResolveGroupedExportProductKeyReturnsParentSimpleFormatForConfigurableWhenGroupedExportEnabled(): void
     {
-        $this->exportConfig->method('isGroupedExport')->willReturn(true);
+        $this->exportConfig->shouldReceive('isGroupedExport')->andReturn(true);
 
-        // configurable has one child: product 99
-        $this->configurableResource->method('getChildrenIds')
+        $this->configurableResource->shouldReceive('getChildrenIds')
             ->with(10)
-            ->willReturn([[99 => 99]]);
+            ->andReturn([[99 => 99]]);
 
-        $this->exportHelper->method('getTweakwiseId')->willReturnMap([
-            [1, 10, null, '1000110'],
-            [1, 99, 1000110, '1000110-1000199'],
-        ]);
+        $this->exportHelper->shouldReceive('getTweakwiseId')->with(1, 10, null)->andReturn('1000110');
+        $this->exportHelper->shouldReceive('getTweakwiseId')->with(1, 99, 1000110)->andReturn('1000110-1000199');
 
         $result = $this->subject->resolveGroupedExportProductKey(10, Configurable::TYPE_CODE);
 
@@ -108,16 +112,14 @@ class DataTest extends Unit
      */
     public function testResolveGroupedExportProductKeyReturnsParentSimpleFormatForSimpleWithConfigurableParent(): void
     {
-        $this->exportConfig->method('isGroupedExport')->willReturn(true);
+        $this->exportConfig->shouldReceive('isGroupedExport')->andReturn(true);
 
-        $this->configurableResource->method('getParentIdsByChild')
+        $this->configurableResource->shouldReceive('getParentIdsByChild')
             ->with(99)
-            ->willReturn([10]);
+            ->andReturn([10]);
 
-        $this->exportHelper->method('getTweakwiseId')->willReturnMap([
-            [1, 10, null, '1000110'],
-            [1, 99, 1000110, '1000110-1000199'],
-        ]);
+        $this->exportHelper->shouldReceive('getTweakwiseId')->with(1, 10, null)->andReturn('1000110');
+        $this->exportHelper->shouldReceive('getTweakwiseId')->with(1, 99, 1000110)->andReturn('1000110-1000199');
 
         $result = $this->subject->resolveGroupedExportProductKey(99, 'simple');
 
@@ -129,16 +131,14 @@ class DataTest extends Unit
      */
     public function testResolveGroupedExportProductKeyReturnsSimpleSimpleFormatForSimpleWithNoConfigurableParent(): void
     {
-        $this->exportConfig->method('isGroupedExport')->willReturn(true);
+        $this->exportConfig->shouldReceive('isGroupedExport')->andReturn(true);
 
-        $this->configurableResource->method('getParentIdsByChild')
+        $this->configurableResource->shouldReceive('getParentIdsByChild')
             ->with(42)
-            ->willReturn([]);
+            ->andReturn([]);
 
-        $this->exportHelper->method('getTweakwiseId')->willReturnMap([
-            [1, 42, null, '1000142'],
-            [1, 42, 1000142, '1000142-1000142'],
-        ]);
+        $this->exportHelper->shouldReceive('getTweakwiseId')->with(1, 42, null)->andReturn('1000142');
+        $this->exportHelper->shouldReceive('getTweakwiseId')->with(1, 42, 1000142)->andReturn('1000142-1000142');
 
         $result = $this->subject->resolveGroupedExportProductKey(42, 'simple');
 
@@ -150,16 +150,14 @@ class DataTest extends Unit
      */
     public function testResolveGroupedExportProductKeyReturnsParentSimpleFormatForConfigurableWithNoChildren(): void
     {
-        $this->exportConfig->method('isGroupedExport')->willReturn(true);
+        $this->exportConfig->shouldReceive('isGroupedExport')->andReturn(true);
 
-        $this->configurableResource->method('getChildrenIds')
+        $this->configurableResource->shouldReceive('getChildrenIds')
             ->with(10)
-            ->willReturn([]);
+            ->andReturn([]);
 
-        $this->exportHelper->method('getTweakwiseId')->willReturnMap([
-            [1, 10, null, '1000110'],
-            [1, 10, 1000110, '1000110-1000110'],
-        ]);
+        $this->exportHelper->shouldReceive('getTweakwiseId')->with(1, 10, null)->andReturn('1000110');
+        $this->exportHelper->shouldReceive('getTweakwiseId')->with(1, 10, 1000110)->andReturn('1000110-1000110');
 
         $result = $this->subject->resolveGroupedExportProductKey(10, Configurable::TYPE_CODE);
 

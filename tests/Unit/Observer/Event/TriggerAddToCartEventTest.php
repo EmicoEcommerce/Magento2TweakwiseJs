@@ -9,7 +9,8 @@ use Magento\Catalog\Model\Product;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Quote\Model\Quote\Item;
-use PHPUnit\Framework\MockObject\MockObject;
+use Mockery;
+use Mockery\MockInterface;
 use Tweakwise\Test\Support\UnitTester;
 use Tweakwise\TweakwiseJs\Api\Event\SessionServiceInterface;
 use Tweakwise\TweakwiseJs\Event\AddToCart as AddToCartEvent;
@@ -19,11 +20,11 @@ class TriggerAddToCartEventTest extends Unit
 {
     protected UnitTester $tester;
 
-    private SessionServiceInterface|MockObject $sessionService;
+    private SessionServiceInterface|MockInterface $sessionService;
 
-    private AddToCartEvent|MockObject $addToCartEvent;
+    private AddToCartEvent|MockInterface $addToCartEvent;
 
-    private RequestInterface|MockObject $request;
+    private RequestInterface|MockInterface $request;
 
     private TriggerAddToCartEvent $subject;
 
@@ -31,15 +32,21 @@ class TriggerAddToCartEventTest extends Unit
     {
         parent::setUp();
 
-        $this->sessionService = $this->createMock(SessionServiceInterface::class);
-        $this->addToCartEvent = $this->createMock(AddToCartEvent::class);
-        $this->request = $this->createMock(RequestInterface::class);
+        $this->sessionService = Mockery::mock(SessionServiceInterface::class);
+        $this->addToCartEvent = Mockery::mock(AddToCartEvent::class);
+        $this->request = Mockery::mock(RequestInterface::class);
 
         $this->subject = new TriggerAddToCartEvent(
             $this->sessionService,
             $this->addToCartEvent,
             $this->request,
         );
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        Mockery::close();
     }
 
     /**
@@ -49,22 +56,23 @@ class TriggerAddToCartEventTest extends Unit
     {
         $eventData = ['event' => 'addtocart', 'data' => ['productKey' => '123', 'quantity' => 2, 'totalAmount' => 49.98]];
 
-        $product = $this->createMock(Product::class);
-        $quoteItem = $this->createMock(Item::class);
-        $quoteItem->method('getQty')->willReturn(2);
+        $this->request->shouldReceive('getParam')->with('tweakwise_event_handled')->andReturn(null);
 
-        $observer = $this->createMock(Observer::class);
-        $observer->method('getData')->willReturnMap([
-            ['product', null, $product],
-            ['quote_item', null, $quoteItem],
-        ]);
+        $product = Mockery::mock(Product::class);
+        $quoteItem = Mockery::mock(Item::class);
+        $quoteItem->shouldReceive('getQtyToAdd')->andReturn(2);
+        $quoteItem->shouldReceive('getQty')->andReturn(3); // total in cart, must not be used
 
-        $this->addToCartEvent->expects($this->once())->method('setProduct')->with($product)->willReturnSelf();
-        $this->addToCartEvent->expects($this->once())->method('setQuoteItem')->with($quoteItem)->willReturnSelf();
-        $this->addToCartEvent->expects($this->once())->method('setQty')->with(2)->willReturnSelf();
-        $this->addToCartEvent->expects($this->once())->method('get')->willReturn($eventData);
+        $observer = Mockery::mock(Observer::class);
+        $observer->shouldReceive('getData')->with('product', null)->andReturn($product);
+        $observer->shouldReceive('getData')->with('quote_item', null)->andReturn($quoteItem);
 
-        $this->sessionService->expects($this->once())->method('add')->with('AddToCart', $eventData);
+        $this->addToCartEvent->shouldReceive('setProduct')->with($product)->once()->andReturnSelf();
+        $this->addToCartEvent->shouldReceive('setQuoteItem')->with($quoteItem)->once()->andReturnSelf();
+        $this->addToCartEvent->shouldReceive('setQty')->with(2)->once()->andReturnSelf();
+        $this->addToCartEvent->shouldReceive('get')->once()->andReturn($eventData);
+
+        $this->sessionService->shouldReceive('add')->with('AddToCart', $eventData)->once();
 
         $this->subject->execute($observer);
     }
@@ -76,22 +84,23 @@ class TriggerAddToCartEventTest extends Unit
     {
         $eventData = ['event' => 'addtocart', 'data' => ['productKey' => '123', 'quantity' => 1, 'totalAmount' => 24.99]];
 
-        $product = $this->createMock(Product::class);
-        $quoteItem = $this->createMock(Item::class);
-        $quoteItem->method('getQty')->willReturn(0);
+        $this->request->shouldReceive('getParam')->with('tweakwise_event_handled')->andReturn(null);
 
-        $observer = $this->createMock(Observer::class);
-        $observer->method('getData')->willReturnMap([
-            ['product', null, $product],
-            ['quote_item', null, $quoteItem],
-        ]);
+        $product = Mockery::mock(Product::class);
+        $quoteItem = Mockery::mock(Item::class);
+        $quoteItem->shouldReceive('getQtyToAdd')->andReturn(0);
+        $quoteItem->shouldReceive('getQty')->andReturn(0);
 
-        $this->addToCartEvent->method('setProduct')->willReturnSelf();
-        $this->addToCartEvent->method('setQuoteItem')->willReturnSelf();
-        $this->addToCartEvent->expects($this->once())->method('setQty')->with(1)->willReturnSelf();
-        $this->addToCartEvent->method('get')->willReturn($eventData);
+        $observer = Mockery::mock(Observer::class);
+        $observer->shouldReceive('getData')->with('product', null)->andReturn($product);
+        $observer->shouldReceive('getData')->with('quote_item', null)->andReturn($quoteItem);
 
-        $this->sessionService->expects($this->once())->method('add');
+        $this->addToCartEvent->shouldReceive('setProduct')->andReturnSelf();
+        $this->addToCartEvent->shouldReceive('setQuoteItem')->andReturnSelf();
+        $this->addToCartEvent->shouldReceive('setQty')->with(1)->once()->andReturnSelf();
+        $this->addToCartEvent->shouldReceive('get')->andReturn($eventData);
+
+        $this->sessionService->shouldReceive('add')->once();
 
         $this->subject->execute($observer);
     }
@@ -101,12 +110,12 @@ class TriggerAddToCartEventTest extends Unit
      */
     public function testSkipsWhenAlreadyHandled(): void
     {
-        $this->request->method('getParam')->with('tweakwise_event_handled')->willReturn('1');
+        $this->request->shouldReceive('getParam')->with('tweakwise_event_handled')->andReturn('1');
 
-        $observer = $this->createMock(Observer::class);
-        $observer->expects($this->never())->method('getData');
+        $observer = Mockery::mock(Observer::class);
+        $observer->shouldNotReceive('getData');
 
-        $this->sessionService->expects($this->never())->method('add');
+        $this->sessionService->shouldNotReceive('add');
 
         $this->subject->execute($observer);
     }

@@ -49,32 +49,48 @@ class Event extends Base
         $storeId = $this->getOrderStoreId($order);
 
         if (!$this->exportConfig->isGroupedExport()) {
-            $productIds = array_map(function (Item $orderItem) use ($storeId) {
-                try {
-                    return $this->dataHelper->getTweakwiseId((int)$orderItem->getProductId(), $storeId);
-                } catch (NoSuchEntityException $e) {
-                    return '0';
-                }
-            }, $order->getAllVisibleItems());
-
-            return $this->jsonSerializer->serialize(array_values($productIds));
+            return $this->jsonSerializer->serialize(
+                array_values($this->getPlainProductIds($order, $storeId))
+            );
         }
 
-        // When grouped export is enabled, map each order item to simpleId-parentId format.
-        $filteredItems = [];
-        foreach ($order->getAllItems() as $originalItem) {
-            $parentItem = $originalItem->getParentItem();
-            $returnedItem = $parentItem instanceof Item ? $parentItem : $originalItem;
-            $returnedItem->setData('groupCode', $originalItem->getProductId());
-            $filteredItems[(int)$returnedItem->getId()] = $returnedItem;
-        }
+        return $this->jsonSerializer->serialize(
+            $this->getGroupedProductIds($order, $storeId)
+        );
+    }
+
+    /**
+     * @param Order $order
+     * @param int $storeId
+     * @return array
+     */
+    private function getPlainProductIds(Order $order, int $storeId): array
+    {
+        return array_map(function (Item $orderItem) use ($storeId) {
+            try {
+                return $this->dataHelper->getTweakwiseId((int)$orderItem->getProductId(), $storeId);
+            } catch (NoSuchEntityException $e) {
+                return '0';
+            }
+        }, $order->getAllVisibleItems());
+    }
+
+    /**
+     * Maps order items to simpleId-parentId format when grouped export is enabled.
+     *
+     * @param Order $order
+     * @param int $storeId
+     * @return array
+     */
+    private function getGroupedProductIds(Order $order, int $storeId): array
+    {
+        $filteredItems = $this->resolveGroupedOrderItems($order);
 
         $productIds = [];
         foreach ($filteredItems as $item) {
             try {
                 $simpleProductId = (int)$item->getData('groupCode');
                 $parentProductId = (int)$item->getProductId();
-                // groupCode must be the full Tweakwise ID of the parent, cast to int, so it is appended as-is.
                 $groupCode = (int)$this->dataHelper->getTweakwiseId($parentProductId, $storeId);
                 $productIds[] = $this->dataHelper->getTweakwiseId($simpleProductId, $storeId, $groupCode);
             } catch (NoSuchEntityException $e) {
@@ -82,7 +98,26 @@ class Event extends Base
             }
         }
 
-        return $this->jsonSerializer->serialize($productIds);
+        return $productIds;
+    }
+
+    /**
+     * Deduplicates order items, pairing child items with their parent.
+     * Sets 'groupCode' to the child product ID on the returned item.
+     *
+     * @param Order $order
+     * @return Item[]
+     */
+    private function resolveGroupedOrderItems(Order $order): array
+    {
+        $filteredItems = [];
+        foreach ($order->getAllItems() as $originalItem) {
+            $parentItem = $originalItem->getParentItem();
+            $returnedItem = $parentItem instanceof Item ? $parentItem : $originalItem;
+            $returnedItem->setData('groupCode', $originalItem->getProductId());
+            $filteredItems[(int)$returnedItem->getId()] = $returnedItem;
+        }
+        return $filteredItems;
     }
 
     /**

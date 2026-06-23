@@ -11,7 +11,6 @@ use Magento\Quote\Model\Quote\Item;
 use Tweakwise\TweakwiseJs\Api\Data\EventInterface;
 use Tweakwise\TweakwiseJs\Api\Event\PriceFormatServiceInterface;
 use Tweakwise\TweakwiseJs\Helper\Data;
-use Tweakwise\Magento2TweakwiseExport\Model\Config as ExportConfig;
 
 class AddToCart implements EventInterface
 {
@@ -33,12 +32,10 @@ class AddToCart implements EventInterface
     /**
      * @param PriceFormatServiceInterface $priceFormatService
      * @param Data $dataHelper
-     * @param ExportConfig $exportConfig
      */
     public function __construct(
         private readonly PriceFormatServiceInterface $priceFormatService,
         private readonly Data $dataHelper,
-        private readonly ExportConfig $exportConfig,
     ) {
     }
 
@@ -94,25 +91,19 @@ class AddToCart implements EventInterface
      */
     protected function resolveProductKey(): string
     {
-        if (!$this->exportConfig->isGroupedExport()) {
-            return $this->dataHelper->getTweakwiseId((int)$this->product->getId());
-        }
-
         if ($this->quoteItem === null) {
-            $groupCode  = (int)$this->dataHelper->getTweakwiseId((int)$this->product->getId());
-            return $this->dataHelper->getTweakwiseId((int)$this->product->getId(), null, $groupCode);
+            return $this->dataHelper->resolveGroupedExportProductKey(
+                (int)$this->product->getId(),
+                (string)$this->product->getTypeId()
+            );
         }
 
         $parentProductId = (int)$this->quoteItem->getProductId();
-        $simpleProductId = $parentProductId;
+        $simpleProductId = !empty($this->quoteItem->getQtyOptions())
+            ? (int)array_key_first($this->quoteItem->getQtyOptions())
+            : $parentProductId;
 
-        if (!empty($this->quoteItem->getQtyOptions())) {
-            $simpleProductId = (int)array_key_first($this->quoteItem->getQtyOptions());
-        }
-
-        // groupCode must be the full Tweakwise ID of the parent, cast to int, so it is appended as-is.
         $groupCode = (int)$this->dataHelper->getTweakwiseId($parentProductId);
-
         return $this->dataHelper->getTweakwiseId($simpleProductId, null, $groupCode);
     }
 

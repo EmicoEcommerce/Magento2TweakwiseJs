@@ -8,7 +8,8 @@ use Emico\CodeCept\Test\Unit;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
-use PHPUnit\Framework\MockObject\MockObject;
+use Mockery;
+use Mockery\MockInterface;
 use Tweakwise\Test\Support\UnitTester;
 use Tweakwise\TweakwiseJs\Api\Event\SessionServiceInterface;
 use Tweakwise\TweakwiseJs\Event\AddToWishlist as AddToWishlistEvent;
@@ -18,11 +19,11 @@ class TriggerAddToWishlistEventTest extends Unit
 {
     protected UnitTester $tester;
 
-    private SessionServiceInterface|MockObject $sessionService;
+    private SessionServiceInterface|MockInterface $sessionService;
 
-    private AddToWishlistEvent|MockObject $addToWishlistEvent;
+    private AddToWishlistEvent|MockInterface $addToWishlistEvent;
 
-    private RequestInterface|MockObject $request;
+    private RequestInterface|MockInterface $request;
 
     private TriggerAddToWishlistEvent $subject;
 
@@ -30,15 +31,21 @@ class TriggerAddToWishlistEventTest extends Unit
     {
         parent::setUp();
 
-        $this->sessionService = $this->createMock(SessionServiceInterface::class);
-        $this->addToWishlistEvent = $this->createMock(AddToWishlistEvent::class);
-        $this->request = $this->createMock(RequestInterface::class);
+        $this->sessionService = Mockery::mock(SessionServiceInterface::class);
+        $this->addToWishlistEvent = Mockery::mock(AddToWishlistEvent::class);
+        $this->request = Mockery::mock(RequestInterface::class);
 
         $this->subject = new TriggerAddToWishlistEvent(
             $this->sessionService,
             $this->addToWishlistEvent,
             $this->request,
         );
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        Mockery::close();
     }
 
     /**
@@ -48,15 +55,17 @@ class TriggerAddToWishlistEventTest extends Unit
     {
         $eventData = ['event' => 'addtowishlist', 'data' => ['productKey' => '456']];
 
-        $product = $this->createMock(Product::class);
+        $this->request->shouldReceive('getParam')->with('tweakwise_event_handled')->andReturn(null);
 
-        $observer = $this->createMock(Observer::class);
-        $observer->method('getData')->with('product')->willReturn($product);
+        $product = Mockery::mock(Product::class);
 
-        $this->addToWishlistEvent->expects($this->once())->method('setProduct')->with($product)->willReturnSelf();
-        $this->addToWishlistEvent->expects($this->once())->method('get')->willReturn($eventData);
+        $observer = Mockery::mock(Observer::class);
+        $observer->shouldReceive('getData')->with('product')->andReturn($product);
 
-        $this->sessionService->expects($this->once())->method('add')->with('AddToWishlist', $eventData);
+        $this->addToWishlistEvent->shouldReceive('setProduct')->with($product)->once()->andReturnSelf();
+        $this->addToWishlistEvent->shouldReceive('get')->once()->andReturn($eventData);
+
+        $this->sessionService->shouldReceive('add')->with('AddToWishlist', $eventData)->once();
 
         $this->subject->execute($observer);
     }
@@ -66,12 +75,12 @@ class TriggerAddToWishlistEventTest extends Unit
      */
     public function testSkipsWhenAlreadyHandled(): void
     {
-        $this->request->method('getParam')->with('tweakwise_event_handled')->willReturn('1');
+        $this->request->shouldReceive('getParam')->with('tweakwise_event_handled')->andReturn('1');
 
-        $observer = $this->createMock(Observer::class);
-        $observer->expects($this->never())->method('getData');
+        $observer = Mockery::mock(Observer::class);
+        $observer->shouldNotReceive('getData');
 
-        $this->sessionService->expects($this->never())->method('add');
+        $this->sessionService->shouldNotReceive('add');
 
         $this->subject->execute($observer);
     }

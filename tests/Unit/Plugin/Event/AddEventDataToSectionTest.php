@@ -6,7 +6,8 @@ namespace Tweakwise\Test\Unit\Plugin\Event;
 
 use Emico\CodeCept\Test\Unit;
 use Magento\Customer\CustomerData\SectionSourceInterface;
-use PHPUnit\Framework\MockObject\MockObject;
+use Mockery;
+use Mockery\MockInterface;
 use Tweakwise\Test\Support\UnitTester;
 use Tweakwise\TweakwiseJs\Api\Event\SessionServiceInterface;
 use Tweakwise\TweakwiseJs\Plugin\Event\AddEventDataToSection;
@@ -15,7 +16,7 @@ class AddEventDataToSectionTest extends Unit
 {
     protected UnitTester $tester;
 
-    private SessionServiceInterface|MockObject $sessionService;
+    private SessionServiceInterface|MockInterface $sessionService;
 
     private AddEventDataToSection $subject;
 
@@ -23,8 +24,14 @@ class AddEventDataToSectionTest extends Unit
     {
         parent::setUp();
 
-        $this->sessionService = $this->createMock(SessionServiceInterface::class);
+        $this->sessionService = Mockery::mock(SessionServiceInterface::class);
         $this->subject = new AddEventDataToSection($this->sessionService);
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        Mockery::close();
     }
 
     /**
@@ -34,9 +41,10 @@ class AddEventDataToSectionTest extends Unit
     {
         $events = [['event' => 'addtocart', 'data' => ['productKey' => '123', 'quantity' => 1, 'totalAmount' => 24.99]]];
 
-        $this->sessionService->method('get')->willReturn($events);
+        $this->sessionService->shouldReceive('get')->andReturn($events);
+        $this->sessionService->shouldReceive('clear');
 
-        $subject = $this->createMock(SectionSourceInterface::class);
+        $subject = Mockery::mock(SectionSourceInterface::class);
         $result = $this->subject->afterGetSectionData($subject, ['existing_key' => 'value']);
 
         $this->assertEquals($events, $result['tweakwise_events']);
@@ -48,10 +56,10 @@ class AddEventDataToSectionTest extends Unit
      */
     public function testSessionClearedAfterEventDataMerged(): void
     {
-        $this->sessionService->method('get')->willReturn([]);
-        $this->sessionService->expects($this->once())->method('clear');
+        $this->sessionService->shouldReceive('get')->andReturn([]);
+        $this->sessionService->shouldReceive('clear')->once();
 
-        $subject = $this->createMock(SectionSourceInterface::class);
+        $subject = Mockery::mock(SectionSourceInterface::class);
         $this->subject->afterGetSectionData($subject, []);
     }
 
@@ -60,9 +68,10 @@ class AddEventDataToSectionTest extends Unit
      */
     public function testEmptyEventsWhenSessionEmpty(): void
     {
-        $this->sessionService->method('get')->willReturn([]);
+        $this->sessionService->shouldReceive('get')->andReturn([]);
+        $this->sessionService->shouldReceive('clear');
 
-        $subject = $this->createMock(SectionSourceInterface::class);
+        $subject = Mockery::mock(SectionSourceInterface::class);
         $result = $this->subject->afterGetSectionData($subject, []);
 
         $this->assertEquals([], $result['tweakwise_events']);

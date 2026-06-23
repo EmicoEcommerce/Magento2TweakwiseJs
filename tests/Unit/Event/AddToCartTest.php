@@ -6,22 +6,20 @@ namespace Tweakwise\Test\Unit\Event;
 
 use Emico\CodeCept\Test\Unit;
 use Magento\Catalog\Model\Product;
-use PHPUnit\Framework\MockObject\MockObject;
 use stdClass;
-use Tweakwise\Magento2TweakwiseExport\Model\Config as ExportConfig;
 use Tweakwise\Test\Support\UnitTester;
 use Tweakwise\TweakwiseJs\Api\Event\PriceFormatServiceInterface;
 use Tweakwise\TweakwiseJs\Helper\Data;
+use Mockery;
+use Mockery\MockInterface;
 
 class AddToCartTest extends Unit
 {
     protected UnitTester $tester;
 
-    private PriceFormatServiceInterface|MockObject $priceFormatService;
+    private PriceFormatServiceInterface|MockInterface $priceFormatService;
 
-    private Data|MockObject $dataHelper;
-
-    private ExportConfig|MockObject $exportConfig;
+    private Data|MockInterface $dataHelper;
 
     /**
      * @var AddToCartExposed
@@ -32,15 +30,19 @@ class AddToCartTest extends Unit
     {
         parent::setUp();
 
-        $this->priceFormatService = $this->createMock(PriceFormatServiceInterface::class);
-        $this->dataHelper = $this->createMock(Data::class);
-        $this->exportConfig = $this->createMock(ExportConfig::class);
+        $this->priceFormatService = Mockery::mock(PriceFormatServiceInterface::class);
+        $this->dataHelper = Mockery::mock(Data::class);
 
         $this->subject = new AddToCartExposed(
             $this->priceFormatService,
             $this->dataHelper,
-            $this->exportConfig,
         );
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        Mockery::close();
     }
 
     /**
@@ -48,14 +50,16 @@ class AddToCartTest extends Unit
      */
     public function testProductKeyIsPlainTweakwiseIdWhenGroupedExportDisabled(): void
     {
-        $this->exportConfig->method('isGroupedExport')->willReturn(false);
-        $this->dataHelper->method('getTweakwiseId')->with(42)->willReturn('1000142');
+        $this->dataHelper->shouldReceive('resolveGroupedExportProductKey')
+            ->with(42, 'simple')
+            ->andReturn('1000142');
 
-        $product = $this->createMock(Product::class);
-        $product->method('getId')->willReturn(42);
+        $product = Mockery::mock(Product::class);
+        $product->shouldReceive('getId')->andReturn(42);
+        $product->shouldReceive('getTypeId')->andReturn('simple');
 
         $quoteItem = $this->buildQuoteItemMock();
-        $quoteItem->method('getQty')->willReturn(1);
+        $quoteItem->shouldReceive('getQty')->andReturn(1);
 
         $this->subject->setProduct($product)->setQuoteItem($quoteItem)->setQty(1);
 
@@ -67,18 +71,19 @@ class AddToCartTest extends Unit
      */
     public function testProductKeyUsesSimpleIdFromQtyOptionsWhenGroupedExportEnabled(): void
     {
-        $this->exportConfig->method('isGroupedExport')->willReturn(true);
-        $this->dataHelper->method('getTweakwiseId')->willReturnMap([
-            [10, null, null, '1000110'],
-            [99, null, 1000110, '1000199-1000110'],
-        ]);
+        $this->dataHelper->shouldReceive('getTweakwiseId')
+            ->with(10, null, null)
+            ->andReturn('1000110');
+        $this->dataHelper->shouldReceive('getTweakwiseId')
+            ->with(99, null, 1000110)
+            ->andReturn('1000199-1000110');
 
-        $product = $this->createMock(Product::class);
+        $product = Mockery::mock(Product::class);
 
         $quoteItem = $this->buildQuoteItemMock();
-        $quoteItem->method('getProductId')->willReturn(10);
-        $quoteItem->method('getQtyOptions')->willReturn([99 => new stdClass()]);
-        $quoteItem->method('getQty')->willReturn(2);
+        $quoteItem->shouldReceive('getProductId')->andReturn(10);
+        $quoteItem->shouldReceive('getQtyOptions')->andReturn([99 => new stdClass()]);
+        $quoteItem->shouldReceive('getQty')->andReturn(2);
 
         $this->subject->setProduct($product)->setQuoteItem($quoteItem)->setQty(2);
 
@@ -90,18 +95,19 @@ class AddToCartTest extends Unit
      */
     public function testProductKeyFallsBackToParentIdWhenQtyOptionsEmpty(): void
     {
-        $this->exportConfig->method('isGroupedExport')->willReturn(true);
-        $this->dataHelper->method('getTweakwiseId')->willReturnMap([
-            [10, null, null, '1000110'],
-            [10, null, 1000110, '1000110-1000110'],
-        ]);
+        $this->dataHelper->shouldReceive('getTweakwiseId')
+            ->with(10, null, null)
+            ->andReturn('1000110');
+        $this->dataHelper->shouldReceive('getTweakwiseId')
+            ->with(10, null, 1000110)
+            ->andReturn('1000110-1000110');
 
-        $product = $this->createMock(Product::class);
+        $product = Mockery::mock(Product::class);
 
         $quoteItem = $this->buildQuoteItemMock();
-        $quoteItem->method('getProductId')->willReturn(10);
-        $quoteItem->method('getQtyOptions')->willReturn([]);
-        $quoteItem->method('getQty')->willReturn(1);
+        $quoteItem->shouldReceive('getProductId')->andReturn(10);
+        $quoteItem->shouldReceive('getQtyOptions')->andReturn([]);
+        $quoteItem->shouldReceive('getQty')->andReturn(1);
 
         $this->subject->setProduct($product)->setQuoteItem($quoteItem)->setQty(1);
 
@@ -113,26 +119,25 @@ class AddToCartTest extends Unit
      */
     public function testProductKeyIsPlainIdWhenQuoteItemIsNull(): void
     {
-        $this->exportConfig->method('isGroupedExport')->willReturn(true);
-        $this->dataHelper->method('getTweakwiseId')->willReturnMap([
-            [42, null, null, '1000142'],
-            [42, null, 1000142, '1000142-1000142'],
-        ]);
+        $this->dataHelper->shouldReceive('resolveGroupedExportProductKey')
+            ->with(42, 'simple')
+            ->andReturn('1000142-1000142');
 
-        $product = $this->createMock(Product::class);
-        $product->method('getId')->willReturn(42);
+        $product = Mockery::mock(Product::class);
+        $product->shouldReceive('getId')->andReturn(42);
+        $product->shouldReceive('getTypeId')->andReturn('simple');
 
-        // No quoteItem set — grouped export on but no item context
+        // No quoteItem set — fallback to resolveGroupedExportProductKey
         $this->subject->setProduct($product)->setQty(1);
 
         $this->assertEquals('1000142-1000142', $this->subject->resolveProductKey());
     }
 
     /**
-     * @return QuoteItemWithProductId&MockObject
+     * @return QuoteItemWithProductId&MockInterface
      */
-    private function buildQuoteItemMock(): QuoteItemWithProductId&MockObject
+    private function buildQuoteItemMock(): QuoteItemWithProductId&MockInterface
     {
-        return $this->createMock(QuoteItemWithProductId::class);
+        return Mockery::mock(QuoteItemWithProductId::class);
     }
 }

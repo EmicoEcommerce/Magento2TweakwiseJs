@@ -68,26 +68,34 @@ class Data extends AbstractHelper
             return $this->getTweakwiseId($productId);
         }
 
-        if ($productTypeId === Configurable::TYPE_CODE) {
-            $childIds = $this->configurableResource->getChildrenIds($productId);
-            $simpleProductId = (int)array_key_first(array_key_first($childIds) !== null ? reset($childIds) : []);
-            if (!$simpleProductId) {
-                $groupCode = (int)$this->getTweakwiseId($productId);
-                return $this->getTweakwiseId($productId, null, $groupCode);
-            }
-            $groupCode = (int)$this->getTweakwiseId($productId);
-            return $this->getTweakwiseId($simpleProductId, null, $groupCode);
-        }
+        [$simpleProductId, $parentProductId] = $productTypeId === Configurable::TYPE_CODE
+            ? $this->resolveConfigurableIds($productId)
+            : $this->resolveSimpleIds($productId);
 
-        // Simple product — look up its configurable parent.
-        $parentIds = $this->configurableResource->getParentIdsByChild($productId);
-        if (empty($parentIds)) {
-            $groupCode = (int)$this->getTweakwiseId($productId);
-            return $this->getTweakwiseId($productId, null, $groupCode);
-        }
-
-        $parentProductId = (int)reset($parentIds);
         $groupCode = (int)$this->getTweakwiseId($parentProductId);
-        return $this->getTweakwiseId($productId, null, $groupCode);
+        return $this->getTweakwiseId($simpleProductId, null, $groupCode);
+    }
+
+    /**
+     * @param int $productId
+     * @return array{int, int}
+     */
+    private function resolveConfigurableIds(int $productId): array
+    {
+        $childIds = $this->configurableResource->getChildrenIds($productId);
+        $firstGroup = !empty($childIds) ? reset($childIds) : [];
+        $simpleProductId = (int)array_key_first($firstGroup) ?: $productId;
+        return [$simpleProductId, $productId];
+    }
+
+    /**
+     * @param int $productId
+     * @return array{int, int}
+     */
+    private function resolveSimpleIds(int $productId): array
+    {
+        $parentIds = $this->configurableResource->getParentIdsByChild($productId);
+        $parentProductId = !empty($parentIds) ? (int)reset($parentIds) : $productId;
+        return [$productId, $parentProductId];
     }
 }
