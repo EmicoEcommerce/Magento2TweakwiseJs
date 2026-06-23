@@ -92,9 +92,16 @@ class AddToCart implements EventInterface
     protected function resolveProductKey(): string
     {
         if ($this->quoteItem === null) {
+            $productId = (int)$this->product->getId();
+            $typeId = $this->product->getTypeId();
+
+            if (!is_string($typeId)) {
+                return $this->dataHelper->getTweakwiseId($productId);
+            }
+
             return $this->dataHelper->resolveGroupedExportProductKey(
-                (int)$this->product->getId(),
-                (string)$this->product->getTypeId()
+                $productId,
+                $typeId
             );
         }
 
