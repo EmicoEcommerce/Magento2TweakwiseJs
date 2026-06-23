@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tweakwise\Test\Functional\Event;
 
-use Emico\CodeCept\Test\Functional;
+use Emico\CodeCept\Test\Unit;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Manager as EventManager;
@@ -14,7 +14,7 @@ use Tweakwise\Magento2TweakwiseExport\Model\Config as ExportConfig;
 use Tweakwise\TweakwiseJs\Api\Event\SessionServiceInterface;
 use Tweakwise\Test\Support\FunctionalTester;
 
-class GroupedEventTest extends Functional
+class GroupedEventTest extends Unit
 {
     protected FunctionalTester $tester;
 
