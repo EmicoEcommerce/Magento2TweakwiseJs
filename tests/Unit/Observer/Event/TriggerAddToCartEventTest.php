@@ -43,7 +43,9 @@ class TriggerAddToCartEventTest extends Unit
         $this->tester->mockService(AddToCartEvent::class, $this->addToCartEvent);
         $this->tester->mockService(RequestInterface::class, $this->request);
 
-        $this->subject = $this->tester->getObjectManager()->create(TriggerAddToCartEvent::class);
+        $this->subject = $this->tester->getObjectManager()->create(TriggerAddToCartEvent::class, [
+            'sessionService' => $this->sessionService,
+        ]);
     }
 
     /**

@@ -78,7 +78,9 @@ class GroupedEventTest extends Unit
         ]);
 
         /** @var TriggerAddToCartEvent $triggerAddToCartEvent */
-        $triggerAddToCartEvent = $this->tester->getObjectManager()->create(TriggerAddToCartEvent::class);
+        $triggerAddToCartEvent = $this->tester->getObjectManager()->create(TriggerAddToCartEvent::class, [
+            'sessionService' => $sessionService,
+        ]);
         $triggerAddToCartEvent->execute($observer);
     }
 
@@ -113,7 +115,9 @@ class GroupedEventTest extends Unit
         ]);
 
         /** @var TriggerAddToWishlistEvent $triggerAddToWishlistEvent */
-        $triggerAddToWishlistEvent = $this->tester->getObjectManager()->create(TriggerAddToWishlistEvent::class);
+        $triggerAddToWishlistEvent = $this->tester->getObjectManager()->create(TriggerAddToWishlistEvent::class, [
+            'sessionService' => $sessionService,
+        ]);
         $triggerAddToWishlistEvent->execute($observer);
     }
 
@@ -142,6 +146,7 @@ class GroupedEventTest extends Unit
         /** @var TriggerAddToCartEvent $triggerAddToCartEvent */
         $triggerAddToCartEvent = $this->tester->getObjectManager()->create(TriggerAddToCartEvent::class, [
             'request' => $request,
+            'sessionService' => $sessionService,
         ]);
         $triggerAddToCartEvent->execute($observer);
     }

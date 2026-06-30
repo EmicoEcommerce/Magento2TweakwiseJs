@@ -30,7 +30,9 @@ class AddEventDataToSectionTest extends Unit
         $this->sessionService = Mockery::mock(SessionServiceInterface::class);
         $this->tester->mockService(SessionServiceInterface::class, $this->sessionService);
 
-        $this->subject = $this->tester->getObjectManager()->create(AddEventDataToSection::class);
+        $this->subject = $this->tester->getObjectManager()->create(AddEventDataToSection::class, [
+            'sessionService' => $this->sessionService,
+        ]);
     }
 
     /**
