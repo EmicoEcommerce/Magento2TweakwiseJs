@@ -111,7 +111,8 @@ class AddToCart implements EventInterface
     private function resolveProductIdAndType(): array
     {
         if ($this->quoteItem === null) {
-            return [(int)$this->product->getId(), (string) $this->product->getTypeId()];
+            $typeId = $this->product->getTypeId();
+            return [(int)$this->product->getId(), is_string($typeId) ? $typeId : null];
         }
 
         $hasQtyOptions = !empty($this->quoteItem->getQtyOptions());
@@ -121,7 +122,8 @@ class AddToCart implements EventInterface
             return [$simpleProductId, 'simple'];
         }
 
-        return [(int)$this->quoteItem->getProductId(), (string) $this->product->getTypeId()];
+        $typeId = $this->product->getTypeId();
+        return [(int)$this->quoteItem->getProductId(), is_string($typeId) ? $typeId : null];
     }
 
     /**

@@ -95,10 +95,12 @@ class DataTest extends Unit
             ->with(10)
             ->andReturn([[99 => 99]]);
 
+        // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundBeforeLastUsed
         $this->exportHelper->shouldReceive('getTweakwiseId')->withArgs(function ($_storeId, $entityId, $groupCode) {
             return $entityId === 10 && $groupCode === null;
         })->andReturn('1000110');
 
+        // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundBeforeLastUsed
         $this->exportHelper->shouldReceive('getTweakwiseId')->withArgs(function ($_storeId, $entityId, $groupCode) {
             return $entityId === 99 && $groupCode === 1000110;
         })->andReturn('1000110-1000199');
@@ -117,10 +119,12 @@ class DataTest extends Unit
             ->with(99)
             ->andReturn([10]);
 
+        // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundBeforeLastUsed
         $this->exportHelper->shouldReceive('getTweakwiseId')->withArgs(function ($_storeId, $entityId, $groupCode) {
             return $entityId === 10 && $groupCode === null;
         })->andReturn('1000110');
 
+        // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundBeforeLastUsed
         $this->exportHelper->shouldReceive('getTweakwiseId')->withArgs(function ($_storeId, $entityId, $groupCode) {
             return $entityId === 99 && $groupCode === 1000110;
         })->andReturn('1000110-1000199');
@@ -139,10 +143,12 @@ class DataTest extends Unit
             ->with(42)
             ->andReturn([]);
 
+        // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundBeforeLastUsed
         $this->exportHelper->shouldReceive('getTweakwiseId')->withArgs(function ($_storeId, $entityId, $groupCode) {
             return $entityId === 42 && $groupCode === null;
         })->andReturn('1000142');
 
+        // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundBeforeLastUsed
         $this->exportHelper->shouldReceive('getTweakwiseId')->withArgs(function ($_storeId, $entityId, $groupCode) {
             return $entityId === 42 && $groupCode === 1000142;
         })->andReturn('1000142-1000142');
@@ -161,10 +167,12 @@ class DataTest extends Unit
             ->with(10)
             ->andReturn([]);
 
+        // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundBeforeLastUsed
         $this->exportHelper->shouldReceive('getTweakwiseId')->withArgs(function ($_storeId, $entityId, $groupCode) {
             return $entityId === 10 && $groupCode === null;
         })->andReturn('1000110');
 
+        // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundBeforeLastUsed
         $this->exportHelper->shouldReceive('getTweakwiseId')->withArgs(function ($_storeId, $entityId, $groupCode) {
             return $entityId === 10 && $groupCode === 1000110;
         })->andReturn('1000110-1000110');
