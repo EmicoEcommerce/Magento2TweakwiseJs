@@ -6,6 +6,7 @@ namespace Tweakwise\Test\Functional\Event;
 
 use Emico\CodeCept\Test\Unit;
 use Magento\Catalog\Model\Product;
+use Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable as ConfigurableResource;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Quote\Model\Quote\Item as QuoteItem;
@@ -33,6 +34,11 @@ class GroupedEventTest extends Unit
         $priceFormatService = Mockery::mock(PriceFormatServiceInterface::class);
         $priceFormatService->shouldReceive('format')->andReturnUsing(fn(float $price) => $price);
         $this->tester->mockService(PriceFormatServiceInterface::class, $priceFormatService);
+
+        $configurableResource = Mockery::mock(ConfigurableResource::class);
+        $configurableResource->shouldReceive('getParentIdsByChild')->andReturn([]);
+        $configurableResource->shouldReceive('getChildrenIds')->andReturn([]);
+        $this->tester->mockService(ConfigurableResource::class, $configurableResource);
     }
 
     /**
