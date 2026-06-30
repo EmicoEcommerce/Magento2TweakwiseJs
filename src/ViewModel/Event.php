@@ -48,15 +48,11 @@ class Event extends Base
         $order = $this->checkoutSession->getLastRealOrder();
         $storeId = $this->getOrderStoreId($order);
 
-        if (!$this->exportConfig->isGroupedExport()) {
-            return $this->jsonSerializer->serialize(
-                array_values($this->getPlainProductIds($order, $storeId))
-            );
-        }
+        $productIds = $this->exportConfig->isGroupedExport()
+            ? $this->getGroupedProductIds($order, $storeId)
+            : array_values($this->getPlainProductIds($order, $storeId));
 
-        return $this->jsonSerializer->serialize(
-            $this->getGroupedProductIds($order, $storeId)
-        );
+        return $this->jsonSerializer->serialize($productIds);
     }
 
     /**
@@ -86,19 +82,29 @@ class Event extends Base
     {
         $filteredItems = $this->resolveGroupedOrderItems($order);
 
-        $productIds = [];
-        foreach ($filteredItems as $item) {
-            try {
-                $simpleProductId = (int)$item->getData('groupCode');
-                $parentProductId = (int)$item->getProductId();
-                $groupCode = (int)$this->dataHelper->getTweakwiseId($parentProductId, $storeId);
-                $productIds[] = $this->dataHelper->getTweakwiseId($simpleProductId, $storeId, $groupCode);
-            } catch (NoSuchEntityException $e) {
-                $productIds[] = '0';
-            }
-        }
+        return array_values(array_map(
+            fn (Item $item) => $this->resolveGroupedItemProductKey($item, $storeId),
+            $filteredItems
+        ));
+    }
 
-        return $productIds;
+    /**
+     * Resolves a single order item to its grouped Tweakwise product key.
+     *
+     * @param Item $item
+     * @param int $storeId
+     * @return string
+     */
+    private function resolveGroupedItemProductKey(Item $item, int $storeId): string
+    {
+        try {
+            $simpleProductId = (int)$item->getData('groupCode');
+            $parentProductId = (int)$item->getProductId();
+            $groupCode = (int)$this->dataHelper->getTweakwiseId($parentProductId, $storeId);
+            return $this->dataHelper->getTweakwiseId($simpleProductId, $storeId, $groupCode);
+        } catch (NoSuchEntityException $e) {
+            return '0';
+        }
     }
 
     /**

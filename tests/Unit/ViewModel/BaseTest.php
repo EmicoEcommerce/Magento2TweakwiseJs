@@ -10,32 +10,27 @@ use Mockery;
 use Mockery\MockInterface;
 use Tweakwise\Test\Support\UnitTester;
 use Tweakwise\TweakwiseJs\Helper\Data;
-use Tweakwise\TweakwiseJs\Model\Config;
 use Tweakwise\TweakwiseJs\ViewModel\Base;
 
 class BaseTest extends Unit
 {
     protected UnitTester $tester;
 
-    private Config|MockInterface $config;
-
     private Data|MockInterface $dataHelper;
 
     private Base $subject;
 
-    protected function setUp(): void
+    /**
+     * @return void
+     * @throws \Exception
+     * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+     */
+    public function _before(): void
     {
-        parent::setUp();
-
-        $this->config = Mockery::mock(Config::class);
         $this->dataHelper = Mockery::mock(Data::class);
-        $this->subject = new Base($this->config, $this->dataHelper);
-    }
+        $this->tester->mockService(Data::class, $this->dataHelper);
 
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-        Mockery::close();
+        $this->subject = $this->tester->getObjectManager()->create(Base::class);
     }
 
     /**

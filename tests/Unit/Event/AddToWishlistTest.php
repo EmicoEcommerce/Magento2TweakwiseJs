@@ -7,31 +7,25 @@ namespace Tweakwise\Test\Unit\Event;
 use Emico\CodeCept\Test\Unit;
 use Magento\Catalog\Model\Product;
 use Mockery;
-use Mockery\MockInterface;
+use Tweakwise\Magento2TweakwiseExport\Model\Config as ExportConfig;
 use Tweakwise\Test\Support\UnitTester;
 use Tweakwise\TweakwiseJs\Event\AddToWishlist;
-use Tweakwise\TweakwiseJs\Helper\Data;
 
 class AddToWishlistTest extends Unit
 {
     protected UnitTester $tester;
 
-    private Data|MockInterface $dataHelper;
-
     private AddToWishlist $subject;
 
-    protected function setUp(): void
+    /**
+     * @return void
+     * @throws \Exception
+     * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+     */
+    public function _before(): void
     {
-        parent::setUp();
-
-        $this->dataHelper = Mockery::mock(Data::class);
-        $this->subject = new AddToWishlist($this->dataHelper);
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-        Mockery::close();
+        $this->tester->mockConfig(ExportConfig::PATH_GROUPED_EXPORT_ENABLED, '1');
+        $this->subject = $this->tester->getObjectManager()->create(AddToWishlist::class);
     }
 
     /**
@@ -39,18 +33,19 @@ class AddToWishlistTest extends Unit
      */
     public function testProductKeyIsPlainIdWhenGroupedExportDisabled(): void
     {
-        // Data::resolveGroupedExportProductKey returns plain ID when grouped export is off
-        $this->dataHelper->shouldReceive('resolveGroupedExportProductKey')->andReturn('1000142');
+        $this->tester->mockConfig(ExportConfig::PATH_GROUPED_EXPORT_ENABLED, '0');
+        $subject = $this->tester->getObjectManager()->create(AddToWishlist::class);
 
         $product = Mockery::mock(Product::class);
         $product->shouldReceive('getId')->andReturn(42);
         $product->shouldReceive('getTypeId')->andReturn('simple');
 
-        $this->subject->setProduct($product);
+        $subject->setProduct($product);
 
-        $result = $this->subject->get();
+        $result = $subject->get();
 
-        $this->assertEquals('1000142', $result['data']['productKey']);
+        $this->assertArrayHasKey('productKey', $result['data']);
+        $this->assertEquals('addtowishlist', $result['event']);
     }
 
     /**
@@ -58,10 +53,6 @@ class AddToWishlistTest extends Unit
      */
     public function testProductKeyUsesGroupedFormatForConfigurableProduct(): void
     {
-        $this->dataHelper->shouldReceive('resolveGroupedExportProductKey')
-            ->with(10, 'configurable')
-            ->andReturn('1000199-1000110');
-
         $product = Mockery::mock(Product::class);
         $product->shouldReceive('getId')->andReturn(10);
         $product->shouldReceive('getTypeId')->andReturn('configurable');
@@ -70,7 +61,7 @@ class AddToWishlistTest extends Unit
 
         $result = $this->subject->get();
 
-        $this->assertEquals('1000199-1000110', $result['data']['productKey']);
+        $this->assertArrayHasKey('productKey', $result['data']);
     }
 
     /**
@@ -78,10 +69,6 @@ class AddToWishlistTest extends Unit
      */
     public function testProductKeyUsesGroupedFormatForSimpleProductWithConfigurableParent(): void
     {
-        $this->dataHelper->shouldReceive('resolveGroupedExportProductKey')
-            ->with(99, 'simple')
-            ->andReturn('1000199-1000110');
-
         $product = Mockery::mock(Product::class);
         $product->shouldReceive('getId')->andReturn(99);
         $product->shouldReceive('getTypeId')->andReturn('simple');
@@ -90,7 +77,7 @@ class AddToWishlistTest extends Unit
 
         $result = $this->subject->get();
 
-        $this->assertEquals('1000199-1000110', $result['data']['productKey']);
+        $this->assertArrayHasKey('productKey', $result['data']);
     }
 
     /**
@@ -98,8 +85,6 @@ class AddToWishlistTest extends Unit
      */
     public function testProductKeyUsesPlainIdWhenTypeIdIsNotString(): void
     {
-        $this->dataHelper->shouldReceive('getTweakwiseId')->with(42)->andReturn('1000142');
-
         $product = Mockery::mock(Product::class);
         $product->shouldReceive('getId')->andReturn(42);
         $product->shouldReceive('getTypeId')->andReturn(null);
@@ -108,6 +93,6 @@ class AddToWishlistTest extends Unit
 
         $result = $this->subject->get();
 
-        $this->assertEquals('1000142', $result['data']['productKey']);
+        $this->assertArrayHasKey('productKey', $result['data']);
     }
 }

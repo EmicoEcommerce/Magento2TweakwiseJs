@@ -40,7 +40,8 @@ class TriggerAddToCartEvent implements ObserverInterface
         $product = $observer->getData('product');
         /** @var Item $quoteItem */
         $quoteItem = $observer->getData('quote_item');
-        // getQtyToAdd() reflects the qty added in this request; getQty() is the total cart qty for the item.
+        // getQtyToAdd() returns only the qty added in this request, not the total cart qty.
+        // This event fires once per add-to-cart request, so existing items in the cart do not cause double-firing.
         $qtyToAdd = $quoteItem->getQtyToAdd();
         $qty = (int)($qtyToAdd ? $qtyToAdd : $quoteItem->getQty());
         if ($qty === 0) {

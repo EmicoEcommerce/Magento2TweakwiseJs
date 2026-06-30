@@ -22,8 +22,6 @@ class EventTest extends Unit
 {
     protected UnitTester $tester;
 
-    private Config|MockInterface $config;
-
     private Data|MockInterface $dataHelper;
 
     private Session|MockInterface $checkoutSession;
@@ -34,31 +32,28 @@ class EventTest extends Unit
 
     private Event $subject;
 
-    protected function setUp(): void
+    /**
+     * @return void
+     * @throws \Exception
+     * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+     */
+    public function _before(): void
     {
-        parent::setUp();
-
-        $this->config = Mockery::mock(Config::class);
+        $config = Mockery::mock(Config::class);
         $this->dataHelper = Mockery::mock(Data::class);
-        $this->checkoutSession = Mockery::mock(Session::class);
-        $this->exportConfig = Mockery::mock(ExportConfig::class);
-
         $this->order = Mockery::mock(Order::class);
+        $this->checkoutSession = Mockery::mock(Session::class);
         $this->checkoutSession->shouldReceive('getLastRealOrder')->andReturn($this->order);
+        $this->exportConfig = Mockery::mock(ExportConfig::class);
+        $this->exportConfig->shouldReceive('isGroupedExport')->andReturn(true)->byDefault();
 
         $this->subject = new Event(
-            $this->config,
+            $config,
             $this->dataHelper,
             $this->checkoutSession,
             new Json(),
             $this->exportConfig,
         );
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-        Mockery::close();
     }
 
     /**
@@ -68,6 +63,7 @@ class EventTest extends Unit
     public function testGetOrderProductIdsReturnsPlainIdsWhenGroupedExportDisabled(): void
     {
         $this->exportConfig->shouldReceive('isGroupedExport')->andReturn(false);
+
         $this->order->shouldReceive('getStoreId')->andReturn(0);
         $this->order->shouldReceive('getAllVisibleItems')->andReturn(
             [
@@ -76,8 +72,8 @@ class EventTest extends Unit
             ]
         );
 
-        $this->dataHelper->shouldReceive('getTweakwiseId')->with(10, 0, null)->andReturn('1000110');
-        $this->dataHelper->shouldReceive('getTweakwiseId')->with(42, 0, null)->andReturn('1000142');
+        $this->dataHelper->shouldReceive('getTweakwiseId')->with(10, 0)->andReturn('1000110');
+        $this->dataHelper->shouldReceive('getTweakwiseId')->with(42, 0)->andReturn('1000142');
 
         $this->assertEquals('["1000110","1000142"]', $this->subject->getOrderProductIds());
     }
@@ -89,6 +85,7 @@ class EventTest extends Unit
     public function testGetOrderProductIdsReturnsFallbackIdOnExceptionWhenGroupedExportDisabled(): void
     {
         $this->exportConfig->shouldReceive('isGroupedExport')->andReturn(false);
+
         $this->order->shouldReceive('getStoreId')->andReturn(0);
         $this->order->shouldReceive('getAllVisibleItems')->andReturn(
             [
@@ -111,7 +108,6 @@ class EventTest extends Unit
      */
     public function testGetOrderProductIdsReturnsGroupedFormatForConfigurableOrderItem(): void
     {
-        $this->exportConfig->shouldReceive('isGroupedExport')->andReturn(true);
         $this->order->shouldReceive('getStoreId')->andReturn(0);
 
         $parentItem = $this->buildOrderItemMock(10, 1, null);
@@ -119,7 +115,7 @@ class EventTest extends Unit
 
         $this->order->shouldReceive('getAllItems')->andReturn([$parentItem, $childItem]);
 
-        $this->dataHelper->shouldReceive('getTweakwiseId')->with(10, 0, null)->andReturn('1000110');
+        $this->dataHelper->shouldReceive('getTweakwiseId')->with(10, 0)->andReturn('1000110');
         $this->dataHelper->shouldReceive('getTweakwiseId')->with(99, 0, 1000110)->andReturn('1000199-1000110');
 
         $this->assertEquals('["1000199-1000110"]', $this->subject->getOrderProductIds());
@@ -134,7 +130,6 @@ class EventTest extends Unit
      */
     public function testGetOrderProductIdsReturnsItemWithItselfAsGroupCodeWhenNoParent(): void
     {
-        $this->exportConfig->shouldReceive('isGroupedExport')->andReturn(true);
         $this->order->shouldReceive('getStoreId')->andReturn(0);
 
         $this->order->shouldReceive('getAllItems')->andReturn(
@@ -143,7 +138,7 @@ class EventTest extends Unit
             ]
         );
 
-        $this->dataHelper->shouldReceive('getTweakwiseId')->with(42, 0, null)->andReturn('1000142');
+        $this->dataHelper->shouldReceive('getTweakwiseId')->with(42, 0)->andReturn('1000142');
         $this->dataHelper->shouldReceive('getTweakwiseId')->with(42, 0, 1000142)->andReturn('1000142-1000142');
 
         $this->assertEquals('["1000142-1000142"]', $this->subject->getOrderProductIds());

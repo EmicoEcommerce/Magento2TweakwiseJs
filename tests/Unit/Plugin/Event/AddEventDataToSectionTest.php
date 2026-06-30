@@ -20,18 +20,17 @@ class AddEventDataToSectionTest extends Unit
 
     private AddEventDataToSection $subject;
 
-    protected function setUp(): void
+    /**
+     * @return void
+     * @throws \Exception
+     * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+     */
+    public function _before(): void
     {
-        parent::setUp();
-
         $this->sessionService = Mockery::mock(SessionServiceInterface::class);
-        $this->subject = new AddEventDataToSection($this->sessionService);
-    }
+        $this->tester->mockService(SessionServiceInterface::class, $this->sessionService);
 
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-        Mockery::close();
+        $this->subject = $this->tester->getObjectManager()->create(AddEventDataToSection::class);
     }
 
     /**

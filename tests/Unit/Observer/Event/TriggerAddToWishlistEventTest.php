@@ -10,15 +10,12 @@ use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
 use Mockery;
 use Mockery\MockInterface;
-use Tweakwise\Test\Support\UnitTester;
 use Tweakwise\TweakwiseJs\Api\Event\SessionServiceInterface;
 use Tweakwise\TweakwiseJs\Event\AddToWishlist as AddToWishlistEvent;
 use Tweakwise\TweakwiseJs\Observer\Event\TriggerAddToWishlistEvent;
 
 class TriggerAddToWishlistEventTest extends Unit
 {
-    protected UnitTester $tester;
-
     private SessionServiceInterface|MockInterface $sessionService;
 
     private AddToWishlistEvent|MockInterface $addToWishlistEvent;
@@ -27,10 +24,12 @@ class TriggerAddToWishlistEventTest extends Unit
 
     private TriggerAddToWishlistEvent $subject;
 
-    protected function setUp(): void
+    /**
+     * @return void
+     * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+     */
+    public function _before(): void
     {
-        parent::setUp();
-
         $this->sessionService = Mockery::mock(SessionServiceInterface::class);
         $this->addToWishlistEvent = Mockery::mock(AddToWishlistEvent::class);
         $this->request = Mockery::mock(RequestInterface::class);
@@ -38,14 +37,8 @@ class TriggerAddToWishlistEventTest extends Unit
         $this->subject = new TriggerAddToWishlistEvent(
             $this->sessionService,
             $this->addToWishlistEvent,
-            $this->request,
+            $this->request
         );
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-        Mockery::close();
     }
 
     /**

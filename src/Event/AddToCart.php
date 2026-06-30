@@ -89,29 +89,39 @@ class AddToCart implements EventInterface
      * @return string
      * @throws NoSuchEntityException
      */
-    protected function resolveProductKey(): string
+    public function resolveProductKey(): string
     {
-        if ($this->quoteItem === null) {
-            $productId = (int)$this->product->getId();
-            $typeId = $this->product->getTypeId();
+        [$productId, $typeId] = $this->resolveProductIdAndType();
 
-            if (!is_string($typeId)) {
-                return $this->dataHelper->getTweakwiseId($productId);
-            }
-
-            return $this->dataHelper->resolveGroupedExportProductKey(
-                $productId,
-                $typeId
-            );
+        if (!is_string($typeId)) {
+            return $this->dataHelper->getTweakwiseId($productId);
         }
 
-        $parentProductId = (int)$this->quoteItem->getProductId();
-        $simpleProductId = !empty($this->quoteItem->getQtyOptions())
-            ? (int)array_key_first($this->quoteItem->getQtyOptions())
-            : $parentProductId;
+        return $this->dataHelper->resolveGroupedExportProductKey($productId, $typeId);
+    }
 
-        $groupCode = (int)$this->dataHelper->getTweakwiseId($parentProductId);
-        return $this->dataHelper->getTweakwiseId($simpleProductId, null, $groupCode);
+    /**
+     * Resolves the product ID and type from either the quote item or the product.
+     *
+     * When a quote item is available (add-to-cart via observer), the actual simple product ID
+     * is extracted from qty_options so the correct child is resolved rather than the first child.
+     *
+     * @return array{int, string|null}
+     */
+    private function resolveProductIdAndType(): array
+    {
+        if ($this->quoteItem === null) {
+            return [(int)$this->product->getId(), $this->product->getTypeId()];
+        }
+
+        $hasQtyOptions = !empty($this->quoteItem->getQtyOptions());
+
+        if ($hasQtyOptions) {
+            $simpleProductId = (int)array_key_first($this->quoteItem->getQtyOptions());
+            return [$simpleProductId, 'simple'];
+        }
+
+        return [(int)$this->quoteItem->getProductId(), $this->product->getTypeId()];
     }
 
     /**
