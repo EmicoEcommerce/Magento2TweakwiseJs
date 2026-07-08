@@ -115,10 +115,11 @@ class AddToCart implements EventInterface
             return [(int)$this->product->getId(), is_string($typeId) ? $typeId : null];
         }
 
-        $hasQtyOptions = !empty($this->quoteItem->getQtyOptions());
+        $qtyOptions = $this->quoteItem->getQtyOptions();
+        $hasQtyOptions = !empty($qtyOptions);
 
         if ($hasQtyOptions) {
-            $simpleProductId = (int)array_key_first($this->quoteItem->getQtyOptions());
+            $simpleProductId = (int)array_key_first($qtyOptions);
             return [$simpleProductId, 'simple'];
         }
 

@@ -23,8 +23,7 @@ use Codeception\Actor;
  */
 class UnitTester extends Actor
 {
-    // phpcs:disable SlevomatCodingStandard.Namespaces.ReferenceUsedNamesOnly.PartialUse
-    use _generated\UnitTesterActions;
+    use \Tweakwise\Test\Support\_generated\UnitTesterActions;
 
     /**
      * Define custom actions here

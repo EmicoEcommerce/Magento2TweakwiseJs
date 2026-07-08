@@ -26,7 +26,6 @@ class TriggerAddToWishlistEventTest extends Unit
 
     /**
      * @return void
-     * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
      */
     public function _before(): void
     {

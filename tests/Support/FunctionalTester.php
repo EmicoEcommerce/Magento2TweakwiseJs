@@ -23,8 +23,7 @@ use Codeception\Actor;
  */
 class FunctionalTester extends Actor
 {
-    // phpcs:disable SlevomatCodingStandard.Namespaces.ReferenceUsedNamesOnly.PartialUse
-    use _generated\FunctionalTesterActions;
+    use \Tweakwise\Test\Support\_generated\FunctionalTesterActions;
 
     /**
      * Define custom actions here

@@ -23,7 +23,6 @@ class BaseTest extends Unit
     /**
      * @return void
      * @throws \Exception
-     * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
      */
     public function _before(): void
     {
