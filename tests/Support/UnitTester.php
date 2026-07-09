@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tweakwise\Test\Support;
 
 use Codeception\Actor;
+use Tweakwise\Test\Support\_generated\UnitTesterActions;
 
 /**
  * Inherited Methods
@@ -23,7 +24,7 @@ use Codeception\Actor;
  */
 class UnitTester extends Actor
 {
-    use \Tweakwise\Test\Support\_generated\UnitTesterActions;
+    use UnitTesterActions;
 
     /**
      * Define custom actions here

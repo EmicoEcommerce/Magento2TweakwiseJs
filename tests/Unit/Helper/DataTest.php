@@ -94,6 +94,7 @@ class DataTest extends Unit
             ->with(10)
             ->andReturn([[99 => 99]]);
 
+        // phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter.FoundBeforeLastUsed
         $this->exportHelper->shouldReceive('getTweakwiseId')->withArgs(function ($_storeId, $entityId, $groupCode) {
             return $entityId === 10 && $groupCode === null;
         })->andReturn('1000110');
@@ -167,6 +168,7 @@ class DataTest extends Unit
         $this->exportHelper->shouldReceive('getTweakwiseId')->withArgs(function ($_storeId, $entityId, $groupCode) {
             return $entityId === 10 && $groupCode === 1000110;
         })->andReturn('1000110-1000110');
+        // phpcs:enable Generic.CodeAnalysis.UnusedFunctionParameter.FoundBeforeLastUsed
 
         $result = $this->subject->resolveGroupedExportProductKey(10, Configurable::TYPE_CODE);
 
