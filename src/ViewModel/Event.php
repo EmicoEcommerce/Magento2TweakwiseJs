@@ -7,8 +7,11 @@ namespace Tweakwise\TweakwiseJs\ViewModel;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Item;
 use Tweakwise\TweakwiseJs\Helper\Data;
 use Tweakwise\TweakwiseJs\Model\Config;
+use Tweakwise\Magento2TweakwiseExport\Model\Config as ExportConfig;
 
 class Event extends Base
 {
@@ -17,12 +20,14 @@ class Event extends Base
      * @param Data $dataHelper
      * @param Session $checkoutSession
      * @param Json $jsonSerializer
+     * @param ExportConfig $exportConfig
      */
     public function __construct(
         Config $config,
         Data $dataHelper,
         private readonly Session $checkoutSession,
-        private readonly Json $jsonSerializer
+        private readonly Json $jsonSerializer,
+        private readonly ExportConfig $exportConfig,
     ) {
         parent::__construct($config, $dataHelper);
     }
@@ -41,16 +46,93 @@ class Event extends Base
     public function getOrderProductIds(): string
     {
         $order = $this->checkoutSession->getLastRealOrder();
+        $storeId = $this->getOrderStoreId($order);
 
-        $productIds = array_map(function ($orderItem) {
+        $productIds = $this->exportConfig->isGroupedExport()
+            ? $this->getGroupedProductIds($order, $storeId)
+            : array_values($this->getPlainProductIds($order, $storeId));
+
+        return $this->jsonSerializer->serialize($productIds);
+    }
+
+    /**
+     * @param Order $order
+     * @param int $storeId
+     * @return array
+     */
+    private function getPlainProductIds(Order $order, int $storeId): array
+    {
+        return array_map(function (Item $orderItem) use ($storeId) {
             try {
-                return $this->dataHelper->getTweakwiseId((int)$orderItem->getProductId());
+                return $this->dataHelper->getTweakwiseId((int)$orderItem->getProductId(), $storeId);
             } catch (NoSuchEntityException $e) {
                 return '0';
             }
         }, $order->getAllVisibleItems());
+    }
 
-        return $this->jsonSerializer->serialize($productIds);
+    /**
+     * Maps order items to simpleId-parentId format when grouped export is enabled.
+     *
+     * @param Order $order
+     * @param int $storeId
+     * @return array
+     */
+    private function getGroupedProductIds(Order $order, int $storeId): array
+    {
+        $filteredItems = $this->resolveGroupedOrderItems($order);
+
+        return array_values(array_map(
+            fn (Item $item) => $this->resolveGroupedItemProductKey($item, $storeId),
+            $filteredItems
+        ));
+    }
+
+    /**
+     * Resolves a single order item to its grouped Tweakwise product key.
+     *
+     * @param Item $item
+     * @param int $storeId
+     * @return string
+     */
+    private function resolveGroupedItemProductKey(Item $item, int $storeId): string
+    {
+        try {
+            $simpleProductId = (int)$item->getData('groupCode');
+            $parentProductId = (int)$item->getProductId();
+            $groupCode = (int)$this->dataHelper->getTweakwiseId($parentProductId, $storeId);
+            return $this->dataHelper->getTweakwiseId($simpleProductId, $storeId, $groupCode);
+        } catch (NoSuchEntityException $e) {
+            return '0';
+        }
+    }
+
+    /**
+     * Deduplicates order items, pairing child items with their parent.
+     * Sets 'groupCode' to the child product ID on the returned item.
+     *
+     * @param Order $order
+     * @return Item[]
+     */
+    private function resolveGroupedOrderItems(Order $order): array
+    {
+        $filteredItems = [];
+        foreach ($order->getAllItems() as $originalItem) {
+            $parentItem = $originalItem->getParentItem();
+            $returnedItem = $parentItem instanceof Item ? $parentItem : $originalItem;
+            $returnedItem->setData('groupCode', $originalItem->getProductId());
+            $filteredItems[(int)$returnedItem->getId()] = $returnedItem;
+        }
+        return $filteredItems;
+    }
+
+    /**
+     * @param Order $order
+     * @return int
+     */
+    private function getOrderStoreId(Order $order): int
+    {
+        return (int)$order->getStoreId();
     }
 
     /**

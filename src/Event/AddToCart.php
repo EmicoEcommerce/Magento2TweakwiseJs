@@ -7,6 +7,7 @@ namespace Tweakwise\TweakwiseJs\Event;
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Pricing\Price\FinalPrice;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Model\Quote\Item;
 use Tweakwise\TweakwiseJs\Api\Data\EventInterface;
 use Tweakwise\TweakwiseJs\Api\Event\PriceFormatServiceInterface;
 use Tweakwise\TweakwiseJs\Helper\Data;
@@ -17,6 +18,11 @@ class AddToCart implements EventInterface
      * @var Product|null
      */
     private ?Product $product = null;
+
+    /**
+     * @var Item|null
+     */
+    private ?Item $quoteItem = null;
 
     /**
      * @var int
@@ -42,7 +48,7 @@ class AddToCart implements EventInterface
         return [
             'event' => 'addtocart',
             'data' => [
-                'productKey' => $this->dataHelper->getTweakwiseId((int)$this->product->getId()),
+                'productKey' => $this->resolveProductKey(),
                 'quantity' => $this->qty,
                 'totalAmount' => $this->getTotalAmount()
             ]
@@ -60,6 +66,16 @@ class AddToCart implements EventInterface
     }
 
     /**
+     * @param Item $quoteItem
+     * @return AddToCart
+     */
+    public function setQuoteItem(Item $quoteItem): AddToCart
+    {
+        $this->quoteItem = $quoteItem;
+        return $this;
+    }
+
+    /**
      * @param int $qty
      * @return $this
      */
@@ -67,6 +83,48 @@ class AddToCart implements EventInterface
     {
         $this->qty = $qty;
         return $this;
+    }
+
+    /**
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    public function resolveProductKey(): string
+    {
+        [$productId, $typeId] = $this->resolveProductIdAndType();
+
+        if (!is_string($typeId)) {
+            return $this->dataHelper->getTweakwiseId($productId);
+        }
+
+        return $this->dataHelper->resolveGroupedExportProductKey($productId, $typeId);
+    }
+
+    /**
+     * Resolves the product ID and type from either the quote item or the product.
+     *
+     * When a quote item is available (add-to-cart via observer), the actual simple product ID
+     * is extracted from qty_options so the correct child is resolved rather than the first child.
+     *
+     * @return array{int, string|null}
+     */
+    private function resolveProductIdAndType(): array
+    {
+        if ($this->quoteItem === null) {
+            $typeId = $this->product->getTypeId();
+            return [(int)$this->product->getId(), is_string($typeId) ? $typeId : null];
+        }
+
+        $qtyOptions = $this->quoteItem->getQtyOptions();
+        $hasQtyOptions = !empty($qtyOptions);
+
+        if ($hasQtyOptions) {
+            $simpleProductId = (int)array_key_first($qtyOptions);
+            return [$simpleProductId, 'simple'];
+        }
+
+        $typeId = $this->product->getTypeId();
+        return [(int)$this->quoteItem->getProductId(), is_string($typeId) ? $typeId : null];
     }
 
     /**
