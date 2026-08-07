@@ -65,6 +65,14 @@ class Base implements ArgumentInterface
     }
 
     /**
+     * @return bool
+     */
+    public function isEnabled(): bool
+    {
+        return $this->config->isEnabled();
+    }
+
+    /**
      * @return string|null
      */
     public function getUiLanguage(): ?string

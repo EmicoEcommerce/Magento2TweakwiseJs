@@ -1,0 +1,42 @@
+<?php
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Tweakwise\TweakwiseJs\Block\Widget\FeaturedRecommendations;
+use Tweakwise\TweakwiseJs\ViewModel\Base;
+
+/** @var FeaturedRecommendations $block */
+/** @var Escaper $escaper */
+$viewModel = $block->getViewModel();
+/** @var Base $viewModel */
+
+$ruleId = $block->getRuleId();
+$instanceKey = $viewModel->getInstanceKey();
+
+if (!$viewModel->isEnabled() || !$ruleId || !$instanceKey) {
+    return;
+}
+
+$containerId = $block->getContainerId();
+$title = $block->getWidgetTitle();
+?>
+<?php if ($title): ?>
+    <div class="block-title title">
+        <strong id="block-<?= $escaper->escapeHtmlAttr($containerId) ?>-heading" role="heading" aria-level="2">
+            <?= $escaper->escapeHtml($title) ?>
+        </strong>
+    </div>
+<?php endif; ?>
+<div id="<?= $escaper->escapeHtmlAttr($containerId) ?>"></div>
+<script>
+    window.addEventListener("twn.recommendations.ready", function () {
+        window.tweakwiseRecommendations({
+            output: "#<?= $escaper->escapeJs($containerId) ?>",
+            instancekey: "<?= $escaper->escapeJs($instanceKey) ?>",
+            featured: {
+                id: "<?= $escaper->escapeJs($ruleId) ?>"
+            }
+        });
+    });
+</script>
+<?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
