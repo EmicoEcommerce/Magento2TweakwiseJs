@@ -9,71 +9,67 @@ use Tweakwise\TweakwiseJs\ViewModel\Search;
 
 /** @var Search $viewModel */
 $viewModel = $block->getViewModel();
+$language = (string) $viewModel->getLanguage();
+$uiLanguage = (string) $viewModel->getUiLanguage();
 ?>
 
 <?php if ($viewModel->getSearchType()->value === SearchType::SUGGESTIONS->value): ?>
     <script>
-        const input = window['twn-starter-config'].input;
-        window['twn-starter-config'].input = null;
         window['twn-starter-config'].cid = '<?= $viewModel->getStoreRootCategory();?>';
+        <?php if ($language !== ''): ?>
+            window['twn-starter-config'].lang = '<?= $block->escapeJs($language) ?>';
+        <?php endif; ?>
+        <?php if ($uiLanguage !== ''): ?>
+            window['twn-starter-config'].ui = window['twn-starter-config'].ui || {};
+            window['twn-starter-config'].ui.lang = '<?= $block->escapeJs($uiLanguage) ?>';
+        <?php endif; ?>
+
         window.addEventListener('twn.suggestions.ready', () => {
+            const inputConfig = window['twn-starter-config'].input;
+            if (!inputConfig || (Array.isArray(inputConfig) && inputConfig.length === 0)) {
+                return;
+            }
+
+            window['twn-starter-config'].input = null;
+
             window.tweakwiseSuggestions({
-                input: input,
+                input: inputConfig,
                 instancekey: "<?= $viewModel->getInstanceKey();?>",
                 cid: "<?= $viewModel->getStoreRootCategory();?>",
                 searchPhrases: {
                     handle: ({ data }) => {
-                        const history = window['twn-starter-config'].history;
-                        if(history === 'query') {
-                            location.href = '<?= $viewModel->getSearchUrl();?>?tn_q=' + data.match;
+                        const history = window['twn-starter-config'].history || 'query';
+                        const query = encodeURIComponent(data.match);
+
+                        if (history === 'query') {
+                            location.href = '<?= $viewModel->getSearchUrl();?>?tn_q=' + query;
                             return;
                         }
 
-                        location.href = '<?= $viewModel->getSearchUrl();?>#twn|?tn_q=' + data.match;
+                        location.href = '<?= $viewModel->getSearchUrl();?>#twn|?tn_q=' + query;
                     }
                 }
             });
-        });
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const inputId = input[0].replace('#', '');
-            const $input = document.getElementById(inputId);
-            const $form = $input.closest('form');
-            $form.removeAttribute('@submit.prevent');
-            $form.onsubmit = e => {
-                e.preventDefault();
-
-                <?php if($viewModel->isEventsEnabled()): ?>
-                    pushEvent({
-                        event: 'search',
-                        data: {
-                            profileKey: getProfileKey(),
-                            searchTerm: $input.value
-                        }
-                    });
-                <?php endif; ?>
-
-                const history = window['twn-starter-config'].history;
-                if (history === 'query') {
-                    location.href = '<?= $viewModel->getSearchUrl();?>?tn_q=' + $input.value;
-                    return;
-                }
-
-                location.href = '<?= $viewModel->getSearchUrl();?>#twn|?tn_q=' + $input.value;
-            };
         });
     </script>
     <?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
 <?php elseif ($viewModel->getSearchType()->value === SearchType::INSTANT_SEARCH->value): ?>
     <script>
         window['twn-starter-config'].cid = '<?= $viewModel->getStoreRootCategory();?>';
+        <?php if ($language !== ''): ?>
+            window['twn-starter-config'].lang = '<?= $block->escapeJs($language) ?>';
+        <?php endif; ?>
+        <?php if ($uiLanguage !== ''): ?>
+            window['twn-starter-config'].ui = window['twn-starter-config'].ui || {};
+            window['twn-starter-config'].ui.lang = '<?= $block->escapeJs($uiLanguage) ?>';
+        <?php endif; ?>
         window.addEventListener('DOMContentLoaded', () => {
             const $form = document.getElementById('search_mini_form');
-            $form.removeAttribute('@submit.prevent');
-
             if (!$form) {
                 return;
             }
+
+            $form.removeAttribute('@submit.prevent');
 
             $form.onsubmit = e => {
                 e.preventDefault();
@@ -84,13 +80,6 @@ $viewModel = $block->getViewModel();
 <?php else: ?>
     <script>
         window['twn-starter-config'].input = null;
-    </script>
-    <?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
-<?php endif; ?>
-
-<?php if ($viewModel->isSearchResultsPage()): ?>
-    <script>
-        window['twn-starter-config'].ui.closeSearchButton = false;
     </script>
     <?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
 <?php endif; ?>

@@ -1,14 +1,15 @@
 <?php
-declare(strict_types = 1);
 
-use Magento\Catalog\Block\Category\View;
-use Tweakwise\TweakwiseJs\ViewModel\Merchandising;
+declare(strict_types=1);
 
-/** @var View $block */
+use Magento\Framework\View\Element\Template;
+use Tweakwise\TweakwiseJs\ViewModel\Search;
 
-/** @var Merchandising $viewModel */
+/** @var Template $block */
+
+/** @var Search $viewModel */
 $viewModel = $block->getViewModel();
-$cid = $viewModel->getTweakwiseId((int) $block->getCurrentCategory()->getId());
+$cid = $viewModel->getStoreRootCategory();
 $language = (string) $viewModel->getLanguage();
 $uiLanguage = (string) $viewModel->getUiLanguage();
 ?>
@@ -22,11 +23,15 @@ $uiLanguage = (string) $viewModel->getUiLanguage();
             window['twn-starter-config'].ui = window['twn-starter-config'].ui || {};
             window['twn-starter-config'].ui.lang = '<?= $block->escapeJs($uiLanguage) ?>';
         <?php endif; ?>
+        window['twn-starter-config'].ui = window['twn-starter-config'].ui || {};
+        window['twn-starter-config'].ui.closeSearchButton = false;
 
         function init() {
+            const params = new URLSearchParams(location.search);
             tweakwiseListerPage({
-                cid: "<?= $block->escapeJs($cid) ?>",
-                output: "#tweakwise-output"
+                query: params.get("tn_q") || params.get("q"),
+                output: "#tweakwise-output",
+                cid: "<?= $block->escapeJs((string) $cid) ?>"
             });
         }
 

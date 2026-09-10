@@ -79,6 +79,10 @@ class Merchandising extends Base
      */
     private function isSearchResultsPage(): bool
     {
-        return $this->request->getFullActionName() === 'catalogsearch_results_index';
+        return in_array(
+            $this->request->getFullActionName(),
+            ['catalogsearch_results_index', 'catalogsearch_result_index'],
+            true
+        );
     }
 }

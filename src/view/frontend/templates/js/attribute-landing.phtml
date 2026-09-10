@@ -9,9 +9,19 @@ use Tweakwise\TweakwiseJs\ViewModel\AttributeLanding;
 /** @var AttributeLanding $viewModel */
 $viewModel = $block->getViewModel();
 $landingPage = $block->getLandingPage();
+$language = (string) $viewModel->getLanguage();
+$uiLanguage = (string) $viewModel->getUiLanguage();
 ?>
 
 <script>
+    <?php if ($language !== ''): ?>
+        window['twn-starter-config'].lang = '<?= $block->escapeJs($language) ?>';
+    <?php endif; ?>
+    <?php if ($uiLanguage !== ''): ?>
+        window['twn-starter-config'].ui = window['twn-starter-config'].ui || {};
+        window['twn-starter-config'].ui.lang = '<?= $block->escapeJs($uiLanguage) ?>';
+    <?php endif; ?>
+
     window['twn-starter-config'].navigation.cid = <?= $viewModel->getTweakwiseId((int)$landingPage->getCategoryId());?>;
 
     <?php if($landingPage->getHideSelectedFilters()) : ?>
