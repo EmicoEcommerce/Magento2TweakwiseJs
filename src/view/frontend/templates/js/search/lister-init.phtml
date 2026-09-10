@@ -10,10 +10,22 @@ use Tweakwise\TweakwiseJs\ViewModel\Search;
 /** @var Search $viewModel */
 $viewModel = $block->getViewModel();
 $cid = $viewModel->getStoreRootCategory();
+$language = (string) $viewModel->getLanguage();
+$uiLanguage = (string) $viewModel->getUiLanguage();
 ?>
 
 <script>
     (function () {
+        <?php if ($language !== ''): ?>
+            window['twn-starter-config'].lang = '<?= $block->escapeJs($language) ?>';
+        <?php endif; ?>
+        <?php if ($uiLanguage !== ''): ?>
+            window['twn-starter-config'].ui = window['twn-starter-config'].ui || {};
+            window['twn-starter-config'].ui.lang = '<?= $block->escapeJs($uiLanguage) ?>';
+        <?php endif; ?>
+        window['twn-starter-config'].ui = window['twn-starter-config'].ui || {};
+        window['twn-starter-config'].ui.closeSearchButton = false;
+
         function init() {
             const params = new URLSearchParams(location.search);
             tweakwiseListerPage({

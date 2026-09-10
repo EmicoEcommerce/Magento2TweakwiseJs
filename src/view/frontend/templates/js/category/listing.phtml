@@ -9,10 +9,20 @@ use Tweakwise\TweakwiseJs\ViewModel\Merchandising;
 /** @var Merchandising $viewModel */
 $viewModel = $block->getViewModel();
 $cid = $viewModel->getTweakwiseId((int) $block->getCurrentCategory()->getId());
+$language = (string) $viewModel->getLanguage();
+$uiLanguage = (string) $viewModel->getUiLanguage();
 ?>
 
 <script>
     (function () {
+        <?php if ($language !== ''): ?>
+            window['twn-starter-config'].lang = '<?= $block->escapeJs($language) ?>';
+        <?php endif; ?>
+        <?php if ($uiLanguage !== ''): ?>
+            window['twn-starter-config'].ui = window['twn-starter-config'].ui || {};
+            window['twn-starter-config'].ui.lang = '<?= $block->escapeJs($uiLanguage) ?>';
+        <?php endif; ?>
+
         function init() {
             tweakwiseListerPage({
                 cid: "<?= $block->escapeJs($cid) ?>",
@@ -28,4 +38,3 @@ $cid = $viewModel->getTweakwiseId((int) $block->getCurrentCategory()->getId());
     }());
 </script>
 <?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
-

@@ -1,14 +1,6 @@
 <?php
 declare(strict_types = 1);
 
-use Magento\Framework\View\Element\Template;
-use Tweakwise\TweakwiseJs\ViewModel\Base;
-
-/** @var Template $block */
-/** @var Base $viewModel */
-$viewModel = $block->getData('view_model');
-$language = (string) $viewModel->getLanguage();
-$uiLanguage = (string) $viewModel->getUiLanguage();
 ?>
 
 <script>
@@ -24,13 +16,5 @@ $uiLanguage = (string) $viewModel->getUiLanguage();
     window.addEventListener('twn.starter.ready', function () {
         window['twn-starter-ready'] = true;
     });
-    <?php if ($language !== ''): ?>
-        window['twn-starter-config'].lang = '<?= $block->escapeJs($language) ?>';
-    <?php endif; ?>
-    <?php if ($uiLanguage !== ''): ?>
-        window['twn-starter-config'].ui = window['twn-starter-config'].ui || {};
-        window['twn-starter-config'].ui.lang = '<?= $block->escapeJs($uiLanguage) ?>';
-    <?php endif; ?>
 </script>
 <?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
-
