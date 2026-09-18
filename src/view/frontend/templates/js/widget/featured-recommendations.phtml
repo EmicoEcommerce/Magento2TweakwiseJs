@@ -30,6 +30,8 @@ $title = $block->getWidgetTitle();
 <div id="<?= $escaper->escapeHtmlAttr($containerId) ?>"></div>
 <script>
     window.addEventListener("twn.recommendations.ready", function () {
+        window['twn-recommendations-config'] = window['twn-recommendations-config'] || {};
+        window['twn-recommendations-config'].on = window['twn-starter-config'].on;
         window.tweakwiseRecommendations({
             output: "#<?= $escaper->escapeJs($containerId) ?>",
             instancekey: "<?= $escaper->escapeJs($instanceKey) ?>",

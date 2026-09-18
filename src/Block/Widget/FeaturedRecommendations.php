@@ -49,6 +49,6 @@ class FeaturedRecommendations extends Template implements BlockInterface
      */
     public function getContainerId(): string
     {
-        return $this->getJsId('featured-recommendations');
+        return 'tw-' . $this->getJsId('featured-recommendations');
     }
 }

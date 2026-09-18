@@ -12,6 +12,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Tweakwise\TweakwiseJs\Helper\Data;
 use Tweakwise\TweakwiseJs\Model\Config;
 use Tweakwise\TweakwiseJs\Model\Enum\SearchType;
+use Tweakwise\TweakwiseJs\Model\FeaturedRecommendationsPageState;
 
 class Merchandising extends Base
 {
@@ -21,6 +22,7 @@ class Merchandising extends Base
      * @param Http $request
      * @param StoreManagerInterface $storeManager
      * @param FormKey $formKey
+     * @param FeaturedRecommendationsPageState $pageState
      */
     public function __construct(
         Config $config,
@@ -28,6 +30,7 @@ class Merchandising extends Base
         private readonly Http $request,
         private readonly StoreManagerInterface $storeManager,
         private readonly FormKey $formKey,
+        private readonly FeaturedRecommendationsPageState $pageState,
     ) {
         parent::__construct($config, $dataHelper);
     }
@@ -63,7 +66,8 @@ class Merchandising extends Base
     {
         return $this->isCategoryPage() ||
             $this->isSearchResultsPage() ||
-            $this->config->getSearchType()->value === SearchType::INSTANT_SEARCH->value;
+            $this->config->getSearchType()->value === SearchType::INSTANT_SEARCH->value ||
+            $this->pageState->hasWidget();
     }
 
     /**
