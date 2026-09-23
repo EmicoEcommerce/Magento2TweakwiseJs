@@ -36,7 +36,6 @@ class Language implements OptionSourceInterface
 
         try {
             $request = $this->requestFactory->create();
-            /** @var LanguageResponse $response */
             $response = $this->apiClient->request($request);
 
             if (!$response instanceof LanguageResponse) {
