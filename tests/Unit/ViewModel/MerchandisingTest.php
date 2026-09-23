@@ -48,7 +48,12 @@ class MerchandisingTest extends Unit
         $this->tester->mockService(StoreManagerInterface::class, $this->storeManager);
         $this->tester->mockService(FormKey::class, $this->formKey);
 
-        $this->subject = $this->tester->getObjectManager()->create(Merchandising::class);
+        $this->subject = $this->tester->getObjectManager()->create(Merchandising::class, [
+            'config' => $this->config,
+            'request' => $this->request,
+            'storeManager' => $this->storeManager,
+            'formKey' => $this->formKey,
+        ]);
     }
 
     /**
