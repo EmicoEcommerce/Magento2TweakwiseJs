@@ -61,10 +61,12 @@ class Merchandising extends Base
      */
     public function shouldAddAddToCartWishlistFunctionalities(): bool
     {
+        $searchType = $this->config->getSearchType()->value;
+
         return $this->isCategoryPage() ||
             $this->isSearchResultsPage() ||
-            $this->config->getSearchType()->value === SearchType::INSTANT_SEARCH->value ||
-            $this->config->getSearchType()->value === SearchType::SUGGESTIONS->value;
+            $searchType === SearchType::INSTANT_SEARCH->value ||
+            $searchType === SearchType::SUGGESTIONS->value;
     }
 
     /**

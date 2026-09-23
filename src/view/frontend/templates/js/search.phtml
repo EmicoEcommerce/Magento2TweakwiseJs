@@ -15,9 +15,10 @@ $language = (string) $viewModel->getLanguage();
 $uiLanguage = (string) $viewModel->getUiLanguage();
 $instanceKey = (string) $viewModel->getInstanceKey();
 $cid = (string) $viewModel->getStoreRootCategory();
+$searchType = $viewModel->getSearchType()->value;
 ?>
 
-<?php if ($viewModel->getSearchType()->value === SearchType::SUGGESTIONS->value): ?>
+<?php if ($searchType === SearchType::SUGGESTIONS->value): ?>
     <script>
         window.addEventListener('twn.suggestions.ready', () => {
             const inputConfig = window['twn-starter-config'].input;
@@ -82,8 +83,9 @@ $cid = (string) $viewModel->getStoreRootCategory();
         });
     </script>
     <?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
-<?php elseif ($viewModel->getSearchType()->value === SearchType::INSTANT_SEARCH->value): ?>
+<?php elseif ($searchType === SearchType::INSTANT_SEARCH->value): ?>
     <script>
+        window['twn-starter-config'].auto = true;
         window['twn-starter-config'].cid = '<?= $escaper->escapeJs($cid) ?>';
         <?php if ($language !== ''): ?>
             window['twn-starter-config'].lang = '<?= $escaper->escapeJs($language) ?>';
