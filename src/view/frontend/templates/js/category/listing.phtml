@@ -2,9 +2,11 @@
 declare(strict_types = 1);
 
 use Magento\Catalog\Block\Category\View;
+use Magento\Framework\Escaper;
 use Tweakwise\TweakwiseJs\ViewModel\Merchandising;
 
 /** @var View $block */
+/** @var Escaper $escaper */
 
 /** @var Merchandising $viewModel */
 $viewModel = $block->getViewModel();
@@ -15,18 +17,44 @@ $uiLanguage = (string) $viewModel->getUiLanguage();
 
 <script>
     (function () {
-        <?php if ($language !== ''): ?>
-            window['twn-starter-config'].lang = '<?= $block->escapeJs($language) ?>';
-        <?php endif; ?>
-        <?php if ($uiLanguage !== ''): ?>
-            window['twn-starter-config'].ui = window['twn-starter-config'].ui || {};
-            window['twn-starter-config'].ui.lang = '<?= $block->escapeJs($uiLanguage) ?>';
-        <?php endif; ?>
-
         function init() {
             tweakwiseListerPage({
-                cid: "<?= $block->escapeJs($cid) ?>",
-                output: "#tweakwise-output"
+                cid: '<?= $escaper->escapeJs((string) $cid) ?>',
+                <?php if ($language !== ''): ?>
+                    lang: '<?= $escaper->escapeJs($language) ?>',
+                <?php endif; ?>
+                <?php if ($uiLanguage !== ''): ?>
+                    ui: {
+                        lang: '<?= $escaper->escapeJs($uiLanguage) ?>'
+                    },
+                <?php endif; ?>
+                output: '#tweakwise-output',
+                on: {
+                    'twn.add-to-cart': ({data}) => {
+                        if (!data || !data.itemno) {
+                            return;
+                        }
+
+                        if (!window.twnAddTo) {
+                            console.warn('tweakwise add-to.js not loaded');
+                            return;
+                        }
+
+                        window.twnAddTo.addToCartByItemNo(data.itemno);
+                    },
+                    'twn.add-to-favorites': ({data}) => {
+                        if (!data || !data.itemno) {
+                            return;
+                        }
+
+                        if (!window.twnAddTo) {
+                            console.warn('tweakwise add-to.js not loaded');
+                            return;
+                        }
+
+                        window.twnAddTo.addToWishlistByItemNo(data.itemno);
+                    }
+                }
             });
         }
 
@@ -38,3 +66,5 @@ $uiLanguage = (string) $viewModel->getUiLanguage();
     }());
 </script>
 <?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
+
+<div id="tweakwise-output"></div>

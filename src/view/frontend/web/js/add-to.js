@@ -8,21 +8,28 @@ define([
             productId: ''
         };
 
-        window['twn-starter-config'].on['twn.add-to-cart'] = function (event) {
-            if (shouldMoveMessages()) {
-                moveMessages();
-            }
-            setProductData(event.data.itemno);
-            addToCart();
+        window.twnAddTo = {
+            addToCartByItemNo: addToCartByItemNo,
+            addToWishlistByItemNo: addToWishlistByItemNo
         };
 
-        window['twn-starter-config'].on['twn.add-to-favorites'] = function (event) {
+        function addToCartByItemNo(tweakwiseProductId) {
             if (shouldMoveMessages()) {
                 moveMessages();
             }
-            setProductData(event.data.itemno);
+
+            setProductData(tweakwiseProductId);
+            addToCart();
+        }
+
+        function addToWishlistByItemNo(tweakwiseProductId) {
+            if (shouldMoveMessages()) {
+                moveMessages();
+            }
+
+            setProductData(tweakwiseProductId);
             addToWishlist();
-        };
+        }
 
         /**
          * Function to add product to the cart
@@ -156,5 +163,10 @@ define([
             options.tweakwiseProductId = tweakwiseProductId;
             options.productId = getProductId(tweakwiseProductId);
         }
+
+        return {
+            addToCartByItemNo: addToCartByItemNo,
+            addToWishlistByItemNo: addToWishlistByItemNo
+        };
     }
 });

@@ -1,29 +1,24 @@
 <?php
 declare(strict_types = 1);
 
+use Magento\Framework\Escaper;
 use Magento\Framework\View\Element\Template;
 use Tweakwise\TweakwiseJs\Model\Enum\SearchType;
 use Tweakwise\TweakwiseJs\ViewModel\Search;
 
 /** @var Template $block */
+/** @var Escaper $escaper */
 
 /** @var Search $viewModel */
 $viewModel = $block->getViewModel();
 $language = (string) $viewModel->getLanguage();
 $uiLanguage = (string) $viewModel->getUiLanguage();
+$instanceKey = (string) $viewModel->getInstanceKey();
+$cid = (string) $viewModel->getStoreRootCategory();
 ?>
 
 <?php if ($viewModel->getSearchType()->value === SearchType::SUGGESTIONS->value): ?>
     <script>
-        window['twn-starter-config'].cid = '<?= $viewModel->getStoreRootCategory();?>';
-        <?php if ($language !== ''): ?>
-            window['twn-starter-config'].lang = '<?= $block->escapeJs($language) ?>';
-        <?php endif; ?>
-        <?php if ($uiLanguage !== ''): ?>
-            window['twn-starter-config'].ui = window['twn-starter-config'].ui || {};
-            window['twn-starter-config'].ui.lang = '<?= $block->escapeJs($uiLanguage) ?>';
-        <?php endif; ?>
-
         window.addEventListener('twn.suggestions.ready', () => {
             const inputConfig = window['twn-starter-config'].input;
             if (!inputConfig || (Array.isArray(inputConfig) && inputConfig.length === 0)) {
@@ -34,19 +29,53 @@ $uiLanguage = (string) $viewModel->getUiLanguage();
 
             window.tweakwiseSuggestions({
                 input: inputConfig,
-                instancekey: "<?= $viewModel->getInstanceKey();?>",
-                cid: "<?= $viewModel->getStoreRootCategory();?>",
+                instancekey: '<?= $escaper->escapeJs($instanceKey) ?>',
+                cid: '<?= $escaper->escapeJs($cid) ?>',
+                <?php if ($language !== ''): ?>
+                    lang: '<?= $escaper->escapeJs($language) ?>',
+                <?php endif; ?>
+                <?php if ($uiLanguage !== ''): ?>
+                    ui: {
+                        lang: '<?= $escaper->escapeJs($uiLanguage) ?>'
+                    },
+                <?php endif; ?>
+                on: {
+                    'twn.add-to-cart': ({ data }) => {
+                        if (!data || !data.itemno) {
+                            return;
+                        }
+
+                        if (!window.twnAddTo) {
+                            console.warn('tweakwise add-to.js not loaded');
+                            return;
+                        }
+
+                        window.twnAddTo.addToCartByItemNo(data.itemno);
+                    },
+                    'twn.add-to-favorites': ({ data }) => {
+                        if (!data || !data.itemno) {
+                            return;
+                        }
+
+                        if (!window.twnAddTo) {
+                            console.warn('tweakwise add-to.js not loaded');
+                            return;
+                        }
+
+                        window.twnAddTo.addToWishlistByItemNo(data.itemno);
+                    }
+                },
                 searchPhrases: {
                     handle: ({ data }) => {
                         const history = window['twn-starter-config'].history || 'query';
                         const query = encodeURIComponent(data.match);
 
                         if (history === 'query') {
-                            location.href = '<?= $viewModel->getSearchUrl();?>?tn_q=' + query;
+                            location.href = '<?= $escaper->escapeUrl($viewModel->getSearchUrl()) ?>?tn_q=' + query;
                             return;
                         }
 
-                        location.href = '<?= $viewModel->getSearchUrl();?>#twn|?tn_q=' + query;
+                        location.href = '<?= $escaper->escapeUrl($viewModel->getSearchUrl()) ?>#twn|?tn_q=' + query;
                     }
                 }
             });
@@ -55,13 +84,13 @@ $uiLanguage = (string) $viewModel->getUiLanguage();
     <?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
 <?php elseif ($viewModel->getSearchType()->value === SearchType::INSTANT_SEARCH->value): ?>
     <script>
-        window['twn-starter-config'].cid = '<?= $viewModel->getStoreRootCategory();?>';
+        window['twn-starter-config'].cid = '<?= $escaper->escapeJs($cid) ?>';
         <?php if ($language !== ''): ?>
-            window['twn-starter-config'].lang = '<?= $block->escapeJs($language) ?>';
+            window['twn-starter-config'].lang = '<?= $escaper->escapeJs($language) ?>';
         <?php endif; ?>
         <?php if ($uiLanguage !== ''): ?>
             window['twn-starter-config'].ui = window['twn-starter-config'].ui || {};
-            window['twn-starter-config'].ui.lang = '<?= $block->escapeJs($uiLanguage) ?>';
+            window['twn-starter-config'].ui.lang = '<?= $escaper->escapeJs($uiLanguage) ?>';
         <?php endif; ?>
         window.addEventListener('DOMContentLoaded', () => {
             const $form = document.getElementById('search_mini_form');

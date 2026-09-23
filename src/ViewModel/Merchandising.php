@@ -63,7 +63,8 @@ class Merchandising extends Base
     {
         return $this->isCategoryPage() ||
             $this->isSearchResultsPage() ||
-            $this->config->getSearchType()->value === SearchType::INSTANT_SEARCH->value;
+            $this->config->getSearchType()->value === SearchType::INSTANT_SEARCH->value ||
+            $this->config->getSearchType()->value === SearchType::SUGGESTIONS->value;
     }
 
     /**

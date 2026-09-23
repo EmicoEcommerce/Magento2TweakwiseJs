@@ -2,36 +2,81 @@
 declare(strict_types = 1);
 
 use Emico\AttributeLanding\Block\LandingPage\Content;
+use Magento\Framework\Escaper;
 use Tweakwise\TweakwiseJs\ViewModel\AttributeLanding;
 
 /** @var Content $block */
+/** @var Escaper $escaper */
 
 /** @var AttributeLanding $viewModel */
 $viewModel = $block->getViewModel();
 $landingPage = $block->getLandingPage();
 $language = (string) $viewModel->getLanguage();
 $uiLanguage = (string) $viewModel->getUiLanguage();
+$cid = (int) $viewModel->getTweakwiseId((int) $landingPage->getCategoryId());
+$hideSelectedFilters = (bool) $landingPage->getHideSelectedFilters();
+$filterAttributes = $landingPage->getFilterAttributes();
 ?>
 
 <script>
-    <?php if ($language !== ''): ?>
-        window['twn-starter-config'].lang = '<?= $block->escapeJs($language) ?>';
-    <?php endif; ?>
-    <?php if ($uiLanguage !== ''): ?>
-        window['twn-starter-config'].ui = window['twn-starter-config'].ui || {};
-        window['twn-starter-config'].ui.lang = '<?= $block->escapeJs($uiLanguage) ?>';
-    <?php endif; ?>
+    (function () {
+        function init() {
+            tweakwiseListerPage({
+                cid: <?= $cid ?>,
+                <?php if ($language !== ''): ?>
+                    lang: '<?= $escaper->escapeJs($language) ?>',
+                <?php endif; ?>
+                <?php if ($uiLanguage !== ''): ?>
+                    ui: {
+                        lang: '<?= $escaper->escapeJs($uiLanguage) ?>'
+                    },
+                <?php endif; ?>
+                <?php if ($hideSelectedFilters): ?>
+                    parameters: '<?= $escaper->escapeJs($viewModel->getParameters($filterAttributes)) ?>',
+                <?php endif; ?>
+                navigation: {
+                    <?php if (!$hideSelectedFilters): ?>
+                        filters: <?= /* @noEscape */ $viewModel->getFilters($filterAttributes) ?>,
+                    <?php endif; ?>
+                    filterTemplateId: <?= (int) $landingPage->getTweakwiseFilterTemplate() ?>,
+                    sortingTemplateId: <?= (int) $landingPage->getTweakwiseSortTemplate() ?>,
+                    builderTemplateId: <?= (int) $landingPage->getTweakwiseBuilderTemplate() ?>
+                },
+                output: '#tweakwise-output',
+                on: {
+                    'twn.add-to-cart': ({data}) => {
+                        if (!data || !data.itemno) {
+                            return;
+                        }
 
-    window['twn-starter-config'].navigation.cid = <?= $viewModel->getTweakwiseId((int)$landingPage->getCategoryId());?>;
+                        if (!window.twnAddTo) {
+                            console.warn('tweakwise add-to.js not loaded');
+                            return;
+                        }
 
-    <?php if($landingPage->getHideSelectedFilters()) : ?>
-        window['twn-starter-config'].parameters = '<?= $viewModel->getParameters($landingPage->getFilterAttributes());?>';
-    <?php else : ?>
-        window['twn-starter-config'].navigation.filters = <?= /* @noEscape */ $viewModel->getFilters($landingPage->getFilterAttributes());?>;
-    <?php endif; ?>
+                        window.twnAddTo.addToCartByItemNo(data.itemno);
+                    },
+                    'twn.add-to-favorites': ({data}) => {
+                        if (!data || !data.itemno) {
+                            return;
+                        }
 
-    window['twn-starter-config'].navigation.filterTemplateId = <?= (int)$landingPage->getTweakwiseFilterTemplate()?>;
-    window['twn-starter-config'].navigation.sortingTemplateId = <?= (int)$landingPage->getTweakwiseSortTemplate()?>;
-    window['twn-starter-config'].navigation.builderTemplateId = <?= (int)$landingPage->getTweakwiseBuilderTemplate()?>;
+                        if (!window.twnAddTo) {
+                            console.warn('tweakwise add-to.js not loaded');
+                            return;
+                        }
+
+                        window.twnAddTo.addToWishlistByItemNo(data.itemno);
+                    }
+                }
+            });
+        }
+
+        if (window['twn-starter-ready']) {
+            init();
+        } else {
+            window.addEventListener('twn.starter.ready', init);
+        }
+    }());
 </script>
 <?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
