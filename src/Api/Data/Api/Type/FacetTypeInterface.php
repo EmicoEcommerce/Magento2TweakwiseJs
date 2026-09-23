@@ -11,12 +11,12 @@ interface FacetTypeInterface
     public const FACET_SETTINGS = 'facetsettings';
 
     /**
-     * @return SettingsType
+     * @return \Tweakwise\TweakwiseJs\Model\Api\Type\FacetType\SettingsType
      */
     public function getFacetSettings(): SettingsType;
 
     /**
-     * @param SettingsType $facetSettings
+     * @param \Tweakwise\TweakwiseJs\Model\Api\Type\FacetType\SettingsType $facetSettings
      * @return self
      */
     public function setFacetSettings(SettingsType $facetSettings): self;

@@ -71,7 +71,8 @@ $storeId = $viewModel->getStoreId();
         let bodyData = {
             form_key: hyva.getFormKey(),
             product: options.productId,
-            uenc: btoa(window.location.href)
+            uenc: btoa(window.location.href),
+            tweakwise_event_handled: '1'
         };
 
         fetch(url, {
@@ -149,7 +150,8 @@ $storeId = $viewModel->getStoreId();
         const data = {
             product: options.productId,
             form_key: hyva.getFormKey(),
-            uenc: btoa(window.location.href)
+            uenc: btoa(window.location.href),
+            tweakwise_event_handled: '1'
         };
 
         for (const key in data) {

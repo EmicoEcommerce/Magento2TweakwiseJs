@@ -43,6 +43,20 @@ class Base implements ArgumentInterface
     }
 
     /**
+     * @param int $id
+     * @param string $typeId
+     * @return string
+     */
+    public function resolveGroupedExportProductKey(int $id, string $typeId): string
+    {
+        try {
+            return $this->dataHelper->resolveGroupedExportProductKey($id, $typeId);
+        } catch (NoSuchEntityException $e) {
+            return '0';
+        }
+    }
+
+    /**
      * @return bool
      */
     public function isEventsEnabled(): bool
