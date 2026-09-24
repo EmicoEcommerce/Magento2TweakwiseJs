@@ -36,8 +36,11 @@ class Language implements OptionSourceInterface
 
         try {
             $request = $this->requestFactory->create();
-            /** @var LanguageResponse $response */
+            /** @var LanguageResponse|null $response */
             $response = $this->apiClient->request($request);
+            if (!$response) {
+                return $options;
+            }
 
             $languages = $response->getLanguages();
 

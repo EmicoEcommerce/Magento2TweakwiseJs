@@ -9,6 +9,7 @@ use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
 use Tweakwise\TweakwiseJs\Api\Data\Api\Response\Catalog\LanguageResponseInterface;
+use Tweakwise\TweakwiseJs\Api\Data\Api\Type\LanguageTypeInterface;
 use Tweakwise\TweakwiseJs\Model\Api\Response;
 use Tweakwise\TweakwiseJs\Model\Api\Type\LanguageType;
 use Tweakwise\TweakwiseJs\Model\Api\Type\LanguageTypeFactory;
@@ -46,7 +47,7 @@ class LanguageResponse extends Response implements LanguageResponseInterface
 
         $language = $this->getData(self::LANGUAGE);
         if ($language) {
-            if (isset($language['languageid']) && !isset($language[0])) {
+            if (isset($language[LanguageTypeInterface::KEY]) && !isset($language[0])) {
                 $language = [$language];
             }
 
