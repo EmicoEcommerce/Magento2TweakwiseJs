@@ -5,8 +5,8 @@
     "type": "magento2-module",
     "require": {
         "php": "^8.2",
-        "tweakwise/magento2-tweakwise-export": "^7.8.3",
-        "emico/m2-attributelanding": "^6.0.5",
+        "tweakwise/magento2-tweakwise-export": ">=7.8.3",
+        "emico/m2-attributelanding": ">=6.0.5",
         "magento/module-configurable-product": ">=100.4",
         "magento/module-search": "^101.1",
         "ext-simplexml": "*",
@@ -14,6 +14,8 @@
     },
     "require-dev": {
         "emico/code-quality": "^10.0",
+        "pdepend/pdepend": "^2.16",
+        "phpmd/phpmd": "^2.15",
         "symfony/config": "^6.0"
     },
     "autoload": {
@@ -42,6 +44,7 @@
     "config": {
         "allow-plugins": {
             "magento/composer-dependency-version-audit-plugin": false,
+            "magento/inventory-composer-installer": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "phpstan/extension-installer": true,
             "phpro/grumphp": true,

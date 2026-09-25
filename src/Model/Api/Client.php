@@ -53,11 +53,14 @@ class Client
             return $this->getFallbackValues();
         }
 
-        /** @var FeatureResponseInterface $response */
+        /** @var FeatureResponseInterface|null $response */
         $response = $this->request($request);
+        if (!$response) {
+            return $this->getFallbackValues();
+        }
 
         $features = $response->getFeatures();
-        if (!$response->getFeatures()) {
+        if (!$features) {
             return $this->getFallbackValues();
         }
 
