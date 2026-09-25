@@ -7,6 +7,7 @@ namespace Tweakwise\TweakwiseJs\Block\Widget;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Widget\Block\BlockInterface;
+use Tweakwise\TweakwiseJs\Model\FeaturedRecommendationsPageState;
 use Tweakwise\TweakwiseJs\ViewModel\Base;
 
 class FeaturedRecommendations extends Template implements BlockInterface
@@ -14,16 +15,19 @@ class FeaturedRecommendations extends Template implements BlockInterface
     /**
      * @param Context $context
      * @param Base $viewModel
+     * @param FeaturedRecommendationsPageState $pageState
      * @param array $data
      */
     public function __construct(
         Context $context,
         Base $viewModel,
+        FeaturedRecommendationsPageState $pageState,
         array $data = []
     ) {
         $data['template'] ??= 'Tweakwise_TweakwiseJs::js/widget/featured-recommendations.phtml';
         $data['view_model'] ??= $viewModel;
         parent::__construct($context, $data);
+        $pageState->setHasWidget(true);
     }
 
     /**
