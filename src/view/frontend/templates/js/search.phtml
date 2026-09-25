@@ -94,6 +94,31 @@ $searchType = $viewModel->getSearchType()->value;
             window['twn-starter-config'].ui = window['twn-starter-config'].ui || {};
             window['twn-starter-config'].ui.lang = '<?= $escaper->escapeJs($uiLanguage) ?>';
         <?php endif; ?>
+        window['twn-starter-config'].on = window['twn-starter-config'].on || {};
+        window['twn-starter-config'].on['twn.add-to-cart'] = ({ data }) => {
+            if (!data || !data.itemno) {
+                return;
+            }
+
+            if (!window.twnAddTo) {
+                console.warn('tweakwise add-to.js not loaded');
+                return;
+            }
+
+            window.twnAddTo.addToCartByItemNo(data.itemno);
+        };
+        window['twn-starter-config'].on['twn.add-to-favorites'] = ({ data }) => {
+            if (!data || !data.itemno) {
+                return;
+            }
+
+            if (!window.twnAddTo) {
+                console.warn('tweakwise add-to.js not loaded');
+                return;
+            }
+
+            window.twnAddTo.addToWishlistByItemNo(data.itemno);
+        };
         window.addEventListener('DOMContentLoaded', () => {
             const $form = document.getElementById('search_mini_form');
             if (!$form) {

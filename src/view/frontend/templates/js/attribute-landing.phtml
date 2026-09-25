@@ -22,7 +22,7 @@ $filterAttributes = $landingPage->getFilterAttributes();
     (function () {
         function init() {
             tweakwiseListerPage({
-                cid: <?= $cid ?>,
+                cid: '<?= $escaper->escapeJs((string) $cid) ?>',
                 <?php if ($language !== ''): ?>
                     lang: '<?= $escaper->escapeJs($language) ?>',
                 <?php endif; ?>
