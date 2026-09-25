@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget.xsd">
+    <widget id="tweakwise_featured_recommendations"
+            class="Tweakwise\TweakwiseJs\Block\Widget\FeaturedRecommendations"
+            is_email_compatible="false">
+        <label translate="true">Tweakwise - Featured Recommendations</label>
+        <description translate="true">Client-side Tweakwise featured recommendations, rendered via the JS Hub</description>
+        <parameters>
+            <parameter name="title" xsi:type="text" visible="true" sort_order="10">
+                <label translate="true">Title</label>
+                <description translate="true">Optional heading rendered above the recommendations</description>
+            </parameter>
+            <parameter name="rule_id" xsi:type="select" visible="true" required="true" sort_order="20"
+                       source_model="Tweakwise\TweakwiseJs\Model\Config\Source\FeaturedRecommendation">
+                <label translate="true">Tweakwise Rule</label>
+            </parameter>
+        </parameters>
+    </widget>
+</widgets>
