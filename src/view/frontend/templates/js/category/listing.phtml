@@ -2,16 +2,69 @@
 declare(strict_types = 1);
 
 use Magento\Catalog\Block\Category\View;
+use Magento\Framework\Escaper;
 use Tweakwise\TweakwiseJs\ViewModel\Merchandising;
 
 /** @var View $block */
+/** @var Escaper $escaper */
 
 /** @var Merchandising $viewModel */
 $viewModel = $block->getViewModel();
+$cid = $viewModel->getTweakwiseId((int) $block->getCurrentCategory()->getId());
+$language = (string) $viewModel->getLanguage();
+$uiLanguage = (string) $viewModel->getUiLanguage();
 ?>
 
 <script>
-    window['twn-starter-config'].navigation.cid = <?= $viewModel->getTweakwiseId((int)$block->getCurrentCategory()->getId());?>;
+    (function () {
+        function init() {
+            tweakwiseListerPage({
+                cid: '<?= $escaper->escapeJs((string) $cid) ?>',
+                <?php if ($language !== ''): ?>
+                    lang: '<?= $escaper->escapeJs($language) ?>',
+                <?php endif; ?>
+                <?php if ($uiLanguage !== ''): ?>
+                    ui: {
+                        lang: '<?= $escaper->escapeJs($uiLanguage) ?>'
+                    },
+                <?php endif; ?>
+                output: '#tweakwise-output',
+                on: {
+                    'twn.add-to-cart': ({data}) => {
+                        if (!data || !data.itemno) {
+                            return;
+                        }
+
+                        if (!window.twnAddTo) {
+                            console.warn('tweakwise add-to.js not loaded');
+                            return;
+                        }
+
+                        window.twnAddTo.addToCartByItemNo(data.itemno);
+                    },
+                    'twn.add-to-favorites': ({data}) => {
+                        if (!data || !data.itemno) {
+                            return;
+                        }
+
+                        if (!window.twnAddTo) {
+                            console.warn('tweakwise add-to.js not loaded');
+                            return;
+                        }
+
+                        window.twnAddTo.addToWishlistByItemNo(data.itemno);
+                    }
+                }
+            });
+        }
+
+        if (window['twn-starter-ready']) {
+            init();
+        } else {
+            window.addEventListener('twn.starter.ready', init);
+        }
+    }());
 </script>
 <?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
 
+<div id="tweakwise-output"></div>

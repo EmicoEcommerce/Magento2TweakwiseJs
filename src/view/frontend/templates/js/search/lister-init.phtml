@@ -1,47 +1,41 @@
 <?php
-declare(strict_types = 1);
 
-use Emico\AttributeLanding\Block\LandingPage\Content;
+declare(strict_types=1);
+
 use Magento\Framework\Escaper;
-use Tweakwise\TweakwiseJs\ViewModel\AttributeLanding;
+use Magento\Framework\View\Element\Template;
+use Tweakwise\TweakwiseJs\ViewModel\Search;
 
-/** @var Content $block */
+/** @var Template $block */
 /** @var Escaper $escaper */
 
-/** @var AttributeLanding $viewModel */
+/** @var Search $viewModel */
 $viewModel = $block->getViewModel();
-$landingPage = $block->getLandingPage();
+$cid = (string) $viewModel->getStoreRootCategory();
 $language = (string) $viewModel->getLanguage();
 $uiLanguage = (string) $viewModel->getUiLanguage();
-$cid = (int) $viewModel->getTweakwiseId((int) $landingPage->getCategoryId());
-$hideSelectedFilters = (bool) $landingPage->getHideSelectedFilters();
-$filterAttributes = $landingPage->getFilterAttributes();
 ?>
 
 <script>
     (function () {
         function init() {
+            const params = new URLSearchParams(location.search);
             tweakwiseListerPage({
-                cid: '<?= $escaper->escapeJs((string) $cid) ?>',
+                query: params.get('tn_q') || params.get('q'),
+                cid: '<?= $escaper->escapeJs($cid) ?>',
                 <?php if ($language !== ''): ?>
                     lang: '<?= $escaper->escapeJs($language) ?>',
                 <?php endif; ?>
                 <?php if ($uiLanguage !== ''): ?>
                     ui: {
-                        lang: '<?= $escaper->escapeJs($uiLanguage) ?>'
+                        lang: '<?= $escaper->escapeJs($uiLanguage) ?>',
+                        closeSearchButton: false
+                    },
+                <?php else: ?>
+                    ui: {
+                        closeSearchButton: false
                     },
                 <?php endif; ?>
-                <?php if ($hideSelectedFilters): ?>
-                    parameters: '<?= $escaper->escapeJs($viewModel->getParameters($filterAttributes)) ?>',
-                <?php endif; ?>
-                navigation: {
-                    <?php if (!$hideSelectedFilters): ?>
-                        filters: <?= /* @noEscape */ $viewModel->getFilters($filterAttributes) ?>,
-                    <?php endif; ?>
-                    filterTemplateId: <?= (int) $landingPage->getTweakwiseFilterTemplate() ?>,
-                    sortingTemplateId: <?= (int) $landingPage->getTweakwiseSortTemplate() ?>,
-                    builderTemplateId: <?= (int) $landingPage->getTweakwiseBuilderTemplate() ?>
-                },
                 output: '#tweakwise-output',
                 on: {
                     'twn.add-to-cart': ({data}) => {
