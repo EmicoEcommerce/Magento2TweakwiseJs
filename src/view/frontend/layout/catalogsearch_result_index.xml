@@ -2,11 +2,30 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
-        <referenceContainer name="content">
+        <!-- Make sure the columns container is never empty, else Magento doesn't render it -->
+        <referenceContainer name="columns">
             <block class="Magento\Framework\View\Element\Template"
                    name="tweakwise-js-event-search"
                    template="Tweakwise_TweakwiseJs::js/event/search-event.phtml"
                    ifconfig="tweakwise/tweakwisejs/events/enabled">
+            </block>
+            <block class="Magento\Framework\View\Element\Text">
+                <arguments>
+                    <argument name="text" xsi:type="string"><![CDATA[&nbsp;]]></argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+        <move element="customer.customer.data" destination="columns"/>
+        <move element="customer.section.config" destination="columns"/>
+        <referenceContainer name="main" remove="true"/>
+        <referenceContainer name="div.sidebar.main" remove="true"/>
+        <referenceContainer name="div.sidebar.additional" remove="true"/>
+        <referenceContainer name="page.wrapper">
+            <block class="Magento\Framework\View\Element\Template" name="tweakwise-js-search-lister-init"
+                   template="Tweakwise_TweakwiseJs::js/search/lister-init.phtml">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Tweakwise\TweakwiseJs\ViewModel\Search</argument>
+                </arguments>
             </block>
         </referenceContainer>
     </body>
