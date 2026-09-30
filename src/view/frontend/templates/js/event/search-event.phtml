@@ -20,7 +20,7 @@ use Magento\Catalog\Block\Product\View;
      */
     function getSearchTerm() {
         const params = new URLSearchParams(window.location.search);
-        const searchTerm = params.get('q');
+        const searchTerm = params.get('q') || params.get('tn_q');
 
         if (searchTerm) {
             return searchTerm;
