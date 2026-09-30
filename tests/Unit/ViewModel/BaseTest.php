@@ -10,6 +10,7 @@ use Mockery;
 use Mockery\MockInterface;
 use Tweakwise\Test\Support\UnitTester;
 use Tweakwise\TweakwiseJs\Helper\Data;
+use Tweakwise\TweakwiseJs\Model\Config;
 use Tweakwise\TweakwiseJs\ViewModel\Base;
 
 class BaseTest extends Unit
@@ -57,5 +58,37 @@ class BaseTest extends Unit
             ->andThrow(new NoSuchEntityException());
 
         $this->assertEquals('0', $this->subject->resolveGroupedExportProductKey(42, 'simple'));
+    }
+
+    /**
+     * @covers \Tweakwise\TweakwiseJs\ViewModel\Base::isEnabled
+     * @return void
+     * @throws \Exception
+     */
+    public function testIsEnabledDelegatesToConfig(): void
+    {
+        $config = Mockery::mock(Config::class);
+        $config->shouldReceive('isEnabled')->once()->andReturn(true);
+        $this->tester->mockService(Config::class, $config);
+
+        $subject = $this->tester->getObjectManager()->create(Base::class);
+
+        $this->assertTrue($subject->isEnabled());
+    }
+
+    /**
+     * @covers \Tweakwise\TweakwiseJs\ViewModel\Base::isEnabled
+     * @return void
+     * @throws \Exception
+     */
+    public function testIsEnabledReturnsFalseWhenConfigDisabled(): void
+    {
+        $config = Mockery::mock(Config::class);
+        $config->shouldReceive('isEnabled')->once()->andReturn(false);
+        $this->tester->mockService(Config::class, $config);
+
+        $subject = $this->tester->getObjectManager()->create(Base::class);
+
+        $this->assertFalse($subject->isEnabled());
     }
 }
