@@ -38,7 +38,7 @@ $title = $block->getWidgetTitle();
             featured: {
                 id: "<?= $escaper->escapeJs($ruleId) ?>"
             }
-        }, 'tweakwiseRecommendations', 'twn.recommendations.ready');
-    });
+        });
+    }, 'tweakwiseRecommendations', 'twn.recommendations.ready');
 </script>
 <?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript();} ?>

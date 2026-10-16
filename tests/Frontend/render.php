@@ -33,6 +33,9 @@ function renderTemplate(string $template, SearchType $searchType = SearchType::S
                 'getHideSelectedFilters' => false,
                 'getFilterAttributes' => [],
                 'getFilters' => '{}',
+                'getRuleId' => 'rule-1',
+                'getContainerId' => 'featured-recommendations',
+                'getWidgetTitle' => '',
                 'getTweakwiseFilterTemplate', 'getTweakwiseSortTemplate', 'getTweakwiseBuilderTemplate' => 0,
                 default => throw new LogicException("Unexpected template call: $method"),
             };
@@ -53,6 +56,7 @@ $templates = [
     'category' => renderTemplate('category/listing'),
     'landing' => renderTemplate('attribute-landing'),
     'event' => renderTemplate('event/search-event'),
+    'recommendations' => renderTemplate('widget/featured-recommendations'),
 ];
 $pageConfig = new class extends PageConfig {
     public array $assets = [];

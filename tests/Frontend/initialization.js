@@ -9,7 +9,7 @@ function assert(condition, message) {
 function context(url = 'https://shop.test/?tn_q=jacket', readyState = 'complete', bootstrap = true) {
     const window = new EventTarget();
     const location = new URL(url);
-    const calls = {lister: [], suggestions: [], events: [], scripts: [], cart: [], wishlist: []};
+    const calls = {lister: [], suggestions: [], recommendations: [], events: [], scripts: [], cart: [], wishlist: []};
     const form = {removeAttribute() {}};
     const input = {value: 'red & blue', closest: () => form};
     const document = {
@@ -209,6 +209,27 @@ try {
         config.on['twn.add-to-favorites']({data: {itemno: '456'}});
         assert(ctx.calls.cart[0] === '123', 'instant add to cart');
         assert(ctx.calls.wishlist[0] === '456', 'instant add to wishlist');
+    });
+
+    test('recommendations wait for their own SDK event rather than the lister', () => {
+        const ctx = context();
+        ctx.sdk();
+        ctx.run(templates.recommendations);
+        assert(ctx.calls.recommendations.length === 0, 'recommendations SDK is not ready');
+        ctx.window.tweakwiseRecommendations = config => ctx.calls.recommendations.push(config);
+        ctx.fire('twn.recommendations.ready');
+        ctx.fire('twn.recommendations.ready');
+        assert(ctx.calls.recommendations.length === 1, 'one recommendation initialization');
+        assert(ctx.calls.recommendations[0].on === ctx.window.tweakwiseJs.addToHandlers, 'shared handlers');
+    });
+
+    test('cached recommendations initialize without the lister SDK', () => {
+        const ctx = context();
+        ctx.window.tweakwiseRecommendations = config => ctx.calls.recommendations.push(config);
+        ctx.fire('twn.recommendations.ready');
+        ctx.run(templates.recommendations);
+        assert(ctx.calls.recommendations.length === 1, 'cached recommendations initialize');
+        assert(ctx.calls.recommendations[0].featured.id === 'rule-1', 'widget rule preserved');
     });
 
     document.getElementById('result').textContent = results.join('\n') + '\nPASS: ' + results.length + ' scenarios';
