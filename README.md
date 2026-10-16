@@ -54,10 +54,6 @@ Suggestions and Enter-key submissions respect the configured query or hash histo
 
 Shared initialization helpers wait for both the DOM and the SDK constructor. This also handles a cached SDK or the `.com` failover gateway becoming ready before the page templates register their callbacks.
 
-### Frontend regression checks
-
-Run `php tests/Frontend/render.php > /tmp/tweakwise-js-tests.html` from this package and open that file in a browser. It runs the rendered templates against simulated SDK timing, cached readiness, gateway failover, query/hash searches, form submissions, analytics, and Instant Search. The page reports each scenario and a final pass/fail result.
-
 ## Contributors 
 If you want to create a pull request as a contributor, use the guidelines of semantic-release. semantic-release automates the whole package release workflow including: determining the next version number, generating the release notes, and publishing the package.
 By adhering to the commit message format, a release is automatically created with the commit messages as release notes. Follow the guidelines as described in: https://github.com/semantic-release/semantic-release?tab=readme-ov-file#commit-message-format. 
