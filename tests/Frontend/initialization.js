@@ -53,6 +53,45 @@ function test(name, callback) {
 }
 
 try {
+    for (const [search, navigation, instant] of [
+        ['instant', 'instantCategory', true],
+        ['instant', 'instantLanding', true],
+        ['suggestions', 'category', false],
+        ['suggestions', 'landing', false]
+    ]) {
+        test(search + ' with ' + navigation + ': exactly one initialization path', () => {
+            const ctx = context('https://shop.test/women/tops/?tn_q=hood', 'loading');
+            ctx.run(templates[search]);
+            ctx.run(templates[navigation]);
+            ctx.sdk();
+            ctx.domReady();
+            ctx.fire('twn.starter.ready');
+            const config = ctx.window['twn-starter-config'];
+            const autoInstances = config.auto ? 1 : 0;
+            assert(autoInstances + ctx.calls.lister.length === 1, 'one SDK owner, never auto plus explicit');
+            assert(Boolean(config.auto) === instant, 'initialization follows search type');
+            if (instant) {
+                assert(config.navigation.cid === '2', 'category context preserved');
+                assert(config.navigation.output === '#tweakwise-output', 'one navigation output target');
+                if (navigation === 'instantLanding') {
+                    assert(config.navigation.filters !== undefined, 'landing filters preserved');
+                    assert(config.navigation.filterTemplateId === 0, 'landing templates preserved');
+                }
+            }
+        });
+    }
+
+    test('Magento Default does not initialize Tweakwise search', () => {
+        const ctx = context();
+        ctx.sdk();
+        ctx.run(templates.magentoSearch);
+        ctx.fire('twn.starter.ready');
+        ctx.fire('twn.suggestions.ready');
+        assert(ctx.window['twn-starter-config'].auto === false, 'no SDK auto-init');
+        assert(ctx.calls.lister.length === 0, 'no search lister');
+        assert(ctx.calls.suggestions.length === 0, 'no suggestions');
+    });
+
     for (const template of ['search', 'category', 'landing']) {
         test(template + ': delayed SDK initializes once', () => {
             const ctx = context();

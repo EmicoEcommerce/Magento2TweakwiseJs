@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Magento\Catalog\Block\Category\View;
 use Magento\Framework\Escaper;
+use Tweakwise\TweakwiseJs\Model\Enum\SearchType;
 use Tweakwise\TweakwiseJs\ViewModel\Merchandising;
 
 /** @var View $block */
@@ -17,8 +18,7 @@ $uiLanguage = (string) $viewModel->getUiLanguage();
 ?>
 
 <script>
-    window.tweakwiseJs.onReady(() => {
-        window.tweakwiseListerPage({
+    window.tweakwiseJs.initNavigation({
             cid: '<?= $escaper->escapeJs((string) $cid) ?>',
             <?php if ($language !== ''): ?>
                 lang: '<?= $escaper->escapeJs($language) ?>',
@@ -30,8 +30,7 @@ $uiLanguage = (string) $viewModel->getUiLanguage();
             <?php endif; ?>
             output: '#tweakwise-output',
             on: window.tweakwiseJs.addToHandlers
-        });
-    });
+    }, <?= $viewModel->getSearchType() === SearchType::INSTANT_SEARCH ? 'true' : 'false' ?>);
 </script>
 <?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript();} ?>
 

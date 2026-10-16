@@ -38,6 +38,21 @@ declare(strict_types=1);
             window.addEventListener(event, init);
             this.onDomReady(init);
         },
+        initNavigation(options, instantSearch) {
+            if (instantSearch) {
+                const config = window['twn-starter-config'];
+                config.navigation = Object.assign(config.navigation || {}, options.navigation || {}, {
+                    cid: options.cid,
+                    output: options.output
+                });
+                if (options.parameters !== undefined) {
+                    config.navigation.parameters = options.parameters;
+                }
+                return;
+            }
+
+            this.onReady(() => window.tweakwiseListerPage(options));
+        },
         getSearchTerm() {
             const params = new URLSearchParams(window.location.search);
             const hash = window.location.hash.split('|')[1] || '';

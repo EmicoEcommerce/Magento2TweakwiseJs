@@ -88,6 +88,9 @@ $templates = [
     'instantLister' => renderTemplate('search/lister-init', SearchType::INSTANT_SEARCH),
     'category' => renderTemplate('category/listing'),
     'landing' => renderTemplate('attribute-landing'),
+    'instantCategory' => renderTemplate('category/listing', SearchType::INSTANT_SEARCH),
+    'instantLanding' => renderTemplate('attribute-landing', SearchType::INSTANT_SEARCH),
+    'magentoSearch' => renderTemplate('search', SearchType::MAGENTO_DEFAULT),
     'event' => renderTemplate('event/search-event'),
     'recommendations' => renderTemplate('widget/featured-recommendations'),
 ];
