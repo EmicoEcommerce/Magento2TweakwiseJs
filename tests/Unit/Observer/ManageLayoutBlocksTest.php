@@ -49,12 +49,12 @@ class ManageLayoutBlocksTest extends TestCase
     public static function searchConfigurations(): iterable
     {
         foreach (['catalogsearch_result_index', 'catalogsearch_results_index'] as $action) {
-            yield "$action disabled" => [$action, false, 'key', SearchType::SUGGESTIONS, false];
-            yield "$action no key" => [$action, true, null, SearchType::SUGGESTIONS, false];
-            yield "$action empty key" => [$action, true, '', SearchType::SUGGESTIONS, false];
-            yield "$action Magento default" => [$action, true, 'key', SearchType::MAGENTO_DEFAULT, false];
-            yield "$action suggestions" => [$action, true, 'key', SearchType::SUGGESTIONS, true];
-            yield "$action instant" => [$action, true, 'key', SearchType::INSTANT_SEARCH, true];
+            yield $action . ' disabled' => [$action, false, 'key', SearchType::SUGGESTIONS, false];
+            yield $action . ' no key' => [$action, true, null, SearchType::SUGGESTIONS, false];
+            yield $action . ' empty key' => [$action, true, '', SearchType::SUGGESTIONS, false];
+            yield $action . ' Magento default' => [$action, true, 'key', SearchType::MAGENTO_DEFAULT, false];
+            yield $action . ' suggestions' => [$action, true, 'key', SearchType::SUGGESTIONS, true];
+            yield $action . ' instant' => [$action, true, 'key', SearchType::INSTANT_SEARCH, true];
         }
         yield 'unrelated page' => ['cms_index_index', true, 'key', SearchType::SUGGESTIONS, false];
     }
