@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 ?>
 
@@ -15,5 +16,61 @@ declare(strict_types = 1);
     window.addEventListener('twn.starter.ready', function () {
         window['twn-starter-ready'] = true;
     });
+    window.tweakwiseJs = {
+        onDomReady(callback) {
+            if (document.readyState === 'loading') {
+                window.addEventListener('DOMContentLoaded', callback, {once: true});
+            } else {
+                callback();
+            }
+        },
+        onReady(callback, constructor = 'tweakwiseListerPage', event = 'twn.starter.ready') {
+            let initialized = false;
+            const init = () => {
+                if (initialized || document.readyState === 'loading' || typeof window[constructor] !== 'function') {
+                    return;
+                }
+
+                initialized = true;
+                window.removeEventListener(event, init);
+                callback();
+            };
+            window.addEventListener(event, init);
+            this.onDomReady(init);
+        },
+        getSearchTerm() {
+            const params = new URLSearchParams(window.location.search);
+            const hash = window.location.hash.split('|')[1] || '';
+            const hashParams = new URLSearchParams(hash);
+
+            return hashParams.get('tn_q') || params.get('tn_q') || params.get('q') || '';
+        },
+        addToHandlers: {
+            'twn.add-to-cart': ({data}) => {
+                if (!data || !data.itemno) {
+                    return;
+                }
+
+                if (!window.twnAddTo) {
+                    console.warn('tweakwise add-to.js not loaded');
+                    return;
+                }
+
+                window.twnAddTo.addToCartByItemNo(data.itemno);
+            },
+            'twn.add-to-favorites': ({data}) => {
+                if (!data || !data.itemno) {
+                    return;
+                }
+
+                if (!window.twnAddTo) {
+                    console.warn('tweakwise add-to.js not loaded');
+                    return;
+                }
+
+                window.twnAddTo.addToWishlistByItemNo(data.itemno);
+            }
+        }
+    };
 </script>
-<?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
+<?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript();} ?>

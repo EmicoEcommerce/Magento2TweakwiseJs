@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Magento\Framework\Escaper;
 use Magento\Framework\View\Element\Template;
+use Tweakwise\TweakwiseJs\Model\Enum\SearchType;
 use Tweakwise\TweakwiseJs\ViewModel\Search;
 
 /** @var Template $block */
@@ -16,63 +17,29 @@ $language = (string) $viewModel->getLanguage();
 $uiLanguage = (string) $viewModel->getUiLanguage();
 ?>
 
-<script>
-    (function () {
-        function init() {
-            const params = new URLSearchParams(location.search);
-            tweakwiseListerPage({
-                query: params.get('tn_q') || params.get('q'),
-                cid: '<?= $escaper->escapeJs($cid) ?>',
-                <?php if ($language !== ''): ?>
-                    lang: '<?= $escaper->escapeJs($language) ?>',
-                <?php endif; ?>
-                <?php if ($uiLanguage !== ''): ?>
-                    ui: {
-                        lang: '<?= $escaper->escapeJs($uiLanguage) ?>',
-                        closeSearchButton: false
-                    },
-                <?php else: ?>
-                    ui: {
-                        closeSearchButton: false
-                    },
-                <?php endif; ?>
-                output: '#tweakwise-output',
-                on: {
-                    'twn.add-to-cart': ({data}) => {
-                        if (!data || !data.itemno) {
-                            return;
-                        }
-
-                        if (!window.twnAddTo) {
-                            console.warn('tweakwise add-to.js not loaded');
-                            return;
-                        }
-
-                        window.twnAddTo.addToCartByItemNo(data.itemno);
-                    },
-                    'twn.add-to-favorites': ({data}) => {
-                        if (!data || !data.itemno) {
-                            return;
-                        }
-
-                        if (!window.twnAddTo) {
-                            console.warn('tweakwise add-to.js not loaded');
-                            return;
-                        }
-
-                        window.twnAddTo.addToWishlistByItemNo(data.itemno);
-                    }
-                }
-            });
-        }
-
-        if (window['twn-starter-ready']) {
-            init();
-        } else {
-            window.addEventListener('twn.starter.ready', init);
-        }
-    }());
-</script>
-<?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
-
 <div id="tweakwise-output"></div>
+
+<?php if ($viewModel->getSearchType() === SearchType::INSTANT_SEARCH): ?>
+    <?php return; ?>
+<?php endif; ?>
+
+<script>
+    window.tweakwiseJs.onReady(() => {
+        window.tweakwiseListerPage({
+            query: window.tweakwiseJs.getSearchTerm(),
+            cid: '<?= $escaper->escapeJs($cid) ?>',
+            <?php if ($language !== ''): ?>
+                lang: '<?= $escaper->escapeJs($language) ?>',
+            <?php endif; ?>
+            ui: {
+                <?php if ($uiLanguage !== ''): ?>
+                    lang: '<?= $escaper->escapeJs($uiLanguage) ?>',
+                <?php endif; ?>
+                closeSearchButton: false
+            },
+            output: '#tweakwise-output',
+            on: window.tweakwiseJs.addToHandlers
+        });
+    });
+</script>
+<?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript();} ?>

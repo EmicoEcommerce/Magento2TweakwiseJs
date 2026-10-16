@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 use Magento\Framework\Escaper;
 use Magento\Framework\View\Element\Template;
@@ -11,22 +12,51 @@ use Tweakwise\TweakwiseJs\ViewModel\Search;
 
 /** @var Search $viewModel */
 $viewModel = $block->getViewModel();
+if (!$viewModel->isEnabled() || !$viewModel->getInstanceKey()) {
+    return;
+}
+
 $language = (string) $viewModel->getLanguage();
 $uiLanguage = (string) $viewModel->getUiLanguage();
 $instanceKey = (string) $viewModel->getInstanceKey();
 $cid = (string) $viewModel->getStoreRootCategory();
-$searchType = $viewModel->getSearchType()->value;
+$searchType = $viewModel->getSearchType();
 ?>
 
-<?php if ($searchType === SearchType::SUGGESTIONS->value): ?>
+<?php if ($searchType === SearchType::SUGGESTIONS): ?>
     <script>
-        window.addEventListener('twn.suggestions.ready', () => {
+        window.tweakwiseJs.onReady(() => {
             const inputConfig = window['twn-starter-config'].input;
             if (!inputConfig || (Array.isArray(inputConfig) && inputConfig.length === 0)) {
                 return;
             }
 
             window['twn-starter-config'].input = null;
+
+            const search = term => {
+                const url = new URL('<?= $escaper->escapeJs($viewModel->getSearchUrl()) ?>', location.href);
+                if ((window['twn-starter-config'].history || 'query') === 'query') {
+                    url.searchParams.set('tn_q', term);
+                } else {
+                    url.hash = 'twn|?tn_q=' + encodeURIComponent(term);
+                }
+                location.href = url.href;
+            };
+
+            [].concat(inputConfig).forEach(selector => {
+                document.querySelectorAll(selector).forEach(input => {
+                    const form = input.closest('form');
+                    if (!form) {
+                        return;
+                    }
+
+                    form.removeAttribute('@submit.prevent');
+                    form.onsubmit = event => {
+                        event.preventDefault();
+                        search(input.value);
+                    };
+                });
+            });
 
             window.tweakwiseSuggestions({
                 input: inputConfig,
@@ -40,102 +70,48 @@ $searchType = $viewModel->getSearchType()->value;
                         lang: '<?= $escaper->escapeJs($uiLanguage) ?>'
                     },
                 <?php endif; ?>
-                on: {
-                    'twn.add-to-cart': ({ data }) => {
-                        if (!data || !data.itemno) {
-                            return;
-                        }
-
-                        if (!window.twnAddTo) {
-                            console.warn('tweakwise add-to.js not loaded');
-                            return;
-                        }
-
-                        window.twnAddTo.addToCartByItemNo(data.itemno);
-                    },
-                    'twn.add-to-favorites': ({ data }) => {
-                        if (!data || !data.itemno) {
-                            return;
-                        }
-
-                        if (!window.twnAddTo) {
-                            console.warn('tweakwise add-to.js not loaded');
-                            return;
-                        }
-
-                        window.twnAddTo.addToWishlistByItemNo(data.itemno);
-                    }
-                },
+                on: window.tweakwiseJs.addToHandlers,
                 searchPhrases: {
-                    handle: ({ data }) => {
-                        const history = window['twn-starter-config'].history || 'query';
-                        const query = encodeURIComponent(data.match);
-
-                        if (history === 'query') {
-                            location.href = '<?= $escaper->escapeUrl($viewModel->getSearchUrl()) ?>?tn_q=' + query;
-                            return;
-                        }
-
-                        location.href = '<?= $escaper->escapeUrl($viewModel->getSearchUrl()) ?>#twn|?tn_q=' + query;
-                    }
+                    handle: ({data}) => search(data.match)
                 }
             });
-        });
+        }, 'tweakwiseSuggestions', 'twn.suggestions.ready');
     </script>
-    <?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
-<?php elseif ($searchType === SearchType::INSTANT_SEARCH->value): ?>
+    <?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript();} ?>
+<?php elseif ($searchType === SearchType::INSTANT_SEARCH): ?>
     <script>
         window['twn-starter-config'].auto = true;
         window['twn-starter-config'].cid = '<?= $escaper->escapeJs($cid) ?>';
         <?php if ($language !== ''): ?>
             window['twn-starter-config'].lang = '<?= $escaper->escapeJs($language) ?>';
         <?php endif; ?>
+        window['twn-starter-config'].ui = window['twn-starter-config'].ui || {};
         <?php if ($uiLanguage !== ''): ?>
-            window['twn-starter-config'].ui = window['twn-starter-config'].ui || {};
             window['twn-starter-config'].ui.lang = '<?= $escaper->escapeJs($uiLanguage) ?>';
         <?php endif; ?>
-        window['twn-starter-config'].on = window['twn-starter-config'].on || {};
-        window['twn-starter-config'].on['twn.add-to-cart'] = ({ data }) => {
-            if (!data || !data.itemno) {
+        <?php if ($viewModel->isSearchResultsPage()): ?>
+            window['twn-starter-config'].ui.closeSearchButton = false;
+            window['twn-starter-config'].output = '#tweakwise-output';
+            window['twn-starter-config'].query = window.tweakwiseJs.getSearchTerm();
+        <?php endif; ?>
+        window['twn-starter-config'].on = Object.assign(
+            window['twn-starter-config'].on || {},
+            window.tweakwiseJs.addToHandlers
+        );
+        window.tweakwiseJs.onDomReady(() => {
+            const form = document.getElementById('search_mini_form');
+            if (!form) {
                 return;
             }
 
-            if (!window.twnAddTo) {
-                console.warn('tweakwise add-to.js not loaded');
-                return;
-            }
-
-            window.twnAddTo.addToCartByItemNo(data.itemno);
-        };
-        window['twn-starter-config'].on['twn.add-to-favorites'] = ({ data }) => {
-            if (!data || !data.itemno) {
-                return;
-            }
-
-            if (!window.twnAddTo) {
-                console.warn('tweakwise add-to.js not loaded');
-                return;
-            }
-
-            window.twnAddTo.addToWishlistByItemNo(data.itemno);
-        };
-        window.addEventListener('DOMContentLoaded', () => {
-            const $form = document.getElementById('search_mini_form');
-            if (!$form) {
-                return;
-            }
-
-            $form.removeAttribute('@submit.prevent');
-
-            $form.onsubmit = e => {
-                e.preventDefault();
-            };
+            form.removeAttribute('@submit.prevent');
+            form.onsubmit = event => event.preventDefault();
         });
     </script>
-    <?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
+    <?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript();} ?>
 <?php else: ?>
     <script>
         window['twn-starter-config'].input = null;
     </script>
-    <?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
+    <?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript();} ?>
 <?php endif; ?>

@@ -69,6 +69,10 @@ class Search extends Base
      */
     public function isSearchResultsPage(): bool
     {
-        return $this->request->getFullActionName() === 'catalogsearch_results_index';
+        return in_array(
+            $this->request->getFullActionName(),
+            ['catalogsearch_result_index', 'catalogsearch_results_index'],
+            true
+        );
     }
 }

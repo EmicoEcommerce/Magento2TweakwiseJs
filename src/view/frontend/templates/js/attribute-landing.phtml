@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 use Emico\AttributeLanding\Block\LandingPage\Content;
 use Magento\Framework\Escaper;
@@ -19,66 +20,33 @@ $filterAttributes = $landingPage->getFilterAttributes();
 ?>
 
 <script>
-    (function () {
-        function init() {
-            tweakwiseListerPage({
-                cid: '<?= $escaper->escapeJs((string) $cid) ?>',
-                <?php if ($language !== ''): ?>
-                    lang: '<?= $escaper->escapeJs($language) ?>',
-                <?php endif; ?>
-                <?php if ($uiLanguage !== ''): ?>
-                    ui: {
-                        lang: '<?= $escaper->escapeJs($uiLanguage) ?>'
-                    },
-                <?php endif; ?>
-                <?php if ($hideSelectedFilters): ?>
-                    parameters: '<?= $escaper->escapeJs($viewModel->getParameters($filterAttributes)) ?>',
-                <?php endif; ?>
-                navigation: {
-                    <?php if (!$hideSelectedFilters): ?>
-                        filters: <?= /* @noEscape */ $viewModel->getFilters($filterAttributes) ?>,
-                    <?php endif; ?>
-                    filterTemplateId: <?= (int) $landingPage->getTweakwiseFilterTemplate() ?>,
-                    sortingTemplateId: <?= (int) $landingPage->getTweakwiseSortTemplate() ?>,
-                    builderTemplateId: <?= (int) $landingPage->getTweakwiseBuilderTemplate() ?>
+    window.tweakwiseJs.onReady(() => {
+        window.tweakwiseListerPage({
+            cid: '<?= $escaper->escapeJs((string) $cid) ?>',
+            <?php if ($language !== ''): ?>
+                lang: '<?= $escaper->escapeJs($language) ?>',
+            <?php endif; ?>
+            <?php if ($uiLanguage !== ''): ?>
+                ui: {
+                    lang: '<?= $escaper->escapeJs($uiLanguage) ?>'
                 },
-                output: '#tweakwise-output',
-                on: {
-                    'twn.add-to-cart': ({data}) => {
-                        if (!data || !data.itemno) {
-                            return;
-                        }
-
-                        if (!window.twnAddTo) {
-                            console.warn('tweakwise add-to.js not loaded');
-                            return;
-                        }
-
-                        window.twnAddTo.addToCartByItemNo(data.itemno);
-                    },
-                    'twn.add-to-favorites': ({data}) => {
-                        if (!data || !data.itemno) {
-                            return;
-                        }
-
-                        if (!window.twnAddTo) {
-                            console.warn('tweakwise add-to.js not loaded');
-                            return;
-                        }
-
-                        window.twnAddTo.addToWishlistByItemNo(data.itemno);
-                    }
-                }
-            });
-        }
-
-        if (window['twn-starter-ready']) {
-            init();
-        } else {
-            window.addEventListener('twn.starter.ready', init);
-        }
-    }());
+            <?php endif; ?>
+            <?php if ($hideSelectedFilters): ?>
+                parameters: '<?= $escaper->escapeJs($viewModel->getParameters($filterAttributes)) ?>',
+            <?php endif; ?>
+            navigation: {
+                <?php if (!$hideSelectedFilters): ?>
+                    filters: <?= /* @noEscape */ $viewModel->getFilters($filterAttributes) ?>,
+                <?php endif; ?>
+                filterTemplateId: <?= (int) $landingPage->getTweakwiseFilterTemplate() ?>,
+                sortingTemplateId: <?= (int) $landingPage->getTweakwiseSortTemplate() ?>,
+                builderTemplateId: <?= (int) $landingPage->getTweakwiseBuilderTemplate() ?>
+            },
+            output: '#tweakwise-output',
+            on: window.tweakwiseJs.addToHandlers
+        });
+    });
 </script>
-<?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
+<?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript();} ?>
 
 <div id="tweakwise-output"></div>

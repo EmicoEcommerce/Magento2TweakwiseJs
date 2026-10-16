@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 use Magento\Framework\Escaper;
@@ -29,16 +30,15 @@ $title = $block->getWidgetTitle();
 <?php endif; ?>
 <div id="<?= $escaper->escapeHtmlAttr($containerId) ?>"></div>
 <script>
-    window.addEventListener("twn.recommendations.ready", function () {
-        window['twn-recommendations-config'] = window['twn-recommendations-config'] || {};
-        window['twn-recommendations-config'].on = window['twn-starter-config'].on;
+    window.tweakwiseJs.onReady(function () {
         window.tweakwiseRecommendations({
             output: "#<?= $escaper->escapeJs($containerId) ?>",
             instancekey: "<?= $escaper->escapeJs($instanceKey) ?>",
+            on: window.tweakwiseJs.addToHandlers,
             featured: {
                 id: "<?= $escaper->escapeJs($ruleId) ?>"
             }
-        });
+        }, 'tweakwiseRecommendations', 'twn.recommendations.ready');
     });
 </script>
-<?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
+<?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript();} ?>
