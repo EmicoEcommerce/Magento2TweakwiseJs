@@ -13,13 +13,35 @@ if (!$viewModel->isEnabled() || !$viewModel->getInstanceKey() || !$viewModel->is
 }
 ?>
 <script>
-    pushEvent({
-        event: 'search',
-        data: {
-            profileKey: getProfileKey(),
-            searchTerm: window.tweakwiseJs.getSearchTerm()
-        }
-    });
+    (() => {
+        let lastSearchTerm;
+        const trackSearch = (term = window.tweakwiseJs.getSearchTerm()) => {
+            if (term === lastSearchTerm) {
+                return;
+            }
 
+            lastSearchTerm = term;
+            if (!term) {
+                return;
+            }
+
+            pushEvent({
+                event: 'search',
+                data: {
+                    profileKey: getProfileKey(),
+                    searchTerm: term
+                }
+            });
+        };
+
+        window.addEventListener('hashchange', () => trackSearch());
+        window.addEventListener('popstate', () => trackSearch());
+        window.addEventListener('twn.selection.change', event => {
+            if (typeof event.detail?.data?.tn_q === 'string') {
+                trackSearch(event.detail.data.tn_q);
+            }
+        });
+        trackSearch();
+    })();
 </script>
 <?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript();} ?>
