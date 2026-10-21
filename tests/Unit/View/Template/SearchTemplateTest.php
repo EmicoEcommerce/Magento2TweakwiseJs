@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Tweakwise\Test\Unit\View\Template;
 
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use RuntimeException;
 use SimpleXMLElement;
+use Tweakwise\TweakwiseJs\Observer\ManageLayoutBlocks;
 
 class SearchTemplateTest extends TestCase
 {
@@ -61,6 +63,11 @@ class SearchTemplateTest extends TestCase
 
     private function moduleFile(string $path): string
     {
-        return dirname(__DIR__, 4) . '/' . $path;
+        $sourceFile = (new ReflectionClass(ManageLayoutBlocks::class))->getFileName();
+        if ($sourceFile === false) {
+            throw new RuntimeException('Could not locate the Tweakwise module source.');
+        }
+
+        return dirname($sourceFile, 3) . '/' . $path;
     }
 }
