@@ -20,6 +20,8 @@ if (!$viewModel->isEnabled() || !$ruleId || !$instanceKey) {
 
 $containerId = $block->getContainerId();
 $title = $block->getWidgetTitle();
+$language = (string) $viewModel->getLanguage();
+$uiLanguage = (string) $viewModel->getUiLanguage();
 ?>
 <?php if ($title): ?>
     <div class="block-title title">
@@ -35,6 +37,14 @@ $title = $block->getWidgetTitle();
             output: "#<?= $escaper->escapeJs($containerId) ?>",
             instancekey: "<?= $escaper->escapeJs($instanceKey) ?>",
             on: window.tweakwiseJs.addToHandlers,
+            <?php if ($language !== ''): ?>
+                lang: '<?= $escaper->escapeJs($language) ?>',
+            <?php endif; ?>
+            <?php if ($uiLanguage !== ''): ?>
+                ui: {
+                    lang: '<?= $escaper->escapeJs($uiLanguage) ?>'
+                },
+            <?php endif; ?>
             featured: {
                 id: "<?= $escaper->escapeJs($ruleId) ?>"
             }

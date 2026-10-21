@@ -51,6 +51,21 @@ class SearchTemplateTest extends TestCase
         $this->assertCount(1, $lister);
     }
 
+    public function testFeaturedRecommendationsReceiveConfiguredLanguages(): void
+    {
+        $recommendationsTemplate = $this->readModuleFile(
+            'src/view/frontend/templates/js/widget/featured-recommendations.phtml'
+        );
+
+        $this->assertStringContainsString('$language = (string) $viewModel->getLanguage();', $recommendationsTemplate);
+        $this->assertStringContainsString('$uiLanguage = (string) $viewModel->getUiLanguage();', $recommendationsTemplate);
+        $this->assertStringContainsString("lang: '<?= \$escaper->escapeJs(\$language) ?>',", $recommendationsTemplate);
+        $this->assertStringContainsString(
+            "lang: '<?= \$escaper->escapeJs(\$uiLanguage) ?>'",
+            $recommendationsTemplate
+        );
+    }
+
     private function readModuleFile(string $path): string
     {
         $contents = file_get_contents($this->moduleFile($path));
