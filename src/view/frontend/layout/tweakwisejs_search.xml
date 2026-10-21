@@ -9,14 +9,6 @@
                     <argument name="text" xsi:type="string"><![CDATA[&nbsp;]]></argument>
                 </arguments>
             </block>
-        </referenceContainer>
-        <move element="tweakwise-js-event-search" destination="columns"/>
-        <move element="customer.customer.data" destination="columns"/>
-        <move element="customer.section.config" destination="columns"/>
-        <referenceContainer name="main" remove="true"/>
-        <referenceContainer name="div.sidebar.main" remove="true"/>
-        <referenceContainer name="div.sidebar.additional" remove="true"/>
-        <referenceContainer name="page.wrapper">
             <block class="Magento\Framework\View\Element\Template" name="tweakwise-js-search-lister-init"
                    template="Tweakwise_TweakwiseJs::js/search/lister-init.phtml">
                 <arguments>
@@ -24,5 +16,11 @@
                 </arguments>
             </block>
         </referenceContainer>
+        <move element="tweakwise-js-event-search" destination="columns"/>
+        <move element="customer.customer.data" destination="columns"/>
+        <move element="customer.section.config" destination="columns"/>
+        <referenceContainer name="main" remove="true"/>
+        <referenceContainer name="div.sidebar.main" remove="true"/>
+        <referenceContainer name="div.sidebar.additional" remove="true"/>
     </body>
 </page>

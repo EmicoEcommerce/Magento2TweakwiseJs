@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 ?>
-
 <script>
     window.tweakwiseFailover = function (src) {
         const script = document.createElement('script');
@@ -38,6 +37,9 @@ declare(strict_types=1);
             window.addEventListener(event, init);
             this.onDomReady(init);
         },
+        getHistoryMode() {
+            return window['twn-starter-config'].history || 'hash';
+        },
         initNavigation(options, instantSearch) {
             if (instantSearch) {
                 const config = window['twn-starter-config'];
@@ -59,7 +61,7 @@ declare(strict_types=1);
 
             this.onReady(() => {
                 if (navigation?.filters !== undefined) {
-                    const historyMode = window['twn-starter-config'].history || 'hash';
+                    const historyMode = this.getHistoryMode();
                     const params = new URLSearchParams(
                         historyMode === 'query'
                             ? window.location.search

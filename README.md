@@ -51,7 +51,7 @@ Native Magento search is replaced only when Tweakwise JS is enabled, an instance
 Category and attribute-landing pages also use the SDK's automatic navigation context when **Instant Search** is selected, rather than creating an additional explicit lister. With **Suggestions** or **Magento Default**, these pages initialize their lister explicitly. Landing-page filters and template settings are passed to the selected initialization path.
 Landing-page filters provide the initial selection; an existing navigation selection in the configured query or hash history takes precedence when reloading the page.
 
-Suggestions and Enter-key submissions respect the configured query or hash history mode. Search analytics fires on the destination results page and when the search term changes without a page reload, including hash navigation and SDK selection changes. Repeated notifications for the same term are deduplicated. The initial term uses the same precedence as the lister (hash `tn_q`, query `tn_q`, then query `q`).
+Suggestions and Enter-key submissions respect the configured query or hash history mode; hash history is used when no mode is configured. Search analytics fires on the destination results page and when the search term changes without a page reload, including hash navigation and SDK selection changes. Repeated notifications for the same term are deduplicated. The initial term uses the same precedence as the lister (hash `tn_q`, query `tn_q`, then query `q`).
 
 Shared initialization helpers wait for both the DOM and the SDK constructor. This also handles a cached SDK or the `.com` failover gateway becoming ready before the page templates register their callbacks.
 

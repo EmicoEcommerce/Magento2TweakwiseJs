@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tweakwise\Test\Unit\Observer;
 
 use Codeception\Attribute\DataProvider;
+use Emico\CodeCept\Test\Unit;
 use Magento\Catalog\Model\Category;
 use Magento\Catalog\Model\Layer;
 use Magento\Catalog\Model\Layer\Resolver;
@@ -12,13 +13,41 @@ use Magento\Framework\App\Request\Http;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\View\Layout;
 use Magento\Framework\View\Model\Layout\Merge;
-use PHPUnit\Framework\TestCase;
+use Mockery;
+use Mockery\MockInterface;
+use Tweakwise\Test\Support\UnitTester;
 use Tweakwise\TweakwiseJs\Model\Config;
 use Tweakwise\TweakwiseJs\Model\Enum\SearchType;
 use Tweakwise\TweakwiseJs\Observer\ManageLayoutBlocks;
 
-class ManageLayoutBlocksTest extends TestCase
+class ManageLayoutBlocksTest extends Unit
 {
+    protected UnitTester $tester;
+
+    private Config|MockInterface $config;
+
+    private Http|MockInterface $request;
+
+    private Resolver|MockInterface $layerResolver;
+
+    private Layout|MockInterface $layout;
+
+    private Merge|MockInterface $update;
+
+    protected function _before(): void
+    {
+        $this->config = Mockery::mock(Config::class);
+        $this->request = Mockery::mock(Http::class);
+        $this->layerResolver = Mockery::mock(Resolver::class);
+        $this->layout = Mockery::mock(Layout::class);
+        $this->update = Mockery::mock(Merge::class);
+    }
+
+    protected function _after(): void
+    {
+        Mockery::close();
+    }
+
     #[DataProvider('searchConfigurations')]
     public function testSearchLayoutIsOnlyReplacedWhenConfigured(
         string $action,
@@ -27,23 +56,18 @@ class ManageLayoutBlocksTest extends TestCase
         SearchType $searchType,
         bool $replace
     ): void {
-        $config = $this->createMock(Config::class);
-        $config->method('isEnabled')->willReturn($enabled);
-        $config->method('getInstanceKey')->willReturn($instanceKey);
-        $config->method('getSearchType')->willReturn($searchType);
+        $this->config->shouldReceive('isEnabled')->zeroOrMoreTimes()->andReturn($enabled);
+        $this->config->shouldReceive('getInstanceKey')->zeroOrMoreTimes()->andReturn($instanceKey);
+        $this->config->shouldReceive('getSearchType')->zeroOrMoreTimes()->andReturn($searchType);
+        $this->request->shouldReceive('getFullActionName')->zeroOrMoreTimes()->andReturn($action);
+        $this->update->shouldReceive('addHandle')
+            ->with('tweakwisejs_search')
+            ->times($replace ? 1 : 0);
+        $this->layerResolver->shouldNotReceive('get');
+        $this->layout->shouldReceive('getUpdate')->times($replace ? 1 : 0)->andReturn($this->update);
 
-        $request = $this->createMock(Http::class);
-        $request->method('getFullActionName')->willReturn($action);
-        $update = $this->createMock(Merge::class);
-        $update->expects($replace ? self::once() : self::never())
-            ->method('addHandle')->with('tweakwisejs_search');
-        $layout = $this->createMock(Layout::class);
-        $layout->method('getUpdate')->willReturn($update);
-        $resolver = $this->createMock(Resolver::class);
-        $resolver->expects(self::never())->method('get');
-
-        $subject = new ManageLayoutBlocks($request, $config, $resolver);
-        $subject->execute(new Observer(['layout' => $layout]));
+        $subject = new ManageLayoutBlocks($this->request, $this->config, $this->layerResolver);
+        $subject->execute(new Observer(['layout' => $this->layout]));
     }
 
     public static function searchConfigurations(): iterable
@@ -66,30 +90,29 @@ class ManageLayoutBlocksTest extends TestCase
         string $displayMode,
         bool $replace
     ): void {
-        $config = $this->createMock(Config::class);
-        $config->method('isEnabled')->willReturn(true);
-        $config->method('getInstanceKey')->willReturn('key');
-        $config->method('isMerchandisingEnabled')->willReturn($merchandising);
-        $request = $this->createMock(Http::class);
-        $request->method('getFullActionName')->willReturn('catalog_category_view');
-        $category = $this->getMockBuilder(Category::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getId'])
-            ->getMock();
-        $category->method('getId')->willReturn($categoryId);
-        $category->setData('display_mode', $displayMode);
-        $layer = $this->createMock(Layer::class);
-        $layer->method('getCurrentCategory')->willReturn($category);
-        $resolver = $this->createMock(Resolver::class);
-        $resolver->method('get')->willReturn($layer);
-        $update = $this->createMock(Merge::class);
-        $update->expects($replace ? self::once() : self::never())
-            ->method('addHandle')->with('tweakwisejs_merchandising');
-        $layout = $this->createMock(Layout::class);
-        $layout->method('getUpdate')->willReturn($update);
+        $this->config->shouldReceive('isEnabled')->zeroOrMoreTimes()->andReturn(true);
+        $this->config->shouldReceive('getInstanceKey')->zeroOrMoreTimes()->andReturn('key');
+        $this->config->shouldReceive('isMerchandisingEnabled')->zeroOrMoreTimes()->andReturn($merchandising);
+        $this->request->shouldReceive('getFullActionName')->zeroOrMoreTimes()->andReturn('catalog_category_view');
+        $this->update->shouldReceive('addHandle')
+            ->with('tweakwisejs_merchandising')
+            ->times($replace ? 1 : 0);
+        $this->layout->shouldReceive('getUpdate')->times($replace ? 1 : 0)->andReturn($this->update);
 
-        $subject = new ManageLayoutBlocks($request, $config, $resolver);
-        $subject->execute(new Observer(['layout' => $layout]));
+        if ($merchandising) {
+            $category = Mockery::mock(Category::class);
+            $category->shouldReceive('getId')->zeroOrMoreTimes()->andReturn($categoryId);
+            $category->shouldReceive('getDisplayMode')->zeroOrMoreTimes()->andReturn($displayMode);
+
+            $layer = Mockery::mock(Layer::class);
+            $layer->shouldReceive('getCurrentCategory')->zeroOrMoreTimes()->andReturn($category);
+            $this->layerResolver->shouldReceive('get')->zeroOrMoreTimes()->andReturn($layer);
+        } else {
+            $this->layerResolver->shouldNotReceive('get');
+        }
+
+        $subject = new ManageLayoutBlocks($this->request, $this->config, $this->layerResolver);
+        $subject->execute(new Observer(['layout' => $this->layout]));
     }
 
     public static function categoryConfigurations(): iterable

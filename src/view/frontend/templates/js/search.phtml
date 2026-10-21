@@ -25,17 +25,19 @@ $searchType = $viewModel->getSearchType();
 
 <?php if ($searchType === SearchType::SUGGESTIONS): ?>
     <script>
+        const inputConfig = window['twn-starter-config'].input;
+        if (inputConfig && !(Array.isArray(inputConfig) && inputConfig.length === 0)) {
+            window['twn-starter-config'].input = null;
+        }
+
         window.tweakwiseJs.onReady(() => {
-            const inputConfig = window['twn-starter-config'].input;
             if (!inputConfig || (Array.isArray(inputConfig) && inputConfig.length === 0)) {
                 return;
             }
 
-            window['twn-starter-config'].input = null;
-
             const search = term => {
                 const url = new URL('<?= $escaper->escapeJs($viewModel->getSearchUrl()) ?>', location.href);
-                if ((window['twn-starter-config'].history || 'query') === 'query') {
+                if (window.tweakwiseJs.getHistoryMode() === 'query') {
                     url.searchParams.set('tn_q', term);
                 } else {
                     url.hash = 'twn|?tn_q=' + encodeURIComponent(term);
