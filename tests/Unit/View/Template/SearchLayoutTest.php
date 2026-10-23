@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tweakwise\Test\Unit\View\Template;
 
+use Magento\Framework\Component\ComponentRegistrar;
 use PHPUnit\Framework\TestCase;
 use SimpleXMLElement;
 
@@ -11,7 +12,8 @@ class SearchLayoutTest extends TestCase
 {
     public function testSearchListerIsRenderedInTheVisibleColumnsContainer(): void
     {
-        $layoutPath = dirname(__DIR__, 4) . '/src/view/frontend/layout/tweakwisejs_search.xml';
+        $moduleDir = (new ComponentRegistrar())->getPath(ComponentRegistrar::MODULE, 'Tweakwise_TweakwiseJs');
+        $layoutPath = $moduleDir . '/view/frontend/layout/tweakwisejs_search.xml';
         $layout = simplexml_load_file($layoutPath);
         if (!$layout instanceof SimpleXMLElement) {
             $this->fail('Could not parse the Tweakwise search layout XML.');
