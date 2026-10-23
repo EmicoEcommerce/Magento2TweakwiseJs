@@ -88,7 +88,7 @@ class Merchandising extends Base
     {
         return in_array(
             $this->request->getFullActionName(),
-            ['catalogsearch_results_index', 'catalogsearch_result_index'],
+            Data::SEARCH_RESULT_ACTIONS,
             true
         );
     }

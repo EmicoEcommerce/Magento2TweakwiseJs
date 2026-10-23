@@ -12,6 +12,7 @@ define([
             addToCartByItemNo: addToCartByItemNo,
             addToWishlistByItemNo: addToWishlistByItemNo
         };
+        window.dispatchEvent(new Event('twn.add-to.ready'));
 
         function addToCartByItemNo(tweakwiseProductId) {
             if (shouldMoveMessages()) {

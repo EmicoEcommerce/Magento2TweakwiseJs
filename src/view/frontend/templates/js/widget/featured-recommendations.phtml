@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 use Magento\Framework\Escaper;
 use Tweakwise\TweakwiseJs\Block\Widget\FeaturedRecommendations;
@@ -51,4 +51,4 @@ $uiLanguage = (string) $viewModel->getUiLanguage();
         });
     }, 'tweakwiseRecommendations', 'twn.recommendations.ready');
 </script>
-<?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript();} ?>
+<?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript(); } ?>

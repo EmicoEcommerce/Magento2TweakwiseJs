@@ -30,6 +30,7 @@ $storeId = $viewModel->getStoreId();
         addToCartByItemNo: addToCartByItemNo,
         addToWishlistByItemNo: addToWishlistByItemNo
     };
+    window.dispatchEvent(new Event('twn.add-to.ready'));
 
     function addToCartByItemNo(tweakwiseProductId) {
         if (shouldMoveMessages()) {
@@ -205,4 +206,4 @@ $storeId = $viewModel->getStoreId();
             timeout);
     }
 </script>
-<?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
+<?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript(); } ?>

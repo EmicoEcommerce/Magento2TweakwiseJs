@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 use Magento\Framework\View\Element\Template;
 use Tweakwise\TweakwiseJs\ViewModel\Base;
@@ -37,11 +37,11 @@ if (!$viewModel->isEnabled() || !$viewModel->getInstanceKey() || !$viewModel->is
         window.addEventListener('hashchange', () => trackSearch());
         window.addEventListener('popstate', () => trackSearch());
         window.addEventListener('twn.selection.change', event => {
-            if (typeof event.detail?.data?.tn_q === 'string') {
-                trackSearch(event.detail.data.tn_q);
-            }
+            // Tweakwise selection-change events carry the search query in detail.data.tn_q.
+            const term = event.detail?.data?.tn_q;
+            trackSearch(typeof term === 'string' ? term : undefined);
         });
         trackSearch();
     })();
 </script>
-<?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript();} ?>
+<?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript(); } ?>

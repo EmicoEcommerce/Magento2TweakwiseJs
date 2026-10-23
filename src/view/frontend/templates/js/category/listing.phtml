@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 use Magento\Catalog\Block\Category\View;
 use Magento\Framework\Escaper;
@@ -32,6 +32,6 @@ $uiLanguage = (string) $viewModel->getUiLanguage();
             on: window.tweakwiseJs.addToHandlers
     }, <?= $viewModel->getSearchType() === SearchType::INSTANT_SEARCH ? 'true' : 'false' ?>);
 </script>
-<?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript();} ?>
+<?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript(); } ?>
 
 <div id="tweakwise-output"></div>

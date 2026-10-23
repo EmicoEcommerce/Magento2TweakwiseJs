@@ -11,6 +11,7 @@ use Mockery\MockInterface;
 use Tweakwise\Test\Support\UnitTester;
 use Tweakwise\TweakwiseJs\Helper\Data;
 use Tweakwise\TweakwiseJs\Model\Config;
+use Tweakwise\TweakwiseJs\Model\Enum\SearchType;
 use Tweakwise\TweakwiseJs\ViewModel\Base;
 
 class BaseTest extends Unit
@@ -90,5 +91,21 @@ class BaseTest extends Unit
         $subject = $this->tester->getObjectManager()->create(Base::class);
 
         $this->assertFalse($subject->isEnabled());
+    }
+
+    /**
+     * @covers \Tweakwise\TweakwiseJs\ViewModel\Base::getSearchType
+     * @return void
+     * @throws \Exception
+     */
+    public function testGetSearchTypeDelegatesToConfig(): void
+    {
+        $config = Mockery::mock(Config::class);
+        $config->shouldReceive('getSearchType')->once()->andReturn(SearchType::SUGGESTIONS);
+        $this->tester->mockService(Config::class, $config);
+
+        $subject = $this->tester->getObjectManager()->create(Base::class);
+
+        $this->assertSame(SearchType::SUGGESTIONS, $subject->getSearchType());
     }
 }
