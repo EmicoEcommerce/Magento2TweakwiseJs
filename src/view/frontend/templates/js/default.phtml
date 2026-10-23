@@ -54,6 +54,7 @@ declare(strict_types = 1);
             }
 
             const {navigation, ...listerOptions} = options;
+            listerOptions.input = null;
             if (navigation) {
                 const {filters, ...navigationOptions} = navigation;
                 Object.assign(listerOptions, navigationOptions);
@@ -78,6 +79,50 @@ declare(strict_types = 1);
                 window.tweakwiseListerPage(listerOptions);
             });
         },
+        initSuggestions(options, searchUrl) {
+            // The deferred instance script merges the configured search input into the
+            // starter config, so it is only available once the suggestions script is ready.
+            this.onReady(() => {
+                const inputConfig = window['twn-starter-config'].input;
+                if (!inputConfig || (Array.isArray(inputConfig) && inputConfig.length === 0)) {
+                    return;
+                }
+
+                const search = term => {
+                    const url = new URL(searchUrl, location.href);
+                    if (this.getHistoryMode() === 'query') {
+                        url.searchParams.set('tn_q', term);
+                    } else {
+                        url.hash = 'twn|?tn_q=' + encodeURIComponent(term);
+                    }
+                    location.href = url.href;
+                };
+
+                [].concat(inputConfig).forEach(selector => {
+                    document.querySelectorAll(selector).forEach(input => {
+                        const form = input.closest('form');
+                        if (!form) {
+                            return;
+                        }
+
+                        form.removeAttribute('@submit.prevent');
+                        form.onsubmit = event => {
+                            event.preventDefault();
+                            search(input.value);
+                        };
+                    });
+                });
+
+                window.tweakwiseSuggestions({
+                    ...options,
+                    input: inputConfig,
+                    on: this.addToHandlers,
+                    searchPhrases: {
+                        handle: ({data}) => search(data.match)
+                    }
+                });
+            }, 'tweakwiseSuggestions', 'twn.suggestions.ready');
+        },
         getSearchTerm() {
             const params = new URLSearchParams(window.location.search);
             const hash = window.location.hash.split('|')[1] || '';
@@ -91,29 +136,28 @@ declare(strict_types = 1);
                     return;
                 }
 
-                callWhenReady('addToCartByItemNo', data.itemno);
+                window.tweakwiseJs.callWhenReady('addToCartByItemNo', data.itemno);
             },
             'twn.add-to-favorites': ({data}) => {
                 if (!data || !data.itemno) {
                     return;
                 }
 
-                callWhenReady('addToWishlistByItemNo', data.itemno);
+                window.tweakwiseJs.callWhenReady('addToWishlistByItemNo', data.itemno);
             }
-        }
-    };
+        },
+        callWhenReady(method, itemno) {
+            if (window.twnAddTo) {
+                window.twnAddTo[method](itemno);
+                return;
+            }
 
-    const callWhenReady = (method, itemno) => {
-        if (window.twnAddTo) {
-            window.twnAddTo[method](itemno);
-            return;
+            window.addEventListener(
+                'twn.add-to.ready',
+                () => window.twnAddTo[method](itemno),
+                {once: true}
+            );
         }
-
-        window.addEventListener(
-            'twn.add-to.ready',
-            () => window.twnAddTo[method](itemno),
-            {once: true}
-        );
     };
 </script>
 <?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript(); } ?>

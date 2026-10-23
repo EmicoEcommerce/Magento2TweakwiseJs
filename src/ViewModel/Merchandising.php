@@ -68,6 +68,7 @@ class Merchandising extends Base
 
         return $this->isCategoryPage() ||
             $this->isSearchResultsPage() ||
+            $this->isAttributeLandingPage() ||
             $searchType === SearchType::INSTANT_SEARCH->value ||
             $searchType === SearchType::SUGGESTIONS->value ||
             $this->pageState->hasWidget();
@@ -79,6 +80,14 @@ class Merchandising extends Base
     private function isCategoryPage(): bool
     {
         return $this->request->getFullActionName() === 'catalog_category_view';
+    }
+
+    /**
+     * @return bool
+     */
+    private function isAttributeLandingPage(): bool
+    {
+        return $this->request->getFullActionName() === 'emico_attributelanding_landingpage_view';
     }
 
     /**

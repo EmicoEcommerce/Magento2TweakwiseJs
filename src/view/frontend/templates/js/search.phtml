@@ -25,59 +25,18 @@ $searchType = $viewModel->getSearchType();
 
 <?php if ($searchType === SearchType::SUGGESTIONS): ?>
     <script>
-        const inputConfig = window['twn-starter-config'].input;
-        if (inputConfig && !(Array.isArray(inputConfig) && inputConfig.length === 0)) {
-            window['twn-starter-config'].input = null;
-        }
-
-        window.tweakwiseJs.onReady(() => {
-            if (!inputConfig || (Array.isArray(inputConfig) && inputConfig.length === 0)) {
-                return;
-            }
-
-            const search = term => {
-                const url = new URL('<?= $escaper->escapeJs($viewModel->getSearchUrl()) ?>', location.href);
-                if (window.tweakwiseJs.getHistoryMode() === 'query') {
-                    url.searchParams.set('tn_q', term);
-                } else {
-                    url.hash = 'twn|?tn_q=' + encodeURIComponent(term);
-                }
-                location.href = url.href;
-            };
-
-            [].concat(inputConfig).forEach(selector => {
-                document.querySelectorAll(selector).forEach(input => {
-                    const form = input.closest('form');
-                    if (!form) {
-                        return;
-                    }
-
-                    form.removeAttribute('@submit.prevent');
-                    form.onsubmit = event => {
-                        event.preventDefault();
-                        search(input.value);
-                    };
-                });
-            });
-
-            window.tweakwiseSuggestions({
-                input: inputConfig,
-                instancekey: '<?= $escaper->escapeJs($instanceKey) ?>',
-                cid: '<?= $escaper->escapeJs($cid) ?>',
-                <?php if ($language !== ''): ?>
-                    lang: '<?= $escaper->escapeJs($language) ?>',
-                <?php endif; ?>
-                <?php if ($uiLanguage !== ''): ?>
-                    ui: {
-                        lang: '<?= $escaper->escapeJs($uiLanguage) ?>'
-                    },
-                <?php endif; ?>
-                on: window.tweakwiseJs.addToHandlers,
-                searchPhrases: {
-                    handle: ({data}) => search(data.match)
-                }
-            });
-        }, 'tweakwiseSuggestions', 'twn.suggestions.ready');
+        window.tweakwiseJs.initSuggestions({
+            instancekey: '<?= $escaper->escapeJs($instanceKey) ?>',
+            cid: '<?= $escaper->escapeJs($cid) ?>',
+            <?php if ($language !== ''): ?>
+                lang: '<?= $escaper->escapeJs($language) ?>',
+            <?php endif; ?>
+            <?php if ($uiLanguage !== ''): ?>
+                ui: {
+                    lang: '<?= $escaper->escapeJs($uiLanguage) ?>'
+                },
+            <?php endif; ?>
+        }, '<?= $escaper->escapeJs($viewModel->getSearchUrl()) ?>');
     </script>
     <?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript(); } ?>
 <?php elseif ($searchType === SearchType::INSTANT_SEARCH): ?>

@@ -104,6 +104,18 @@ class MerchandisingTest extends Unit
      * @covers \Tweakwise\TweakwiseJs\ViewModel\Merchandising::shouldAddAddToCartWishlistFunctionalities
      * @return void
      */
+    public function testShouldAddAddToCartWishlistFunctionalitiesReturnsTrueOnAttributeLandingPage(): void
+    {
+        $this->request->shouldReceive('getFullActionName')->andReturn('emico_attributelanding_landingpage_view');
+        $this->config->shouldReceive('getSearchType')->andReturn(SearchType::MAGENTO_DEFAULT)->zeroOrMoreTimes();
+
+        $this->assertTrue($this->subject->shouldAddAddToCartWishlistFunctionalities());
+    }
+
+    /**
+     * @covers \Tweakwise\TweakwiseJs\ViewModel\Merchandising::shouldAddAddToCartWishlistFunctionalities
+     * @return void
+     */
     public function testShouldAddAddToCartWishlistFunctionalitiesReturnsTrueOnAnyPageWhenInstantSearchConfigured(): void
     {
         $this->request->shouldReceive('getFullActionName')->andReturn('cms_index_index');
