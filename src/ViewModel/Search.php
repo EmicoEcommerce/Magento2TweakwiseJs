@@ -11,7 +11,6 @@ use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use Tweakwise\TweakwiseJs\Helper\Data;
 use Tweakwise\TweakwiseJs\Model\Config;
-use Tweakwise\TweakwiseJs\Model\Enum\SearchType;
 
 class Search extends Base
 {
@@ -30,14 +29,6 @@ class Search extends Base
         private readonly Http $request
     ) {
         parent::__construct($config, $dataHelper);
-    }
-
-    /**
-     * @return SearchType
-     */
-    public function getSearchType(): SearchType
-    {
-        return $this->config->getSearchType();
     }
 
     /**
@@ -69,6 +60,10 @@ class Search extends Base
      */
     public function isSearchResultsPage(): bool
     {
-        return $this->request->getFullActionName() === 'catalogsearch_results_index';
+        return in_array(
+            $this->request->getFullActionName(),
+            Data::SEARCH_RESULT_ACTIONS,
+            true
+        );
     }
 }

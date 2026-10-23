@@ -29,7 +29,7 @@ class AddPageAssets implements ObserverInterface
      */
     public function execute(Observer $observer): void
     {
-        if (!$this->config->isEnabled()) {
+        if (!$this->config->isEnabled() || !$this->config->getInstanceKey()) {
             return;
         }
 
@@ -43,7 +43,6 @@ class AddPageAssets implements ObserverInterface
     {
         $instanceKey = $this->config->getInstanceKey();
 
-        $this->addLinkRemotePageAsset(sprintf('%s/js/starter.js', Data::GATEWAY_TWEAKWISE_NAVIGATOR_NET_URL));
         $this->addLinkRemotePageAsset(
             sprintf('%s/js/%s/tweakwise.js', Data::GATEWAY_TWEAKWISE_NAVIGATOR_NET_URL, $instanceKey)
         );
@@ -78,7 +77,11 @@ class AddPageAssets implements ObserverInterface
             'js',
             ['attributes' => [
                 'data-failover' => $failoverUrl,
-                'onerror' => 'window.tweakwiseFailover(this.dataset.failover)'
+                'onerror' => "if (document.readyState === 'loading') {"
+                    . "window.addEventListener('DOMContentLoaded', "
+                    . '() => window.tweakwiseFailover(this.dataset.failover), {once: true});'
+                    . '} else {window.tweakwiseFailover(this.dataset.failover);}',
+                'defer' => 'defer'
             ]]
         );
     }

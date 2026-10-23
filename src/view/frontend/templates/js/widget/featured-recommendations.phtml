@@ -1,5 +1,6 @@
 <?php
-declare(strict_types=1);
+
+declare(strict_types = 1);
 
 use Magento\Framework\Escaper;
 use Tweakwise\TweakwiseJs\Block\Widget\FeaturedRecommendations;
@@ -19,6 +20,8 @@ if (!$viewModel->isEnabled() || !$ruleId || !$instanceKey) {
 
 $containerId = $block->getContainerId();
 $title = $block->getWidgetTitle();
+$language = (string) $viewModel->getLanguage();
+$uiLanguage = (string) $viewModel->getUiLanguage();
 ?>
 <?php if ($title): ?>
     <div class="block-title title">
@@ -29,16 +32,23 @@ $title = $block->getWidgetTitle();
 <?php endif; ?>
 <div id="<?= $escaper->escapeHtmlAttr($containerId) ?>"></div>
 <script>
-    window.addEventListener("twn.recommendations.ready", function () {
-        window['twn-recommendations-config'] = window['twn-recommendations-config'] || {};
-        window['twn-recommendations-config'].on = window['twn-starter-config'].on;
+    window.tweakwiseJs.onReady(function () {
         window.tweakwiseRecommendations({
             output: "#<?= $escaper->escapeJs($containerId) ?>",
             instancekey: "<?= $escaper->escapeJs($instanceKey) ?>",
+            on: window.tweakwiseJs.addToHandlers,
+            <?php if ($language !== ''): ?>
+                lang: '<?= $escaper->escapeJs($language) ?>',
+            <?php endif; ?>
+            <?php if ($uiLanguage !== ''): ?>
+                ui: {
+                    lang: '<?= $escaper->escapeJs($uiLanguage) ?>'
+                },
+            <?php endif; ?>
             featured: {
                 id: "<?= $escaper->escapeJs($ruleId) ?>"
             }
         });
-    });
+    }, 'tweakwiseRecommendations', 'twn.recommendations.ready');
 </script>
-<?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
+<?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript(); } ?>

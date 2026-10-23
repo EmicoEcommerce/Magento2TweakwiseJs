@@ -2,38 +2,46 @@
 
 declare(strict_types = 1);
 
-use Magento\Catalog\Block\Product\View;
+use Magento\Framework\View\Element\Template;
+use Tweakwise\TweakwiseJs\ViewModel\Base;
 
-/** @var View $block */
+/** @var Template $block */
+/** @var Base $viewModel */
+$viewModel = $block->getViewModel();
+if (!$viewModel->isEnabled() || !$viewModel->getInstanceKey() || !$viewModel->isEventsEnabled()) {
+    return;
+}
 ?>
 <script>
-    pushEvent({
-        event: 'search',
-        data: {
-            profileKey: getProfileKey(),
-            searchTerm: getSearchTerm()
-        }
-    });
+    (() => {
+        let lastSearchTerm;
+        const trackSearch = (term = window.tweakwiseJs.getSearchTerm()) => {
+            if (term === lastSearchTerm) {
+                return;
+            }
 
-    /**
-     * @returns {string}
-     */
-    function getSearchTerm() {
-        const params = new URLSearchParams(window.location.search);
-        const searchTerm = params.get('q');
+            lastSearchTerm = term;
+            if (!term) {
+                return;
+            }
 
-        if (searchTerm) {
-            return searchTerm;
-        }
+            pushEvent({
+                event: 'search',
+                data: {
+                    profileKey: getProfileKey(),
+                    searchTerm: term
+                }
+            });
+        };
 
-        const hash = window.location.hash.substring(1);
-        const parts = hash.split('|');
-        if (parts.length > 1) {
-            const params = new URLSearchParams(parts[1]);
-            return params.get('tn_q');
-        }
-
-        return '';
-    }
+        window.addEventListener('hashchange', () => trackSearch());
+        window.addEventListener('popstate', () => trackSearch());
+        window.addEventListener('twn.selection.change', event => {
+            // Tweakwise selection-change events carry the search query in detail.data.tn_q.
+            const term = event.detail?.data?.tn_q;
+            trackSearch(typeof term === 'string' ? term : undefined);
+        });
+        trackSearch();
+    })();
 </script>
-<?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
+<?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript(); } ?>

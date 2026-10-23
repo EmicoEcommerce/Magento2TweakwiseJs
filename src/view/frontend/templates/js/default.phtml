@@ -1,16 +1,8 @@
 <?php
+
 declare(strict_types = 1);
 
-use Magento\Framework\View\Element\Template;
-use Tweakwise\TweakwiseJs\ViewModel\Base;
-
-/** @var Template $block */
-/** @var Base $viewModel */
-$viewModel = $block->getData('view_model');
-$language = (string) $viewModel->getLanguage();
-$uiLanguage = (string) $viewModel->getUiLanguage();
 ?>
-
 <script>
     window.tweakwiseFailover = function (src) {
         const script = document.createElement('script');
@@ -19,14 +11,153 @@ $uiLanguage = (string) $viewModel->getUiLanguage();
         document.head.appendChild(script);
     };
     window['twn-starter-config'] = window['twn-starter-config'] || {};
-    window['twn-starter-config'].on = window['twn-starter-config'].on || {};
-    <?php if ($language !== ''): ?>
-        window['twn-starter-config'].lang = '<?= $block->escapeJs($language) ?>';
-    <?php endif; ?>
-    <?php if ($uiLanguage !== ''): ?>
-        window['twn-starter-config'].ui = window['twn-starter-config'].ui || {};
-        window['twn-starter-config'].ui.lang = '<?= $block->escapeJs($uiLanguage) ?>';
-    <?php endif; ?>
-</script>
-<?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
+    window['twn-starter-config'].auto = false;
+    window.addEventListener('twn.starter.ready', function () {
+        window['twn-starter-ready'] = true;
+    });
+    window.tweakwiseJs = {
+        onDomReady(callback) {
+            if (document.readyState === 'loading') {
+                window.addEventListener('DOMContentLoaded', callback, {once: true});
+            } else {
+                callback();
+            }
+        },
+        onReady(callback, constructor = 'tweakwiseListerPage', event = 'twn.starter.ready') {
+            let initialized = false;
+            const init = () => {
+                if (initialized || document.readyState === 'loading' || typeof window[constructor] !== 'function') {
+                    return;
+                }
 
+                initialized = true;
+                window.removeEventListener(event, init);
+                callback();
+            };
+            window.addEventListener(event, init);
+            this.onDomReady(init);
+        },
+        getHistoryMode() {
+            return window['twn-starter-config'].history || 'hash';
+        },
+        initNavigation(options, instantSearch) {
+            if (instantSearch) {
+                const config = window['twn-starter-config'];
+                config.navigation = Object.assign(config.navigation || {}, options.navigation || {}, {
+                    cid: options.cid,
+                    output: options.output
+                });
+                if (options.parameters !== undefined) {
+                    config.navigation.parameters = options.parameters;
+                }
+                return;
+            }
+
+            const {navigation, ...listerOptions} = options;
+            listerOptions.input = null;
+            if (navigation) {
+                const {filters, ...navigationOptions} = navigation;
+                Object.assign(listerOptions, navigationOptions);
+            }
+
+            this.onReady(() => {
+                if (navigation?.filters !== undefined) {
+                    const historyMode = this.getHistoryMode();
+                    const params = new URLSearchParams(
+                        historyMode === 'query'
+                            ? window.location.search
+                            : window.location.hash.split('|')[1] || ''
+                    );
+                    const hasNavigationSelection = !params.get('tn_q') && Array.from(params).some(
+                        ([key, value]) => key.startsWith('tn_') && value !== ''
+                    );
+                    if (!hasNavigationSelection) {
+                        listerOptions.selection = navigation.filters;
+                    }
+                }
+
+                window.tweakwiseListerPage(listerOptions);
+            });
+        },
+        initSuggestions(options, searchUrl) {
+            // The deferred instance script merges the configured search input into the
+            // starter config, so it is only available once the suggestions script is ready.
+            this.onReady(() => {
+                const inputConfig = window['twn-starter-config'].input;
+                if (!inputConfig || (Array.isArray(inputConfig) && inputConfig.length === 0)) {
+                    return;
+                }
+
+                const search = term => {
+                    const url = new URL(searchUrl, location.href);
+                    if (this.getHistoryMode() === 'query') {
+                        url.searchParams.set('tn_q', term);
+                    } else {
+                        url.hash = 'twn|?tn_q=' + encodeURIComponent(term);
+                    }
+                    location.href = url.href;
+                };
+
+                [].concat(inputConfig).forEach(selector => {
+                    document.querySelectorAll(selector).forEach(input => {
+                        const form = input.closest('form');
+                        if (!form) {
+                            return;
+                        }
+
+                        form.removeAttribute('@submit.prevent');
+                        form.onsubmit = event => {
+                            event.preventDefault();
+                            search(input.value);
+                        };
+                    });
+                });
+
+                window.tweakwiseSuggestions({
+                    ...options,
+                    input: inputConfig,
+                    on: this.addToHandlers,
+                    searchPhrases: {
+                        handle: ({data}) => search(data.match)
+                    }
+                });
+            }, 'tweakwiseSuggestions', 'twn.suggestions.ready');
+        },
+        getSearchTerm() {
+            const params = new URLSearchParams(window.location.search);
+            const hash = window.location.hash.split('|')[1] || '';
+            const hashParams = new URLSearchParams(hash);
+
+            return hashParams.get('tn_q') || params.get('tn_q') || params.get('q') || '';
+        },
+        addToHandlers: {
+            'twn.add-to-cart': ({data}) => {
+                if (!data || !data.itemno) {
+                    return;
+                }
+
+                window.tweakwiseJs.callWhenReady('addToCartByItemNo', data.itemno);
+            },
+            'twn.add-to-favorites': ({data}) => {
+                if (!data || !data.itemno) {
+                    return;
+                }
+
+                window.tweakwiseJs.callWhenReady('addToWishlistByItemNo', data.itemno);
+            }
+        },
+        callWhenReady(method, itemno) {
+            if (window.twnAddTo) {
+                window.twnAddTo[method](itemno);
+                return;
+            }
+
+            window.addEventListener(
+                'twn.add-to.ready',
+                () => window.twnAddTo[method](itemno),
+                {once: true}
+            );
+        }
+    };
+</script>
+<?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript(); } ?>
