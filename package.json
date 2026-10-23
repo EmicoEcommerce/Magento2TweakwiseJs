@@ -1,0 +1,21 @@
+{
+    "name": "magento2-tweakwise-js-frontend-tests",
+    "private": true,
+    "description": "Jest tests for the inline storefront scripts of Tweakwise_TweakwiseJs",
+    "scripts": {
+        "test": "jest"
+    },
+    "jest": {
+        "testEnvironment": "jsdom",
+        "roots": [
+            "<rootDir>/tests/js"
+        ]
+    },
+    "engines": {
+        "node": ">=24"
+    },
+    "devDependencies": {
+        "jest": "^30.5.2",
+        "jest-environment-jsdom": "^30.5.2"
+    }
+}
