@@ -24,10 +24,12 @@ if (!$productId) {
 }
 
 $containerId = $block->getContainerId();
+$wrapperId = $containerId . '-wrapper';
 $title = $block->getWidgetTitle();
 $language = (string) $viewModel->getLanguage();
 $uiLanguage = (string) $viewModel->getUiLanguage();
 ?>
+<div id="<?= $escaper->escapeHtmlAttr($wrapperId) ?>" hidden>
 <?php if ($title): ?>
     <div class="block-title title">
         <strong id="block-<?= $escaper->escapeHtmlAttr($containerId) ?>-heading" role="heading" aria-level="2">
@@ -36,12 +38,13 @@ $uiLanguage = (string) $viewModel->getUiLanguage();
     </div>
 <?php endif; ?>
 <div id="<?= $escaper->escapeHtmlAttr($containerId) ?>"></div>
+</div>
 <script>
     window.tweakwiseJs.onReady(function () {
         window.tweakwiseRecommendations({
             output: "#<?= $escaper->escapeJs($containerId) ?>",
             instancekey: "<?= $escaper->escapeJs($instanceKey) ?>",
-            on: window.tweakwiseJs.addToHandlers,
+            on: window.tweakwiseJs.recommendationHandlers("<?= $escaper->escapeJs($wrapperId) ?>"),
             <?php if ($language !== ''): ?>
                 lang: '<?= $escaper->escapeJs($language) ?>',
             <?php endif; ?>

@@ -130,6 +130,20 @@ declare(strict_types = 1);
 
             return hashParams.get('tn_q') || params.get('tn_q') || params.get('q') || '';
         },
+        recommendationHandlers(wrapperId) {
+            const toggle = (visible) => {
+                const wrapper = document.getElementById(wrapperId);
+                if (wrapper) {
+                    wrapper.hidden = !visible;
+                }
+            };
+
+            return {
+                ...this.addToHandlers,
+                'twn.request.success': ({data}) => toggle(Array.isArray(data) && data.length > 0),
+                'twn.request.failed': () => toggle(false)
+            };
+        },
         addToHandlers: {
             'twn.add-to-cart': ({data}) => {
                 if (!data || !data.itemno) {
