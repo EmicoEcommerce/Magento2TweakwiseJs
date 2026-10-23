@@ -70,6 +70,8 @@ The widget **Tweakwise - Related Recommendations** shows the upsell and crosssel
 
 If the saved group no longer exists in Tweakwise, the group field shows `-- Select --` in the widget wizard until a new group is chosen. The widget renders nothing without a product, group key or instance key.
 
+The title and container are wrapped in an element that stays hidden until the JS Hub reports recommendations (`twn.request.success`). It is hidden again on `twn.request.failed`. A group key that no longer exists in Tweakwise, a product without matches or a failed request therefore never leaves an empty title or container on the page. The featured recommendations widget behaves the same way.
+
 Layout XML examples:
 
 ```xml
