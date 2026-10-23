@@ -5,12 +5,14 @@
             <values>
                 <value id="tweakwise" type="host">*.tweakwise.com</value>
                 <value id="tweakwisenavigator" type="host">*.tweakwisenavigator.net</value>
+                <value id="tweakwise-navigator-com" type="host">*.tweakwisenavigator.com</value>
             </values>
         </policy>
         <policy id="connect-src">
             <values>
                 <value id="tweakwise" type="host">*.tweakwise.com</value>
                 <value id="tweakwisenavigator" type="host">*.tweakwisenavigator.net</value>
+                <value id="tweakwise-navigator-com" type="host">*.tweakwisenavigator.com</value>
             </values>
         </policy>
     </policies>
