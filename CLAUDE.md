@@ -68,6 +68,10 @@ Concrete service implementations live under `Service/Event/`: `SessionService` (
 
 `Plugin/Event/AddEventDataToSection.php` is the shared base plugin class. `Plugin/Event/CustomerData/Cart/AddEventDataToCartSection` and `Plugin/Event/CustomerData/Wishlist/AddEventDataToWishlistSection` are the concrete subclasses wired in `etc/frontend/di.xml`.
 
+### Related recommendations widget
+
+`Block/Widget/RelatedRecommendations` (widget `tweakwise_related_recommendations`, template `js/widget/related-recommendations.phtml`) renders `tweakwiseRecommendations({ related: { productId, groupKey } })`; it makes no Tweakwise API calls on the storefront. The group dropdown is filled by `Model/Config/Source/RecommendationGroup` (admin only, via `RecommendationGroupRequest`). `Model/RelatedProductResolver` turns the `product_source` (`automatic` = current product on a PDP or last added cart item on `checkout_cart_index`, `custom` = SKU) into a Tweakwise key through `Helper/Data::resolveGroupedExportProductKey`, and returns null (widget renders nothing) when there is no usable product.
+
 ### API client
 
 `Model/Api/Client` uses Guzzle to call `gateway.tweakwisenavigator.net`, receives XML, and converts it to arrays via `xmlToArray`. API results for features are cached in Magento's cache under `tweakwisejs_features`. `Model/Api/RequestFactory` / `ResponseFactory` handle object construction; concrete request/response types live under `Model/Api/Request/` and `Model/Api/Response/`.
