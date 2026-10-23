@@ -1,0 +1,60 @@
+<?php
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Tweakwise\TweakwiseJs\Block\Widget\RelatedRecommendations;
+use Tweakwise\TweakwiseJs\ViewModel\Base;
+
+/** @var RelatedRecommendations $block */
+/** @var Escaper $escaper */
+$viewModel = $block->getViewModel();
+/** @var Base $viewModel */
+
+$groupKey = $block->getGroupKey();
+$instanceKey = $viewModel->getInstanceKey();
+
+if (!$viewModel->isEnabled() || !$groupKey || !$instanceKey) {
+    return;
+}
+
+$productId = $block->getProductId();
+if (!$productId) {
+    return;
+}
+
+$containerId = $block->getContainerId();
+$title = $block->getWidgetTitle();
+$language = (string) $viewModel->getLanguage();
+$uiLanguage = (string) $viewModel->getUiLanguage();
+?>
+<?php if ($title): ?>
+    <div class="block-title title">
+        <strong id="block-<?= $escaper->escapeHtmlAttr($containerId) ?>-heading" role="heading" aria-level="2">
+            <?= $escaper->escapeHtml($title) ?>
+        </strong>
+    </div>
+<?php endif; ?>
+<div id="<?= $escaper->escapeHtmlAttr($containerId) ?>"></div>
+<script>
+    window.tweakwiseJs.onReady(function () {
+        window.tweakwiseRecommendations({
+            output: "#<?= $escaper->escapeJs($containerId) ?>",
+            instancekey: "<?= $escaper->escapeJs($instanceKey) ?>",
+            on: window.tweakwiseJs.addToHandlers,
+            <?php if ($language !== ''): ?>
+                lang: '<?= $escaper->escapeJs($language) ?>',
+            <?php endif; ?>
+            <?php if ($uiLanguage !== ''): ?>
+                ui: {
+                    lang: '<?= $escaper->escapeJs($uiLanguage) ?>'
+                },
+            <?php endif; ?>
+            related: {
+                productId: "<?= $escaper->escapeJs($productId) ?>",
+                groupKey: "<?= $escaper->escapeJs($groupKey) ?>"
+            }
+        });
+    }, 'tweakwiseRecommendations', 'twn.recommendations.ready');
+</script>
+<?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript();} ?>

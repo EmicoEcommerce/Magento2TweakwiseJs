@@ -55,6 +55,54 @@ Suggestions and Enter-key submissions respect the configured query or hash histo
 
 Shared initialization helpers wait for both the DOM and the SDK constructor. This also handles a cached SDK or the `.com` failover gateway becoming ready before the page templates register their callbacks.
 
+## Related recommendations widget
+
+The widget **Tweakwise - Related Recommendations** shows the upsell and crosssell recommendations of a product, rendered client-side by the Tweakwise JS Hub. It does not make any Tweakwise API calls from PHP on the storefront. The widget can be placed on product pages, in the shopping cart and in CMS content or layout XML, in both Luma and Hyvä.
+
+| Parameter | Description |
+|-----------|-------------|
+| Title | Optional heading rendered above the recommendations. |
+| Group Key | Required. The group key, loaded from your Tweakwise instance. Selecting a template ID is not supported, the JS Hub only accepts a group key. |
+| Product Source | **Automatic** (default) or **Custom product (SKU)**. |
+| Product SKU | Only shown (and required) for **Custom product (SKU)**. |
+
+**Automatic** only works on product pages (the current product) and in the shopping cart (the last added product while it is still in the cart, otherwise the first cart item; with grouped export the chosen simple product). On any other page, such as a CMS page, nothing is rendered: choose **Custom product (SKU)** there. The shopping cart page is not full page cached, so no extra cache configuration is needed.
+
+If the saved group no longer exists in Tweakwise, the group field shows `-- Select --` in the widget wizard until a new group is chosen. The widget renders nothing without a product, group key or instance key.
+
+Layout XML examples:
+
+```xml
+<!-- catalog_product_view.xml -->
+<referenceContainer name="content">
+    <block class="Tweakwise\TweakwiseJs\Block\Widget\RelatedRecommendations" name="tweakwise.related.upsell">
+        <arguments>
+            <argument name="title" xsi:type="string" translate="true">You may also like</argument>
+            <argument name="group_key" xsi:type="string">upsell</argument>
+            <argument name="product_source" xsi:type="string">automatic</argument>
+        </arguments>
+    </block>
+</referenceContainer>
+```
+
+```xml
+<!-- checkout_cart_index.xml -->
+<referenceContainer name="content">
+    <block class="Tweakwise\TweakwiseJs\Block\Widget\RelatedRecommendations" name="tweakwise.related.crosssell">
+        <arguments>
+            <argument name="group_key" xsi:type="string">crosssell</argument>
+            <argument name="product_source" xsi:type="string">automatic</argument>
+        </arguments>
+    </block>
+</referenceContainer>
+```
+
+CMS page or block:
+
+```
+{{widget type="Tweakwise\TweakwiseJs\Block\Widget\RelatedRecommendations" group_key="upsell" product_source="custom" product_sku="24-MB01"}}
+```
+
 ## Contributors 
 If you want to create a pull request as a contributor, use the guidelines of semantic-release. semantic-release automates the whole package release workflow including: determining the next version number, generating the release notes, and publishing the package.
 By adhering to the commit message format, a release is automatically created with the commit messages as release notes. Follow the guidelines as described in: https://github.com/semantic-release/semantic-release?tab=readme-ov-file#commit-message-format. 
