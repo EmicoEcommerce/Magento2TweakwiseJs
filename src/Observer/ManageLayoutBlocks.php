@@ -11,7 +11,9 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\View\Layout;
+use Tweakwise\TweakwiseJs\Helper\Data;
 use Tweakwise\TweakwiseJs\Model\Config;
+use Tweakwise\TweakwiseJs\Model\Enum\SearchType;
 
 class ManageLayoutBlocks implements ObserverInterface
 {
@@ -39,11 +41,19 @@ class ManageLayoutBlocks implements ObserverInterface
      */
     public function execute(Observer $observer): void
     {
-        if (!$this->config->isEnabled()) {
+        if (!$this->config->isEnabled() || !$this->config->getInstanceKey()) {
             return;
         }
 
         $this->layout = $observer->getLayout();
+
+        if (
+            in_array($this->request->getFullActionName(), Data::SEARCH_RESULT_ACTIONS, true)
+            && $this->config->getSearchType() !== SearchType::MAGENTO_DEFAULT
+        ) {
+            $this->layout->getUpdate()->addHandle('tweakwisejs_search');
+            return;
+        }
 
         if (!$this->isCategoryPage() || !$this->shouldShowTweakwiseJsCategoryViewBlock()) {
             return;
