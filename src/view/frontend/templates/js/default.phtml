@@ -12,9 +12,6 @@ declare(strict_types = 1);
     };
     window['twn-starter-config'] = window['twn-starter-config'] || {};
     window['twn-starter-config'].auto = false;
-    window.addEventListener('twn.starter.ready', function () {
-        window['twn-starter-ready'] = true;
-    });
     window.tweakwiseJs = {
         onDomReady(callback) {
             if (document.readyState === 'loading') {
@@ -108,7 +105,10 @@ declare(strict_types = 1);
                         form.removeAttribute('@submit.prevent');
                         form.onsubmit = event => {
                             event.preventDefault();
-                            search(input.value);
+                            const term = input.value.trim();
+                            if (term !== '') {
+                                search(term);
+                            }
                         };
                     });
                 });
@@ -152,11 +152,22 @@ declare(strict_types = 1);
                 return;
             }
 
-            window.addEventListener(
-                'twn.add-to.ready',
-                () => window.twnAddTo[method](itemno),
-                {once: true}
-            );
+            // Set by the add-to template only on pages that load the add-to module.
+            if (!window.twnAddToExpected) {
+                console.warn('Tweakwise add-to-cart/wishlist script is not loaded on this page.');
+                return;
+            }
+
+            if (!this.pendingAddTo) {
+                this.pendingAddTo = [];
+                window.addEventListener('twn.add-to.ready', () => {
+                    const pending = this.pendingAddTo;
+                    this.pendingAddTo = null;
+                    pending.forEach(([pendingMethod, pendingItemNo]) => window.twnAddTo[pendingMethod](pendingItemNo));
+                }, {once: true});
+            }
+
+            this.pendingAddTo.push([method, itemno]);
         }
     };
 </script>

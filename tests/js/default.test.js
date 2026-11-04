@@ -37,6 +37,16 @@ describe('default.phtml', () => {
         delete window.tweakwiseSuggestions;
         delete window.tweakwiseListerPage;
         delete window.twnAddTo;
+        delete window.twnAddToExpected;
+        delete window['twn-starter-ready'];
+        jest.restoreAllMocks();
+        window.location.hash = '';
+    });
+
+    it('does not keep an unused starter-ready flag', () => {
+        window.dispatchEvent(new Event('twn.starter.ready'));
+
+        expect(window['twn-starter-ready']).toBeUndefined();
     });
 
     describe('initSuggestions', () => {
@@ -63,6 +73,33 @@ describe('default.phtml', () => {
 
             const form = document.getElementById('search_mini_form');
             expect(form.onsubmit).toEqual(expect.any(Function));
+        });
+
+        it.each(['', '   '])('ignores an empty search submission (%j)', value => {
+            window.tweakwiseJs.initSuggestions({}, 'http://localhost/');
+            runInstanceScript({input: ['#search']});
+            window.tweakwiseSuggestions = jest.fn();
+            window.dispatchEvent(new Event('twn.suggestions.ready'));
+
+            const form = document.getElementById('search_mini_form');
+            document.getElementById('search').value = value;
+            const event = new Event('submit', {cancelable: true});
+            form.dispatchEvent(event);
+
+            expect(event.defaultPrevented).toBe(true);
+            expect(window.location.hash).toBe('');
+        });
+
+        it('submits the trimmed search term', () => {
+            window.tweakwiseJs.initSuggestions({}, 'http://localhost/');
+            runInstanceScript({input: ['#search']});
+            window.tweakwiseSuggestions = jest.fn();
+            window.dispatchEvent(new Event('twn.suggestions.ready'));
+
+            document.getElementById('search').value = '  yoga mat ';
+            document.getElementById('search_mini_form').dispatchEvent(new Event('submit', {cancelable: true}));
+
+            expect(window.location.hash).toBe('#twn|?tn_q=yoga%20mat');
         });
 
         it('does nothing when no search input is configured', () => {
@@ -92,6 +129,7 @@ describe('default.phtml', () => {
 
     describe('addToHandlers', () => {
         it('queues add-to-cart until the add-to script is ready', () => {
+            window.twnAddToExpected = true;
             window.tweakwiseJs.addToHandlers['twn.add-to-cart']({data: {itemno: 'SKU-1'}});
 
             window.twnAddTo = {addToCartByItemNo: jest.fn()};
@@ -105,6 +143,29 @@ describe('default.phtml', () => {
             window.tweakwiseJs.addToHandlers['twn.add-to-favorites']({data: {itemno: 'SKU-2'}});
 
             expect(window.twnAddTo.addToWishlistByItemNo).toHaveBeenCalledWith('SKU-2');
+        });
+
+        it('replays every queued click through a single ready listener', () => {
+            window.twnAddToExpected = true;
+            window.tweakwiseJs.addToHandlers['twn.add-to-cart']({data: {itemno: 'SKU-1'}});
+            window.tweakwiseJs.addToHandlers['twn.add-to-favorites']({data: {itemno: 'SKU-2'}});
+
+            expect(listeners.filter(([type]) => type === 'twn.add-to.ready')).toHaveLength(1);
+
+            window.twnAddTo = {addToCartByItemNo: jest.fn(), addToWishlistByItemNo: jest.fn()};
+            window.dispatchEvent(new Event('twn.add-to.ready'));
+
+            expect(window.twnAddTo.addToCartByItemNo).toHaveBeenCalledWith('SKU-1');
+            expect(window.twnAddTo.addToWishlistByItemNo).toHaveBeenCalledWith('SKU-2');
+        });
+
+        it('warns instead of waiting when the add-to script is not loaded on the page', () => {
+            const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+            window.tweakwiseJs.addToHandlers['twn.add-to-cart']({data: {itemno: 'SKU-1'}});
+            window.tweakwiseJs.addToHandlers['twn.add-to-cart']({data: {itemno: 'SKU-1'}});
+
+            expect(warn).toHaveBeenCalledTimes(2);
+            expect(listeners.filter(([type]) => type === 'twn.add-to.ready')).toHaveLength(0);
         });
     });
 });
