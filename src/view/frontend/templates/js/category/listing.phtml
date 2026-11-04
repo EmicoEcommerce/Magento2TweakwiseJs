@@ -1,17 +1,37 @@
 <?php
+
 declare(strict_types = 1);
 
 use Magento\Catalog\Block\Category\View;
+use Magento\Framework\Escaper;
+use Tweakwise\TweakwiseJs\Model\Enum\SearchType;
 use Tweakwise\TweakwiseJs\ViewModel\Merchandising;
 
 /** @var View $block */
+/** @var Escaper $escaper */
 
 /** @var Merchandising $viewModel */
 $viewModel = $block->getViewModel();
+$cid = $viewModel->getTweakwiseId((int) $block->getCurrentCategory()->getId());
+$language = (string) $viewModel->getLanguage();
+$uiLanguage = (string) $viewModel->getUiLanguage();
 ?>
 
 <script>
-    window['twn-starter-config'].navigation.cid = <?= $viewModel->getTweakwiseId((int)$block->getCurrentCategory()->getId());?>;
+    window.tweakwiseJs.initNavigation({
+            cid: '<?= $escaper->escapeJs((string) $cid) ?>',
+            <?php if ($language !== ''): ?>
+                lang: '<?= $escaper->escapeJs($language) ?>',
+            <?php endif; ?>
+            <?php if ($uiLanguage !== ''): ?>
+                ui: {
+                    lang: '<?= $escaper->escapeJs($uiLanguage) ?>'
+                },
+            <?php endif; ?>
+            output: '#tweakwise-output',
+            on: window.tweakwiseJs.addToHandlers
+    }, <?= $viewModel->getSearchType() === SearchType::INSTANT_SEARCH ? 'true' : 'false' ?>);
 </script>
-<?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
+<?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript(); } ?>
 
+<div id="tweakwise-output"></div>

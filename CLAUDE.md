@@ -26,6 +26,10 @@ vendor/bin/phpmd src/ text ruleset.xml
 vendor/bin/codecept run
 vendor/bin/codecept run Unit
 vendor/bin/codecept run Functional
+
+# Run frontend tests for inline storefront scripts (Jest, Node 24)
+npm ci
+npm test
 ```
 
 ## Commit message format
