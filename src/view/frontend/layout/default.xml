@@ -8,9 +8,6 @@
                    name="tweakwise-js-default"
                    template="Tweakwise_TweakwiseJs::js/default.phtml"
                    ifconfig="tweakwise/tweakwisejs/general/enabled">
-                <arguments>
-                    <argument name="view_model" xsi:type="object">Tweakwise\TweakwiseJs\ViewModel\Base</argument>
-                </arguments>
             </block>
 
             <!-- Default events JavaScript block -->
