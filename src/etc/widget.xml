@@ -16,4 +16,32 @@
             </parameter>
         </parameters>
     </widget>
+    <widget id="tweakwise_related_recommendations"
+            class="Tweakwise\TweakwiseJs\Block\Widget\RelatedRecommendations"
+            is_email_compatible="false">
+        <label translate="true">Tweakwise - Related Recommendations</label>
+        <description translate="true">Client-side Tweakwise upsell and crosssell recommendations for a product, rendered via the JS Hub</description>
+        <parameters>
+            <parameter name="title" xsi:type="text" visible="true" sort_order="10">
+                <label translate="true">Title</label>
+                <description translate="true">Optional heading rendered above the recommendations</description>
+            </parameter>
+            <parameter name="group_key" xsi:type="select" visible="true" required="true" sort_order="20"
+                       source_model="Tweakwise\TweakwiseJs\Model\Config\Source\RecommendationGroup">
+                <label translate="true">Group Key</label>
+                <description translate="true">Note: a previously saved group may no longer exist in Tweakwise. In that case this field shows "-- Select --" and nothing is rendered on the storefront until a new group is chosen.</description>
+            </parameter>
+            <parameter name="product_source" xsi:type="select" visible="true" required="true" sort_order="30"
+                       source_model="Tweakwise\TweakwiseJs\Model\Config\Source\ProductSource">
+                <label translate="true">Product Source</label>
+                <description translate="true">Automatic only works on product pages and in the shopping cart. On other pages, such as CMS pages, choose a custom product SKU.</description>
+            </parameter>
+            <parameter name="product_sku" xsi:type="text" visible="true" required="true" sort_order="40">
+                <label translate="true">Product SKU</label>
+                <depends>
+                    <parameter name="product_source" value="custom"/>
+                </depends>
+            </parameter>
+        </parameters>
+    </widget>
 </widgets>
