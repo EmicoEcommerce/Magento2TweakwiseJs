@@ -26,6 +26,10 @@ vendor/bin/phpmd src/ text ruleset.xml
 vendor/bin/codecept run
 vendor/bin/codecept run Unit
 vendor/bin/codecept run Functional
+
+# Run frontend tests for inline storefront scripts (Jest, Node 24)
+npm ci
+npm test
 ```
 
 ## Commit message format
@@ -63,6 +67,10 @@ Cart and wishlist events are captured server-side via Magento observers (`Observ
 Concrete service implementations live under `Service/Event/`: `SessionService` (session storage) and `PriceFormatService` (price formatting for event payloads).
 
 `Plugin/Event/AddEventDataToSection.php` is the shared base plugin class. `Plugin/Event/CustomerData/Cart/AddEventDataToCartSection` and `Plugin/Event/CustomerData/Wishlist/AddEventDataToWishlistSection` are the concrete subclasses wired in `etc/frontend/di.xml`.
+
+### Related recommendations widget
+
+`Block/Widget/RelatedRecommendations` (widget `tweakwise_related_recommendations`, template `js/widget/related-recommendations.phtml`) renders `tweakwiseRecommendations({ related: { productId, groupKey } })`; it makes no Tweakwise API calls on the storefront. The group dropdown is filled by `Model/Config/Source/RecommendationGroup` (admin only, via `RecommendationGroupRequest`). `Model/RelatedProductResolver` turns the `product_source` (`automatic` = current product on a PDP or last added cart item on `checkout_cart_index`, `custom` = SKU) into a Tweakwise key through `Helper/Data::resolveGroupedExportProductKey`, and returns null (widget renders nothing) when there is no usable product.
 
 ### API client
 

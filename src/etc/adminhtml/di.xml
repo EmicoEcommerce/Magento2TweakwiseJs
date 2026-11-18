@@ -56,6 +56,14 @@
             </argument>
         </arguments>
     </virtualType>
+    <virtualType name="Tweakwise\TweakwiseJs\Model\Api\RequestFactory\Catalog\RecommendationGroupRequest"
+                 type="Tweakwise\TweakwiseJs\Model\Api\RequestFactory">
+        <arguments>
+            <argument name="type" xsi:type="string">
+                Tweakwise\TweakwiseJs\Model\Api\Request\Catalog\RecommendationGroupRequest
+            </argument>
+        </arguments>
+    </virtualType>
 
     <virtualType name="Tweakwise\TweakwiseJs\Model\Config\Source\FilterTemplate"
                  type="Tweakwise\TweakwiseJs\Model\Config\Source\Template">
@@ -120,6 +128,13 @@
         <arguments>
             <argument name="requestFactory" xsi:type="object">
                 Tweakwise\TweakwiseJs\Model\Api\RequestFactory\Catalog\FeaturedRecommendationRequest
+            </argument>
+        </arguments>
+    </type>
+    <type name="Tweakwise\TweakwiseJs\Model\Config\Source\RecommendationGroup">
+        <arguments>
+            <argument name="requestFactory" xsi:type="object">
+                Tweakwise\TweakwiseJs\Model\Api\RequestFactory\Catalog\RecommendationGroupRequest
             </argument>
         </arguments>
     </type>

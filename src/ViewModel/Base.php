@@ -8,6 +8,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Tweakwise\TweakwiseJs\Helper\Data;
 use Tweakwise\TweakwiseJs\Model\Config;
+use Tweakwise\TweakwiseJs\Model\Enum\SearchType;
 
 class Base implements ArgumentInterface
 {
@@ -70,6 +71,14 @@ class Base implements ArgumentInterface
     public function isEnabled(): bool
     {
         return $this->config->isEnabled();
+    }
+
+    /**
+     * @return SearchType
+     */
+    public function getSearchType(): SearchType
+    {
+        return $this->config->getSearchType();
     }
 
     /**
