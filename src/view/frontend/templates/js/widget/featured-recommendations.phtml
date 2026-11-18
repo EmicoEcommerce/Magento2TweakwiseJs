@@ -1,5 +1,6 @@
 <?php
-declare(strict_types=1);
+
+declare(strict_types = 1);
 
 use Magento\Framework\Escaper;
 use Tweakwise\TweakwiseJs\Block\Widget\FeaturedRecommendations;
@@ -18,8 +19,12 @@ if (!$viewModel->isEnabled() || !$ruleId || !$instanceKey) {
 }
 
 $containerId = $block->getContainerId();
+$wrapperId = $containerId . '-wrapper';
 $title = $block->getWidgetTitle();
+$language = (string) $viewModel->getLanguage();
+$uiLanguage = (string) $viewModel->getUiLanguage();
 ?>
+<div id="<?= $escaper->escapeHtmlAttr($wrapperId) ?>" hidden>
 <?php if ($title): ?>
     <div class="block-title title">
         <strong id="block-<?= $escaper->escapeHtmlAttr($containerId) ?>-heading" role="heading" aria-level="2">
@@ -28,17 +33,25 @@ $title = $block->getWidgetTitle();
     </div>
 <?php endif; ?>
 <div id="<?= $escaper->escapeHtmlAttr($containerId) ?>"></div>
+</div>
 <script>
-    window.addEventListener("twn.recommendations.ready", function () {
-        window['twn-recommendations-config'] = window['twn-recommendations-config'] || {};
-        window['twn-recommendations-config'].on = window['twn-starter-config'].on;
+    window.tweakwiseJs.onReady(function () {
         window.tweakwiseRecommendations({
             output: "#<?= $escaper->escapeJs($containerId) ?>",
             instancekey: "<?= $escaper->escapeJs($instanceKey) ?>",
+            on: window.tweakwiseJs.recommendationHandlers("<?= $escaper->escapeJs($wrapperId) ?>"),
+            <?php if ($language !== ''): ?>
+                lang: '<?= $escaper->escapeJs($language) ?>',
+            <?php endif; ?>
+            <?php if ($uiLanguage !== ''): ?>
+                ui: {
+                    lang: '<?= $escaper->escapeJs($uiLanguage) ?>'
+                },
+            <?php endif; ?>
             featured: {
                 id: "<?= $escaper->escapeJs($ruleId) ?>"
             }
         });
-    });
+    }, 'tweakwiseRecommendations', 'twn.recommendations.ready');
 </script>
-<?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
+<?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript(); } ?>

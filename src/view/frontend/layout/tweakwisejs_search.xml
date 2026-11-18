@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="columns">
+            <!-- Keep columns rendered when the native search containers are removed. -->
+            <block class="Magento\Framework\View\Element\Text" name="tweakwise-js-search-columns">
+                <arguments>
+                    <argument name="text" xsi:type="string"><![CDATA[&nbsp;]]></argument>
+                </arguments>
+            </block>
+            <block class="Magento\Framework\View\Element\Template" name="tweakwise-js-search-lister-init"
+                   template="Tweakwise_TweakwiseJs::js/search/lister-init.phtml">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Tweakwise\TweakwiseJs\ViewModel\Search</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+        <move element="tweakwise-js-event-search" destination="columns"/>
+        <move element="customer.customer.data" destination="columns"/>
+        <move element="customer.section.config" destination="columns"/>
+        <referenceContainer name="main" remove="true"/>
+        <referenceContainer name="div.sidebar.main" remove="true"/>
+        <referenceContainer name="div.sidebar.additional" remove="true"/>
+    </body>
+</page>

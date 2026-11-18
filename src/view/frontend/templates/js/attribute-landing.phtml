@@ -1,27 +1,51 @@
 <?php
+
 declare(strict_types = 1);
 
 use Emico\AttributeLanding\Block\LandingPage\Content;
+use Magento\Framework\Escaper;
+use Tweakwise\TweakwiseJs\Model\Enum\SearchType;
 use Tweakwise\TweakwiseJs\ViewModel\AttributeLanding;
 
 /** @var Content $block */
+/** @var Escaper $escaper */
 
 /** @var AttributeLanding $viewModel */
 $viewModel = $block->getViewModel();
 $landingPage = $block->getLandingPage();
+$language = (string) $viewModel->getLanguage();
+$uiLanguage = (string) $viewModel->getUiLanguage();
+$cid = (int) $viewModel->getTweakwiseId((int) $landingPage->getCategoryId());
+$hideSelectedFilters = (bool) $landingPage->getHideSelectedFilters();
+$filterAttributes = $landingPage->getFilterAttributes();
 ?>
 
 <script>
-    window['twn-starter-config'].navigation.cid = <?= $viewModel->getTweakwiseId((int)$landingPage->getCategoryId());?>;
-
-    <?php if($landingPage->getHideSelectedFilters()) : ?>
-        window['twn-starter-config'].parameters = '<?= $viewModel->getParameters($landingPage->getFilterAttributes());?>';
-    <?php else : ?>
-        window['twn-starter-config'].navigation.filters = <?= /* @noEscape */ $viewModel->getFilters($landingPage->getFilterAttributes());?>;
-    <?php endif; ?>
-
-    window['twn-starter-config'].navigation.filterTemplateId = <?= (int)$landingPage->getTweakwiseFilterTemplate()?>;
-    window['twn-starter-config'].navigation.sortingTemplateId = <?= (int)$landingPage->getTweakwiseSortTemplate()?>;
-    window['twn-starter-config'].navigation.builderTemplateId = <?= (int)$landingPage->getTweakwiseBuilderTemplate()?>;
+    window.tweakwiseJs.initNavigation({
+            cid: '<?= $escaper->escapeJs((string) $cid) ?>',
+            <?php if ($language !== ''): ?>
+                lang: '<?= $escaper->escapeJs($language) ?>',
+            <?php endif; ?>
+            <?php if ($uiLanguage !== ''): ?>
+                ui: {
+                    lang: '<?= $escaper->escapeJs($uiLanguage) ?>'
+                },
+            <?php endif; ?>
+            <?php if ($hideSelectedFilters): ?>
+                parameters: '<?= $escaper->escapeJs($viewModel->getParameters($filterAttributes)) ?>',
+            <?php endif; ?>
+            navigation: {
+                <?php if (!$hideSelectedFilters): ?>
+                    filters: <?= /* @noEscape */ $viewModel->getFilters($filterAttributes) ?>,
+                <?php endif; ?>
+                filterTemplateId: <?= (int) $landingPage->getTweakwiseFilterTemplate() ?>,
+                sortingTemplateId: <?= (int) $landingPage->getTweakwiseSortTemplate() ?>,
+                builderTemplateId: <?= (int) $landingPage->getTweakwiseBuilderTemplate() ?>
+            },
+            output: '#tweakwise-output',
+            on: window.tweakwiseJs.addToHandlers
+    }, <?= $viewModel->getSearchType() === SearchType::INSTANT_SEARCH ? 'true' : 'false' ?>);
 </script>
-<?php if (isset($hyvaCsp)) $hyvaCsp->registerInlineScript(); ?>
+<?php if (isset($hyvaCsp)) { $hyvaCsp->registerInlineScript(); } ?>
+
+<div id="tweakwise-output"></div>
